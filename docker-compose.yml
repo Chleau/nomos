@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: https://mzjljxziwalizlavnvza.supabase.co
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16amxqeHppd2FsaXpsYXZudnphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0OTY3MzcsImV4cCI6MjA3MzA3MjczN30.XrDAe-RvN_541DCOiEkHA9PtPUDIFNOHRoFzVIZ_A10
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=https://mzjljxziwalizlavnvza.supabase.co
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16amxqeHppd2FsaXpsYXZudnphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0OTY3MzcsImV4cCI6MjA3MzA3MjczN30.XrDAe-RvN_541DCOiEkHA9PtPUDIFNOHRoFzVIZ_A10
+    restart: unless-stopped
+
+  # Vous pouvez ajouter d'autres services ici si nécessaire
+  # Par exemple, un service de cache Redis, etc.
