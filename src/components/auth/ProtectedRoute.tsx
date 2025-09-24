@@ -1,3 +1,5 @@
+// Auth temporairement désactivée. Pour réactiver, décommentez le code ci-dessous.
+/*
 'use client'
 
 import { useRouter } from 'next/navigation';

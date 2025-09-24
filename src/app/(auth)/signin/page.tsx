@@ -1,3 +1,5 @@
+// Auth temporairement désactivée. Pour réactiver, décommentez le code ci-dessous.
+/*
 import { SignInForm } from '@/components/auth/SignInForm'
 
 export default function SignInPage() {
@@ -18,3 +20,4 @@ export default function SignInPage() {
     </div>
   )
 }
+*/
