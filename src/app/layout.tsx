@@ -15,12 +15,20 @@ export default function RootLayout({
   
 }) {
   return (
-    <html lang="fr">
-      <body className={inter.className}>
+    <html lang="fr" style={{ margin: 0, padding: 0, height: '100%' }}>
+      <body className={inter.className} style={{ margin: 0, padding: 0, height: '100%', boxSizing: 'border-box' }}>
         <QueryClientProvider client={queryClient}>
-          <div style={{ display: 'flex', minHeight: '100vh' }}>
+          <div style={{ display: 'flex', minHeight: '100vh', width: '100%', margin: 0, padding: 0 }}>
             <SidebarMenu />
-            <main style={{ flex: 1, backgroundColor: '#f9fafb', padding: '24px', marginLeft: '256px' }}>{children}</main>
+            <main style={{ 
+              flex: 1, 
+              backgroundColor: '#f9fafb', 
+              padding: '24px',
+              minWidth: 0,
+              overflow: 'auto'
+            }}>
+              {children}
+            </main>
           </div>
         </QueryClientProvider>
       </body>
