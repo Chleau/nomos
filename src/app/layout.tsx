@@ -4,6 +4,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Inter } from 'next/font/google';
 import SidebarMenu from '../components/SidebarMenu';
+import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 const queryClient = new QueryClient();
