@@ -16,4 +16,9 @@ export interface Signalement {
   valide?: boolean
   valide_par?: number
   date_validation?: string
+  url?: string
+  nom?: string
+  prenom?: string
+  telephone?: string
+  email?: string
 }
