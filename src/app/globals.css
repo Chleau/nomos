@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Reset CSS */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

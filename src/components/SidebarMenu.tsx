@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 const menuItems = [
   { label: 'Accueil', href: '/', icon: '🏠' },
@@ -9,18 +10,33 @@ const menuItems = [
 
 export default function SidebarMenu() {
   const pathname = usePathname();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
   
   const sidebarStyle = {
     display: 'flex',
     flexDirection: 'column' as const,
     height: '100vh',
-    width: '25vw',
+    width: isMobile ? '100vw' : '280px', // Pleine largeur sur mobile
+    minWidth: isMobile ? '100vw' : '280px',
     backgroundColor: '#1e293b',
     color: 'white',
     padding: '16px',
-    position: 'fixed' as const,
-    left: 0,
-    top: 0
+    position: isMobile ? 'fixed' as const : 'sticky' as const,
+    top: 0,
+    left: isMobile ? 0 : 'auto',
+    zIndex: isMobile ? 1000 : 'auto',
+    flexShrink: 0
   };
 
   return (
