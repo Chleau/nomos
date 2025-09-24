@@ -10,5 +10,14 @@ export const signalementsService = {
       .single()
     return { data, error }
   },
+  async updateUrl(signalementId: number, url: string) {
+    const { data, error } = await supabase
+      .from('signalements')
+      .update({ url })
+      .eq('id', signalementId)
+      .select()
+      .single();
+    return { data, error };
+  },
   // Tu pourras ajouter getAll, update, delete plus tard
 }
