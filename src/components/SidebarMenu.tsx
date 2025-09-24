@@ -1,35 +1,35 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-
+ 
 const menuItems = [
   { label: 'Accueil', href: '/', icon: '🏠' },
   { label: 'Carte des incidents', href: '/carte-incidents', icon: '🗺️' },
   { label: 'Dernières lois en vigueur', href: '/lois', icon: '⚖️' },
 ];
-
+ 
 const mobileMenuItems = [
   { label: 'Accueil', href: '/', icon: '🏠' },
   { label: 'Carte incidents', href: '/carte-incidents', icon: '🗺️' },
   { label: 'Lois', href: '/lois', icon: '⚖️' },
   { label: 'Menu', href: '/mon-compte', icon: '☰' },
 ];
-
+ 
 export default function SidebarMenu() {
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
-
+ 
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth <= 1024); // Tablette et mobile
     };
-
+ 
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
-
+ 
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
-  
+ 
   // Style pour la sidebar desktop (gauche)
   const sidebarStyle = {
     display: 'flex',
@@ -45,7 +45,7 @@ export default function SidebarMenu() {
     flexShrink: 0,
     boxSizing: 'border-box' as const
   };
-
+ 
   // Style pour la bottom bar mobile
   const bottomBarStyle = {
     display: 'flex',
@@ -62,13 +62,13 @@ export default function SidebarMenu() {
     zIndex: 1000,
     boxSizing: 'border-box' as const
   };
-
+ 
   // Rendu conditionnel selon la taille d'écran
   if (isMobile) {
     return (
       <>
         {/* Bouton flottant "Signaler un incident" */}
-        <Link 
+        <Link
           href="/signaler-incident"
           style={{
             position: 'fixed' as const,
@@ -93,12 +93,12 @@ export default function SidebarMenu() {
         >
           ⚠️
         </Link>
-        
+       
         {/* Bottom Bar Navigation */}
         <nav style={bottomBarStyle}>
           {mobileMenuItems.map(item => (
-            <Link 
-              key={item.href} 
+            <Link
+              key={item.href}
               href={item.href}
               style={{
                 display: 'flex',
@@ -123,9 +123,9 @@ export default function SidebarMenu() {
       </>
     );
   }
-
+ 
   // Sidebar desktop (code existant)
-
+ 
   return (
     <aside style={sidebarStyle}>
       {/* Profil */}
@@ -162,7 +162,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === item.href ? 'white' : 'transparent',
                 color: pathname === item.href ? '#1e293b' : 'white'
-              }}> 
+              }}>
                 <span style={{ marginRight: '12px', fontSize: '18px' }}>{item.icon}</span>
                 {item.label}
               </Link>
@@ -218,3 +218,5 @@ export default function SidebarMenu() {
     </aside>
   );
 }
+ 
+ 
