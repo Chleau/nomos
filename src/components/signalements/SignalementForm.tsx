@@ -83,11 +83,25 @@ export default function SignalementForm() {
     <form onSubmit={handleSubmit} className="">
       <h1 className="text-6xl font-bold mb-8 text-black text-center">Signaler un incident en ligne</h1>
       {/* Stepper header */}
-      <div className="flex justify-between items-center mb-8">
-        {[1,2,3,4].map((s) => (
-          <div key={s} className={`flex-1 text-center ${step === s ? 'font-bold text-black' : 'text-gray-400'}`}>{
-            s === 1 ? "L'incident" : s === 2 ? "Localisation" : s === 3 ? "Vos coordonnées" : "Vérification"
-          }</div>
+      <div className="flex items-center justify-center mb-8 px-4">
+        {[1, 2, 3, 4].map((s, index) => (
+          <div key={s} className="flex items-center">
+            {/* Cercle de l'étape */}
+            <div className="flex flex-col items-center">
+              <div className={`w-2 h-2 rounded-xl border-2 mb-1 ${
+                step >= s 
+                  ? 'bg-black border-black-600' 
+                  : 'bg-white border-gray-300'
+              }`}></div>
+              <span className={`text-[12px] ${step >= s ? 'font-bold text-black-600' : 'text-gray-400'}`}>
+                {s === 1 ? "L'incident" : s === 2 ? "Localisation" : s === 3 ? "Vos coordonnées" : "Vérification"}
+              </span>
+            </div>
+            {/* Ligne de connexion (sauf pour le dernier) */}
+            {index < 3 && (
+              <div className="w-8 h-0.5 bg-gray-300 mx-1 mt-[-20px]"></div>
+            )}
+          </div>
         ))}
       </div>
 
