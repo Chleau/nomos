@@ -14,6 +14,6 @@ export async function uploadSignalementPhoto(file: File, signalementId: number) 
 }
 
 export function getPublicUrlFromPath(path: string) {
-  const { publicUrl } = supabase.storage.from('signalements').getPublicUrl(path);
-  return publicUrl;
+  const { data } = supabase.storage.from('signalements').getPublicUrl(path);
+  return data.publicUrl;
 }

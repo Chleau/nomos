@@ -19,5 +19,57 @@ export const signalementsService = {
       .single();
     return { data, error };
   },
-  // Tu pourras ajouter getAll, update, delete plus tard
+  async getAll(limit?: number) {
+    let query = supabase
+      .from('signalements')
+      .select(`
+        *,
+        photos_signalement (
+          id,
+          url
+        )
+      `)
+      .order('date_signalement', { ascending: false })
+    
+    if (limit) {
+      query = query.limit(limit)
+    }
+    
+    const { data, error } = await query
+    return { data, error }
+  },
+  async getByHabitant(habitantId: number, limit?: number) {
+    let query = supabase
+      .from('signalements')
+      .select(`
+        *,
+        photos_signalement (
+          id,
+          url
+        )
+      `)
+      .eq('habitant_id', habitantId)
+      .order('date_signalement', { ascending: false })
+    
+    if (limit) {
+      query = query.limit(limit)
+    }
+    
+    const { data, error } = await query
+    return { data, error }
+  },
+  async getById(id: number) {
+    const { data, error } = await supabase
+      .from('signalements')
+      .select(`
+        *,
+        photos_signalement (
+          id,
+          url
+        )
+      `)
+      .eq('id', id)
+      .single()
+    return { data, error }
+  }
 }
