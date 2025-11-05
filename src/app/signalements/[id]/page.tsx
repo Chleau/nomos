@@ -3,6 +3,17 @@
 import { useParams, useRouter } from 'next/navigation'
 import { useSignalement } from '@/lib/hooks/useSignalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
+import dynamic from 'next/dynamic'
+
+// Charger la carte dynamiquement côté client uniquement
+const IncidentMap = dynamic(() => import('@/components/map/IncidentMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+      <p className="text-gray-500">Chargement de la carte...</p>
+    </div>
+  )
+})
 
 export default function SignalementDetailPage() {
   const params = useParams()
@@ -123,36 +134,58 @@ export default function SignalementDetailPage() {
                 {signalement.description || 'Aucune description'}
               </p>
 
-              
             </div>
           </div>
-
+          
           {/* Card Lieu de l'incident */}
           <div>
             <h2 className="text-lg font-semibold mb-3">Lieu de l'incident</h2>
             <div className="bg-white rounded-2xl shadow-md p-5 h-[400px] relative">
-              {/* Placeholder pour la carte */}
-              <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mx-auto mb-2 text-gray-400">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                  <p className="text-sm text-gray-500">Carte interactive</p>
+              {/* Carte interactive */}
+              {signalement.latitude && signalement.longitude ? (
+                <div className="w-full h-full">
+                  <IncidentMap
+                    markers={[{
+                      id: signalement.id.toString(),
+                      titre: signalement.titre,
+                      description: signalement.description,
+                      latitude: signalement.latitude,
+                      longitude: signalement.longitude,
+                      imageUrl: photos.length > 0 ? getPublicUrlFromPath(photos[0].url) : null,
+                      statut: signalement.statut
+                    }]}
+                    center={[signalement.latitude, signalement.longitude]}
+                    zoom={15}
+                  />
                 </div>
-              </div>
+              ) : (
+                <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mx-auto mb-2 text-gray-400">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <p className="text-sm text-gray-500">Pas de coordonnées disponibles</p>
+                  </div>
+                </div>
+              )}
               
               {/* Coordonnées en bas */}
               {signalement.latitude && signalement.longitude && (
-                <div className="absolute bottom-5 left-5 right-5 bg-white p-3 rounded-lg shadow-md flex items-center justify-between">
+                <div className="absolute bottom-5 left-5 right-5 bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-md flex items-center justify-between z-10">
                   <div className="flex items-center gap-2">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                       <circle cx="12" cy="10" r="3"></circle>
                     </svg>
-                    <span className="text-sm">{signalement.adresse || `${signalement.latitude}, ${signalement.longitude}`}</span>
+                    <span className="text-sm">{signalement.adresse || `${signalement.latitude.toFixed(6)}, ${signalement.longitude.toFixed(6)}`}</span>
                   </div>
-                  <button className="p-1">
+                  <button 
+                    className="p-1 hover:bg-gray-100 rounded"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${signalement.latitude}, ${signalement.longitude}`)
+                    }}
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>

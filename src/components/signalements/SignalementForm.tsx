@@ -74,6 +74,7 @@ export default function SignalementForm() {
       type_id: typeId === '' ? undefined : typeId,
       latitude: latitude === '' ? undefined : latitude,
       longitude: longitude === '' ? undefined : longitude,
+      statut: 'Signalé',      
       nom,
       prenom,
       telephone,
