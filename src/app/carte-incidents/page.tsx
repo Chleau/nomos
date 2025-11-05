@@ -1,3 +1,5 @@
+'use client';
+
 export default function CarteIncidentsPage() {
   return (
     <div style={{ padding: '20px' }}>
@@ -16,6 +18,7 @@ export default function CarteIncidentsPage() {
       }}>
         Cette page affichera une carte interactive des incidents signalés dans votre commune.
       </p>
+      
     </div>
   );
 }
