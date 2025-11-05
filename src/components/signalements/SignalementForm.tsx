@@ -29,6 +29,39 @@ export default function SignalementForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ typeId?: string; titre?: string; description?: string }>({});
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  // Fonction pour géocoder une adresse
+  const geocodeAddress = async (address: string) => {
+    if (!address.trim()) return;
+    
+    setIsGeocoding(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
+        {
+          headers: {
+            'User-Agent': 'Nomos-App' // Nominatim requiert un User-Agent
+          }
+        }
+      );
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        setLatitude(parseFloat(lat));
+        setLongitude(parseFloat(lon));
+        setLocationRetrieved(true);
+      } else {
+        alert("Impossible de trouver cette adresse. Vérifiez l'orthographe.");
+      }
+    } catch (error) {
+      console.error('Erreur de géocodage:', error);
+      alert("Erreur lors de la recherche de l'adresse.");
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,7 +210,7 @@ export default function SignalementForm() {
                 <input
                   id="adresse-input"
                   type="text"
-                  placeholder="Utilisez la géolocalisation automatique ou saisissez l'adresse manuellement"
+                  placeholder="Saisissez une adresse (ex: 10 rue de la Paix, Paris) ou utilisez la géolocalisation"
                   value={adresse}
                   onChange={e => {
                     setAdresse(e.target.value)
@@ -186,26 +219,67 @@ export default function SignalementForm() {
                       setLocationRetrieved(false)
                     }
                   }}
-                  className="w-full bg-white rounded-full px-6 py-3 placeholder-gray-400 text-gray-700 shadow-sm border border-transparent focus:outline-none focus:shadow-md"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (navigator.geolocation) {
-                      navigator.geolocation.getCurrentPosition((pos) => {
-                        setLatitude(pos.coords.latitude)
-                        setLongitude(pos.coords.longitude)
-                        setLocationRetrieved(true)
-                        setAdresse("Géolocalisation activée")
-                      })
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      geocodeAddress(adresse);
                     }
                   }}
-                  aria-label="Utiliser la géolocalisation"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={locationRetrieved ? "#16a34a" : "#9CA3AF"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a7 7 0 0 0 0-6"></path><path d="M4.6 9a7 7 0 0 0 0 6"></path></svg>
-                </button>
+                  className="w-full bg-white rounded-full px-6 py-3 pr-24 placeholder-gray-400 text-gray-700 shadow-sm border border-transparent focus:outline-none focus:shadow-md"
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                  {/* Bouton de recherche d'adresse */}
+                  <button
+                    type="button"
+                    onClick={() => geocodeAddress(adresse)}
+                    disabled={isGeocoding || !adresse.trim()}
+                    aria-label="Rechercher l'adresse"
+                    className="bg-white rounded-full p-2 shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isGeocoding ? (
+                      <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={locationRetrieved && !isGeocoding ? "#16a34a" : "#9CA3AF"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                      </svg>
+                    )}
+                  </button>
+                  {/* Bouton de géolocalisation */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition((pos) => {
+                          setLatitude(pos.coords.latitude)
+                          setLongitude(pos.coords.longitude)
+                          setLocationRetrieved(true)
+                          setAdresse("Géolocalisation activée")
+                        }, (error) => {
+                          alert("Impossible d'accéder à votre position. Vérifiez les permissions de votre navigateur.");
+                        })
+                      } else {
+                        alert("La géolocalisation n'est pas supportée par votre navigateur.");
+                      }
+                    }}
+                    aria-label="Utiliser la géolocalisation"
+                    className="bg-white rounded-full p-2 shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={locationRetrieved && adresse === "Géolocalisation activée" ? "#16a34a" : "#9CA3AF"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a7 7 0 0 0 0-6"></path><path d="M4.6 9a7 7 0 0 0 0 6"></path></svg>
+                  </button>
+                </div>
               </div>
+              {locationRetrieved && latitude && longitude && (
+                <div className="mt-2 text-sm text-green-600 flex items-center gap-1">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  Position enregistrée : {latitude.toFixed(6)}, {longitude.toFixed(6)}
+                </div>
+              )}
             </div>
           </div>
           <div className="mb-4">
