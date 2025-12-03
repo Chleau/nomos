@@ -1,5 +1,3 @@
-// Auth temporairement désactivée. Pour réactiver, décommentez le code ci-dessous.
-/*
 'use client'
 
 import { useRouter } from 'next/navigation';
@@ -24,7 +22,7 @@ export function ProtectedRoute({
     const { checkPermission, isAuthenticated } = usePermissions(null); // Remplacer null par l'utilisateur actuel
 
     if (!isAuthenticated) {
-        router.push('/login');
+        router.push('/signin');
         return null;
     }
 
@@ -35,4 +33,3 @@ export function ProtectedRoute({
 
     return <>{children}</>;
 }
-*/

@@ -2,23 +2,25 @@
 
 import SignalementCard from '@/components/signalements/SignalementCard'
 import { useRouter } from 'next/navigation'
-import { useAllSignalements, useHabitantSignalements } from '@/lib/hooks/useSignalements'
+import { useAllSignalements, useHabitantSignalements, useCommuneSignalementsCount } from '@/lib/hooks/useSignalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
+import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
+import { useCurrentHabitant, useHabitantSignalementsCount } from '@/lib/hooks/useHabitants'
 
 export default function Home() {
   const router = useRouter()
-
-  // Données utilisateur - à récupérer depuis le contexte d'auth plus tard
-  const userName = "Nicolas Moreau"
-  const habitantId = null // TODO: récupérer l'ID de l'utilisateur connecté depuis le contexte d'auth
+  const { user } = useSupabaseAuth()
+  
+  // Récupérer l'habitant connecté
+  const { data: habitant, isLoading: loadingHabitant } = useCurrentHabitant(user?.id || null)
+  
+  // Récupérer les compteurs de signalements
+  const { data: userDeclarations = 0, isLoading: loadingUserCount } = useHabitantSignalementsCount(habitant?.id || null)
+  const { data: totalDeclarations = 0, isLoading: loadingCommuneCount } = useCommuneSignalementsCount(habitant?.commune_id || null)
   
   // Récupérer les signalements depuis la BDD
   const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(2)
-  const { data: mesSignalements = [], isLoading: loadingMine } = useHabitantSignalements(habitantId, 2)
-
-  // Calculer les stats (avec vérification null)
-  const userDeclarations = mesSignalements?.length || 0
-  const totalDeclarations = derniersSignalements?.length || 0
+  const { data: mesSignalements = [], isLoading: loadingMine } = useHabitantSignalements(habitant?.id || null, 2)
 
   // Fonction pour formater la date
   const formatDate = (dateString: string | null) => {
@@ -38,7 +40,9 @@ export default function Home() {
   return (
     <main className="min-h-screen p-4 md:p-6 lg:p-8">
       {/* Header */}
-      <h1 className="text-xl md:text-3xl lg:text-4xl font-bold mb-6 md:mb-8">Bienvenue {userName}</h1>
+      <h1 className="text-xl md:text-3xl lg:text-4xl font-bold mb-6 md:mb-8">
+        Bienvenue {loadingHabitant ? '...' : habitant ? `${habitant.prenom} ${habitant.nom}` : 'Invité'}
+      </h1>
 
       {/* Grid des cards : première ligne avec col-span différents */}
       <div className="space-y-4 md:space-y-6 mb-8 md:mb-12">
@@ -128,11 +132,11 @@ export default function Home() {
               <div className="flex-1 flex flex-col gap-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Votre nombre de déclarations</p>
-                  <p className="text-4xl font-bold">{userDeclarations}</p>
+                  <p className="text-4xl font-bold">{loadingUserCount ? '...' : userDeclarations}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Nombres de déclarations total<br />dans la commune</p>
-                  <p className="text-4xl font-bold">{totalDeclarations}</p>
+                  <p className="text-4xl font-bold">{loadingCommuneCount ? '...' : totalDeclarations}</p>
                 </div>
               </div>
             </div>
@@ -143,13 +147,13 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-4 md:hidden">
           {/* Votre nombre de déclarations */}
           <div className="bg-white rounded-2xl shadow-md p-4">
-            <p className="text-4xl font-bold mb-2">{userDeclarations}</p>
+            <p className="text-4xl font-bold mb-2">{loadingUserCount ? '...' : userDeclarations}</p>
             <p className="text-xs text-gray-600">Votre nombre de déclarations</p>
           </div>
 
           {/* Nombre total dans la commune */}
           <div className="bg-white rounded-2xl shadow-md p-4">
-            <p className="text-4xl font-bold mb-2">{totalDeclarations}</p>
+            <p className="text-4xl font-bold mb-2">{loadingCommuneCount ? '...' : totalDeclarations}</p>
             <p className="text-xs text-gray-600">Nombres de déclarations total dans la commune</p>
           </div>
         </div>
@@ -359,7 +363,7 @@ export default function Home() {
           </>
         ) : (
           <div className="text-center py-8 text-sm md:text-base text-gray-500">
-            {habitantId ? 'Vous n\'avez fait aucune déclaration pour le moment' : 'Connectez-vous pour voir vos déclarations'}
+            {habitant?.id ? 'Vous n\'avez fait aucune déclaration pour le moment' : 'Connectez-vous pour voir vos déclarations'}
           </div>
         )}
       </div>

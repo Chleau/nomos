@@ -51,5 +51,24 @@ export const habitantsService = {
       .eq('id', id)
     
     return { error }
+  },
+
+  async getByAuthUserId(authUserId: string): Promise<{ data: Habitant | null; error: Error | null }> {
+    const { data, error } = await supabase
+      .from('habitants')
+      .select('*')
+      .eq('auth_user_id', authUserId)
+      .single()
+    
+    return { data, error }
+  },
+
+  async getSignalementsCount(habitantId: number): Promise<{ data: number; error: Error | null }> {
+    const { count, error } = await supabase
+      .from('signalements')
+      .select('*', { count: 'exact', head: true })
+      .eq('habitant_id', habitantId)
+    
+    return { data: count || 0, error }
   }
 }

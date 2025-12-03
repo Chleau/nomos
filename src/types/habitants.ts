@@ -3,6 +3,8 @@ export type Habitant = {
   created_at: string
   nom: string
   prenom: string
-  commune: number
+  commune_id: number
   email: string
+  auth_user_id?: string
+  role?: string
 }

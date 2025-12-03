@@ -1,23 +1,21 @@
-// Auth temporairement désactivée. Pour réactiver, décommentez le code ci-dessous.
-/*
 import { SignInForm } from '@/components/auth/SignInForm'
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-          Connexion à votre compte
-        </h1>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Connectez-vous pour accéder à votre espace
-        </p>
+    <div className="min-h-screen flex">
+      {/* Partie gauche - Image/Illustration */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gray-700 items-center justify-center rounded-r-3xl">
+        <div className="text-center text-white px-12">
+          {/* Vous pouvez ajouter un logo ou une illustration ici */}
+        </div>
       </div>
 
-      <div className="mt-8">
-        <SignInForm />
+      {/* Partie droite - Formulaire */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center bg-gray-100 px-6 py-12">
+        <div className="w-full max-w-md">
+          <SignInForm />
+        </div>
       </div>
     </div>
   )
 }
-*/

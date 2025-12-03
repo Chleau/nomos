@@ -1,5 +1,3 @@
-// Auth temporairement désactivée. Pour réactiver, décommentez le code ci-dessous.
-/*
 'use client'
 
 import { useState } from 'react'
@@ -39,6 +37,7 @@ export function SignInForm() {
         }
       } else {
         router.push('/')
+        router.refresh()
       }
     } catch (err) {
       setError('Une erreur est survenue lors de la connexion')
@@ -48,18 +47,18 @@ export function SignInForm() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Connexion</h2>
+    <div className="w-full">
+      <h1 className="text-4xl font-bold mb-8 text-gray-900">Se connecter</h1>
       
       {error && (
-        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded">
+        <div className="mb-6 p-4 text-red-700 bg-red-100 rounded-lg border border-red-200">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-600 mb-2">
             Email
           </label>
           <input
@@ -67,12 +66,13 @@ export function SignInForm() {
             id="email"
             name="email"
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+            placeholder="exemple@gmail.com"
           />
         </div>
 
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-600 mb-2">
             Mot de passe
           </label>
           <input
@@ -80,26 +80,24 @@ export function SignInForm() {
             id="password"
             name="password"
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+            placeholder="Entrez votre mot de passe"
           />
+          <div className="mt-2 text-right">
+            <button type="button" className="text-xs text-gray-900 hover:underline">
+              Mot de passe oublié
+            </button>
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+          className="w-full bg-black text-white py-4 px-4 rounded-xl font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
         >
-          {loading ? 'Connexion en cours...' : 'Se connecter'}
+          {loading ? 'Connexion en cours...' : 'Connexion'}
         </button>
-
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Pas encore de compte ?{' '}
-          <Link href="/signup" className="text-blue-600 hover:text-blue-500">
-            S&apos;inscrire
-          </Link>
-        </p>
       </form>
     </div>
   )
 }
-*/

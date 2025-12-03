@@ -46,3 +46,29 @@ export function useHabitants() {
     deleteHabitant
   }
 }
+
+export function useCurrentHabitant(authUserId: string | null) {
+  return useQuery({
+    queryKey: ['habitant', 'current', authUserId],
+    queryFn: async () => {
+      if (!authUserId) return null
+      const { data, error } = await habitantsService.getByAuthUserId(authUserId)
+      if (error) throw error
+      return data
+    },
+    enabled: !!authUserId
+  })
+}
+
+export function useHabitantSignalementsCount(habitantId: number | null) {
+  return useQuery({
+    queryKey: ['habitant', 'signalements-count', habitantId],
+    queryFn: async () => {
+      if (!habitantId) return 0
+      const { data, error } = await habitantsService.getSignalementsCount(habitantId)
+      if (error) throw error
+      return data
+    },
+    enabled: !!habitantId
+  })
+}
