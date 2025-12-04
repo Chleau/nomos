@@ -165,7 +165,7 @@ export default function CartePage() {
           <h2 className="text-xl font-semibold">
             Carte interactive des incidents signalés
           </h2>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setShowFilters(true)}
               className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm flex items-center gap-2 hover:bg-gray-800 transition-colors"
@@ -183,9 +183,9 @@ export default function CartePage() {
               </svg>
               Filtres
             </button>
-            <button className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm flex items-center gap-2 hover:bg-gray-800 transition-colors">
+            {/* <button className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm flex items-center gap-2 hover:bg-gray-800 transition-colors">
               Trier par : le plus récent
-            </button>
+            </button> */}
           </div>
         </div>
 
