@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+
+/* Colors */
+@import "../styles/palette.css";
+
+
+
+
+
 /* Reset CSS */
 * {
   box-sizing: border-box;
