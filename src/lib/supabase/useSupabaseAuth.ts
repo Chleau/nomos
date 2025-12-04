@@ -1,5 +1,3 @@
-// Auth temporairement désactivée. Pour réactiver, décommentez le code ci-dessous.
-/*
 import { useCallback, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { supabase } from './client'
@@ -46,4 +44,3 @@ export function useSupabaseAuth() {
     signOut,
   }
 }
-*/

@@ -3,6 +3,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { authService } from '@/lib/services/auth.service'
 import { useCommunes } from '@/lib/hooks/useCommunes'
 
@@ -77,44 +78,48 @@ export function SignUpForm() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Créer un compte</h2>
+    <div className="w-full">
+      <h1 className="text-4xl font-bold mb-8 text-gray-900">Créer un compte</h1>
       
       {error && (
-        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded">
+        <div className="mb-6 p-4 text-red-700 bg-red-100 rounded-lg border border-red-200">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="nom" className="block text-sm font-medium text-gray-700">
-            Nom
-          </label>
-          <input
-            type="text"
-            id="nom"
-            name="nom"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="nom" className="block text-sm font-medium text-gray-600 mb-2">
+              Nom
+            </label>
+            <input
+              type="text"
+              id="nom"
+              name="nom"
+              required
+              className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+              placeholder="Dupont"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="prenom" className="block text-sm font-medium text-gray-600 mb-2">
+              Prénom
+            </label>
+            <input
+              type="text"
+              id="prenom"
+              name="prenom"
+              required
+              className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+              placeholder="Jean"
+            />
+          </div>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="prenom" className="block text-sm font-medium text-gray-700">
-            Prénom
-          </label>
-          <input
-            type="text"
-            id="prenom"
-            name="prenom"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-600 mb-2">
             Email
           </label>
           <input
@@ -123,12 +128,13 @@ export function SignUpForm() {
             name="email"
             required
             pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+            placeholder="exemple@gmail.com"
           />
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-600 mb-2">
             Mot de passe
           </label>
           <input
@@ -137,12 +143,13 @@ export function SignUpForm() {
             name="password"
             required
             minLength={8}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+            placeholder="Minimum 8 caractères"
           />
         </div>
 
-        <div className="mb-6">
-          <label htmlFor="commune_id" className="block text-sm font-medium text-gray-700">
+        <div>
+          <label htmlFor="commune_id" className="block text-sm font-medium text-gray-600 mb-2">
             Commune
           </label>
           <select
@@ -150,7 +157,7 @@ export function SignUpForm() {
             name="commune_id"
             required
             disabled={communesLoading}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
+            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 focus:outline-none focus:ring-0 shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
           >
             <option value="">Sélectionnez votre commune</option>
             {communes?.map(commune => (
@@ -169,10 +176,19 @@ export function SignUpForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+          className="w-full bg-black text-white py-4 px-4 rounded-xl font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all mt-6"
         >
-          {loading ? 'Inscription en cours...' : 'S\'inscrire'}
+          {loading ? 'Inscription en cours...' : 'Créer mon compte'}
         </button>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            Déjà un compte ?{' '}
+            <Link href="/signin" className="text-gray-900 hover:underline font-medium">
+              Se connecter
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   )

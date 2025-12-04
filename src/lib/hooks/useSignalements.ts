@@ -51,6 +51,19 @@ export function useHabitantSignalements(habitantId: number | null, limit?: numbe
   })
 }
 
+export function useCommuneSignalementsCount(communeId: number | null) {
+  return useQuery({
+    queryKey: ['signalements', 'commune-count', communeId],
+    queryFn: async () => {
+      if (!communeId) return 0
+      const { data, error } = await signalementsService.getCountByCommune(communeId)
+      if (error) throw error
+      return data
+    },
+    enabled: !!communeId
+  })
+}
+
 export function useSignalement(id: number) {
   return useQuery({
     queryKey: ['signalements', id],

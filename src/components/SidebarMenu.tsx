@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
  
 const menuItems = [
   { label: 'Accueil', href: '/', icon: '🏠' },
@@ -17,7 +20,14 @@ const mobileMenuItems = [
  
 export default function SidebarMenu() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const { user, loading, signOut } = useSupabaseAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/signin');
+  };
  
   useEffect(() => {
     const checkScreenSize = () => {
@@ -143,10 +153,14 @@ export default function SidebarMenu() {
           backgroundColor: '#d1d5db',
           marginBottom: '8px'
         }} />
-        <div style={{ fontSize: '18px', fontWeight: '600' }}>Nicolas Moreau</div>
-        <div style={{ fontSize: '12px', color: '#cbd5e1' }}>Habitant</div>
-        <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '4px' }}>
-          Commune<br/>Romorantin-Lanthenay
+        <div style={{ fontSize: '18px', fontWeight: '600' }}>
+          {user?.user_metadata?.prenom || 'Utilisateur'} {user?.user_metadata?.nom || ''}
+        </div>
+        <div style={{ fontSize: '12px', color: '#cbd5e1' }}>
+          {user?.user_metadata?.role || 'Habitant'}
+        </div>
+        <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '4px', textAlign: 'center' }}>
+          {user?.email}
         </div>
       </div>
       {/* Menu principal */}
@@ -201,7 +215,7 @@ export default function SidebarMenu() {
               <span style={{ marginRight: '12px' }}>⚙️</span> Paramètres
             </Link>
           </li>
-          <li>
+          <li style={{ marginBottom: '8px' }}>
             <Link href="/mon-compte" style={{
               display: 'flex',
               alignItems: 'center',
@@ -212,6 +226,26 @@ export default function SidebarMenu() {
             }}>
               <span style={{ marginRight: '12px' }}>👤</span> Mon compte
             </Link>
+          </li>
+          <li>
+            <button 
+              onClick={handleSignOut}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                color: 'white',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                width: '100%',
+                fontSize: '14px'
+              }}
+            >
+              <span style={{ marginRight: '12px' }}>🚪</span> Déconnexion
+            </button>
           </li>
         </ul>
       </div>

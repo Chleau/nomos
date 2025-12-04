@@ -71,5 +71,14 @@ export const signalementsService = {
       .eq('id', id)
       .single()
     return { data, error }
+  },
+
+  async getCountByCommune(communeId: number) {
+    const { count, error } = await supabase
+      .from('signalements')
+      .select('*', { count: 'exact', head: true })
+      .eq('commune_id', communeId)
+    
+    return { data: count || 0, error }
   }
 }
