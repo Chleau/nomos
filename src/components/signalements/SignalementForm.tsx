@@ -1,14 +1,18 @@
 'use client'
 
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useSignalements } from '@/lib/hooks/useSignalements'
 import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement'
 import { uploadSignalementPhoto } from '@/lib/services/storage.service'
 import { createPhotoSignalement } from '@/lib/services/photos.service'
+import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
+import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 
 export default function SignalementForm() {
 
+  const { user } = useSupabaseAuth()
+  const { data: habitant } = useCurrentHabitant(user?.id || null)
   const { createSignalement, updateSignalementUrl } = useSignalements()
   const { types, loading: loadingTypes, error: errorTypes } = useTypesSignalement()
   const [step, setStep] = useState(1);
@@ -29,6 +33,16 @@ export default function SignalementForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ typeId?: string; titre?: string; description?: string }>({});
+
+  // Pré-remplir les champs avec les données de l'habitant connecté
+  useEffect(() => {
+    if (habitant) {
+      setNom(habitant.nom || '')
+      setPrenom(habitant.prenom || '')
+      setEmail(habitant.email || '')
+      // Le téléphone n'est pas dans le type Habitant actuel, on le laisse vide
+    }
+  }, [habitant])
   const [isGeocoding, setIsGeocoding] = useState(false);
 
   // Fonction pour géocoder une adresse
@@ -67,20 +81,40 @@ export default function SignalementForm() {
     e.preventDefault();
     setMessage(null);
     setIsSubmitting(true);
-    // Création du signalement sans la photo
-    const { data: signalement, error } = await createSignalement.mutateAsync({
+    
+    // Vérifier que l'habitant est bien connecté
+    if (!habitant) {
+      setMessage("Vous devez être connecté pour créer un signalement");
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Préparer les données du signalement
+    const signalementData = {
       titre,
       description,
       type_id: typeId === '' ? undefined : typeId,
       latitude: latitude === '' ? undefined : latitude,
       longitude: longitude === '' ? undefined : longitude,
       statut: 'Signalé',      
-      nom,
-      prenom,
-      telephone,
-      email,
-    });
-    if (error || !signalement) {
+      habitant_id: habitant.id,
+      commune_id: habitant.commune_id,
+      nom: habitant.nom,
+      prenom: habitant.prenom,
+      telephone: telephone || undefined,
+      email: habitant.email,
+    };
+    
+    // Création du signalement avec les données de l'habitant connecté
+    const { data: signalement, error } = await createSignalement.mutateAsync(signalementData);
+    
+    if (error) {
+      setMessage("Erreur lors de la création du signalement");
+      setIsSubmitting(false);
+      return;
+    }
+    
+    if (!signalement) {
       setMessage("Erreur lors de la création du signalement");
       setIsSubmitting(false);
       return;
@@ -107,10 +141,7 @@ export default function SignalementForm() {
     setAdresse('');
     if (fileInputRef.current) fileInputRef.current.value = '';
     setPhoto(null);
-    setNom('');
-    setPrenom('');
     setTelephone('');
-    setEmail('');
     setStep(1);
     setIsSubmitting(false);
   };
@@ -311,21 +342,42 @@ export default function SignalementForm() {
           <div className="grid grid-cols-2 gap-4 w-full pb-8">
             <div className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">Nom</label>
-              <input type="text" value={nom} onChange={e => setNom(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <input 
+                type="text" 
+                value={nom} 
+                readOnly
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed" 
+              />
             </div>
             <div className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">Prénom</label>
-              <input type="text" value={prenom} onChange={e => setPrenom(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <input 
+                type="text" 
+                value={prenom} 
+                readOnly
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed" 
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 w-full pb-8">
             <div className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">Téléphone</label>
-              <input type="tel" value={telephone} onChange={e => setTelephone(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <input 
+                type="tel" 
+                value={telephone} 
+                onChange={e => setTelephone(e.target.value)} 
+                placeholder="Optionnel"
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" 
+              />
             </div>
             <div className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">Adresse email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <input 
+                type="email" 
+                value={email} 
+                readOnly
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed" 
+              />
             </div>
           </div>
         </>
