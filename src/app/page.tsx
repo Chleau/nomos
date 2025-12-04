@@ -22,6 +22,71 @@ export default function Home() {
   const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(2)
   const { data: mesSignalements = [], isLoading: loadingMine } = useHabitantSignalements(habitant?.id || null, 2)
 
+  // Système de paliers/niveaux basé sur le nombre de déclarations
+  const levels = [
+    { name: 'Novice citoyen', min: 0, max: 2, color: '#9CA3AF', icon: 'user' },      // 0-2 déclarations
+    { name: 'Citoyen actif', min: 3, max: 9, color: '#3B82F6', icon: 'users' },       // 3-9 déclarations
+    { name: 'Citoyen engagé', min: 10, max: 24, color: '#8B5CF6', icon: 'award' },    // 10-24 déclarations
+    { name: 'Ambassadeur local', min: 25, max: 49, color: '#F59E0B', icon: 'shield' }, // 25-49 déclarations
+    { name: 'Champion citoyen', min: 50, max: Infinity, color: '#10B981', icon: 'trophy' } // 50+ déclarations
+  ]
+
+  const getCurrentLevel = (count: number) => {
+    return levels.find(level => count >= level.min && count <= level.max) || levels[0]
+  }
+
+  const getProgressPercentage = (count: number) => {
+    const currentLevel = getCurrentLevel(count)
+    if (currentLevel.max === Infinity) return 100
+    const range = currentLevel.max - currentLevel.min + 1
+    const progress = count - currentLevel.min
+    return Math.min((progress / range) * 100, 100)
+  }
+
+  const currentLevel = getCurrentLevel(userDeclarations)
+  const progressPercentage = getProgressPercentage(userDeclarations)
+  
+  // Calcul du pourcentage de contribution à la commune (pour info)
+  const contributionPercentage = totalDeclarations > 0 
+    ? Math.round((userDeclarations / totalDeclarations) * 100) 
+    : 0
+
+  // Fonction pour obtenir l'icône SVG selon le niveau
+  const getLevelIcon = (iconType: string) => {
+    const icons = {
+      'user': (
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+      ),
+      'users': (
+        <>
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/>
+        </>
+      ),
+      'award': (
+        <>
+          <circle cx="12" cy="8" r="7"/>
+          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+        </>
+      ),
+      'shield': (
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      ),
+      'trophy': (
+        <>
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+          <path d="M4 22h16"/>
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+        </>
+      )
+    }
+    return icons[iconType as keyof typeof icons] || icons.user
+  }
+
   // Fonction pour formater la date
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Date inconnue'
@@ -51,8 +116,9 @@ export default function Home() {
           {/* Card 1 : Cercle de progression (1/3 de la largeur) */}
           <div className="bg-white rounded-2xl md:rounded-3xl shadow-md p-4 md:p-6 flex flex-row md:flex-col items-center justify-center gap-4 md:gap-0 md:col-span-1">
             <div className="relative w-20 h-20 md:w-32 md:h-32 md:mb-4 flex-shrink-0">
-              {/* Cercle de progression (à remplacer par un vrai composant de progression) */}
+              {/* Cercle de progression */}
               <svg className="w-full h-full transform -rotate-90">
+                {/* Cercle de fond mobile */}
                 <circle
                   cx="40"
                   cy="40"
@@ -62,18 +128,20 @@ export default function Home() {
                   fill="none"
                   className="md:hidden"
                 />
+                {/* Cercle de progression mobile */}
                 <circle
                   cx="40"
                   cy="40"
                   r="35"
-                  stroke="#6B7280"
+                  stroke={currentLevel.color}
                   strokeWidth="8"
                   fill="none"
                   strokeDasharray="219.91"
-                  strokeDashoffset="54.98"
+                  strokeDashoffset={219.91 - (219.91 * progressPercentage) / 100}
                   strokeLinecap="round"
-                  className="md:hidden"
+                  className="md:hidden transition-all duration-500"
                 />
+                {/* Cercle de fond desktop */}
                 <circle
                   cx="64"
                   cy="64"
@@ -83,26 +151,24 @@ export default function Home() {
                   fill="none"
                   className="hidden md:block"
                 />
+                {/* Cercle de progression desktop */}
                 <circle
                   cx="64"
                   cy="64"
                   r="56"
-                  stroke="#6B7280"
+                  stroke={currentLevel.color}
                   strokeWidth="12"
                   fill="none"
                   strokeDasharray="351.86"
-                  strokeDashoffset="87.96"
+                  strokeDashoffset={351.86 - (351.86 * progressPercentage) / 100}
                   strokeLinecap="round"
-                  className="hidden md:block"
+                  className="hidden md:block transition-all duration-500"
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-14 h-14 md:w-20 md:h-20 bg-gray-200 rounded-full flex items-center justify-center">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="md:w-8 md:h-8">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    {getLevelIcon(currentLevel.icon)}
                   </svg>
                 </div>
               </div>
@@ -121,10 +187,10 @@ export default function Home() {
                 <div className="relative">
                   <div className="w-24 h-24 bg-gray-800 rounded-2xl flex items-center justify-center">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                      {getLevelIcon(currentLevel.icon)}
                     </svg>
                   </div>
-                  <p className="text-center text-xs italic mt-2">Novice citoyen</p>
+                  <p className="text-center text-xs italic mt-2">{currentLevel.name}</p>
                 </div>
               </div>
 
@@ -162,12 +228,12 @@ export default function Home() {
         <div className="md:hidden bg-white rounded-2xl shadow-md p-4 flex flex-row items-center gap-4">
           <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center flex-shrink-0">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+              {getLevelIcon(currentLevel.icon)}
             </svg>
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold">Votre niveau</h3>
-            <p className="text-xs italic">Novice citoyen</p>
+            <p className="text-xs italic">{currentLevel.name}</p>
           </div>
         </div>
 
