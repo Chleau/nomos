@@ -14,7 +14,6 @@ import {
   PencilSquareIcon,
   ArchiveBoxIcon,
   UserGroupIcon,
-  BuildingOfficeIcon,
   Cog6ToothIcon,
   UserIcon,
   ArrowLeftOnRectangleIcon,
@@ -201,7 +200,7 @@ export default function SidebarMenu() {
             </li>
             <li className="menu-item">
               <Link href="/mairie/lois-en-vigueur" className={`menu-item-link ${pathname === '/mairie/lois-en-vigueur' ? 'active' : ''}`}>
-                <DocumentTextIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                <NewspaperIcon width="24" height="24" style={{ marginRight: '12px' }} />
                 Lois en vigueur
               </Link>
             </li>
