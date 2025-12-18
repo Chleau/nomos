@@ -5,14 +5,16 @@ import Checkbox from '@/components/ui/Checkbox'
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown'
 import CardIncident from '@/components/ui/CardIncident'
 import Avatar from '@/components/ui/Avatar'
+import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { useRouter } from 'next/navigation'
 import { useAllSignalements } from '@/lib/hooks/useSignalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
+import { UserRole } from '@/types/auth'
 import { useState } from 'react'
 
-export default function Page() {
+function MairieContent() {
   const router = useRouter()
   const { user } = useSupabaseAuth()
   const { data: habitant } = useCurrentHabitant(user?.id || null)
@@ -225,7 +227,8 @@ export default function Page() {
 
 
   return (
-    <main className="min-h-screen p-[50px]">
+    <RoleProtectedPage allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MAIRIE]}>
+      <main className="min-h-screen p-[50px]">
       {/* Barre de recherche et filtres */}
       <div className="mb-[58px] space-y-[16px]">
         {/* Search bar */}
@@ -533,5 +536,10 @@ export default function Page() {
         </div>
       </div>
     </main>
+    </RoleProtectedPage>
   )
+}
+
+export default function Page() {
+  return <MairieContent />
 }

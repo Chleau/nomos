@@ -40,14 +40,7 @@ export const authService = {
         error: new Error('Adresse email invalide') 
       }
     }
-    // Log des données pour le débogage
-    console.log('Tentative d\'inscription avec les données:', {
-      email: data.email,
-      nom: data.nom,
-      prenom: data.prenom,
-      commune_id: data.commune_id
-    })
-
+    
     try {
       // Créer l'utilisateur dans Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
