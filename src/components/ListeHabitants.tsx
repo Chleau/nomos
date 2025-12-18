@@ -5,11 +5,6 @@ import { useHabitants } from '@/lib/hooks/useHabitants'
 export default function ListeHabitants() {
   const { habitants, isLoading, error } = useHabitants()
 
-  // Ajout de logs pour le débogage
-  console.log('Loading:', isLoading)
-  console.log('Error:', error)
-  console.log('Habitants:', habitants)
-
   if (isLoading) {
     return (
       <div className="p-4 bg-blue-50 text-blue-700 rounded">

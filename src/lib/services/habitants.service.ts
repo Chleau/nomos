@@ -3,13 +3,11 @@ import { Habitant } from '@/types/habitants'
 
 export const habitantsService = {
   async getAll(): Promise<{ data: Habitant[] | null; error: Error | null }> {
-    console.log('Fetching habitants...')
     const { data, error } = await supabase
       .from('habitants')
       .select('*')
       .order('nom')
     
-    console.log('Supabase response:', { data, error })
     return { data, error }
   },
 
