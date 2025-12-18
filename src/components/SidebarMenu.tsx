@@ -8,6 +8,7 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 const menuItems = [
   { label: 'Accueil', href: '/', icon: '🏠' },
   { label: 'Carte des incidents', href: '/carte-incidents', icon: '🗺️' },
+  { label: 'Accueil marie', href: '/mairie', icon: '🏛️' },
   { label: 'Dernières lois en vigueur', href: '/lois', icon: '⚖️' },
 ];
  

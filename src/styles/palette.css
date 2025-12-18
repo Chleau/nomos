@@ -1,5 +1,5 @@
 :root {
-  /* ----- Orang ----- */
+  /* ----- Orange ----- */
   --tcolor-kaki-50: #FEF0E3;
   --color-kaki-100: #FCE4CB;  
   --color-kaki-200: #FACB9A;
@@ -115,5 +115,40 @@
     --color-red-800: #b90000;
     --color-red-900: #950404;
     --color-red-950: #540000;
+
+  /* Spacing tokens */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* Radius tokens */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Typography tokens */
+  --font-family-base: 'Montserrat', Arial, Helvetica, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.4;
+
+  /* Shadows */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-2: 0 6px 18px rgba(0,0,0,0.08);
+
+  /* Semantic colors (alias for palette) */
+  --color-primary: var(--color-kaki-500);
+  --color-primary-600: var(--color-kaki-600);
+  --color-surface: #FFFFFF;
+  --color-muted: var(--color-slate-500);
+  --color-danger: var(--color-red-500);
 
 }
