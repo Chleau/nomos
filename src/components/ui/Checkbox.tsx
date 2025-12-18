@@ -5,7 +5,7 @@ import React, { forwardRef, useState } from 'react'
 type Size = 'md' | 'lg'
 type State = 'checked' | 'unchecked' | 'indeterminate' | 'disabled'
 
-interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   size?: Size
   state?: State
   label?: string

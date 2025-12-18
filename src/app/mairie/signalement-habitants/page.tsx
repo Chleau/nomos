@@ -1,6 +1,6 @@
 'use client'
 
-import RoleProtectedPage from '@/components/auth/RoleProtectedPage';
+import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage';
 import { UserRole } from '@/types/auth';
 
 export default function SignalementHabitantsPage() {
