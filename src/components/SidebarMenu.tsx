@@ -155,7 +155,8 @@ export default function SidebarMenu() {
     position: 'sticky' as const,
     top: 0,
     flexShrink: 0,
-    boxSizing: 'border-box' as const
+    boxSizing: 'border-box' as const,
+    fontFamily: "'Montserrat', sans-serif"
   };
  
   // Style pour la bottom bar mobile
@@ -172,7 +173,8 @@ export default function SidebarMenu() {
     alignItems: 'center',
     borderTop: '1px solid #334155',
     zIndex: 1000,
-    boxSizing: 'border-box' as const
+    boxSizing: 'border-box' as const,
+    fontFamily: "'Montserrat', sans-serif"
   };
  
   // Rendu conditionnel selon la taille d'écran
@@ -331,7 +333,7 @@ export default function SidebarMenu() {
         paddingBottom: '32px',
         borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
       }}>
-        <div style={{ fontSize: '15px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '4px' }}>
+        <div style={{ fontSize: '18px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '4px' }}>
           Commune
         </div>
         <div style={{ fontSize: '14px', fontWeight: '500' }}>
@@ -358,7 +360,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/mairie' ? '#F27F09' : 'transparent',
                 color: pathname === '/mairie' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/mairie' ? '600' : '400'
               }}>
@@ -375,7 +377,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/mairie/derniere-lois-en-vigueur' ? '#F27F09' : 'transparent',
                 color: pathname === '/mairie/derniere-lois-en-vigueur' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/mairie/derniere-lois-en-vigueur' ? '600' : '400'
               }}>
@@ -392,7 +394,8 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/mairie/dernieres-redactions' ? '#F27F09' : 'transparent',
                 color: pathname === '/mairie/dernieres-redactions' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
+                fontFamily: 'montserrat, sans-serif',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/mairie/dernieres-redactions' ? '600' : '400'
               }}>
@@ -409,7 +412,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/mairie/archives' ? '#F27F09' : 'transparent',
                 color: pathname === '/mairie/archives' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/mairie/archives' ? '600' : '400'
               }}>
@@ -426,7 +429,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/mairie/signalement-habitants' ? '#F27F09' : 'transparent',
                 color: pathname === '/mairie/signalement-habitants' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/mairie/signalement-habitants' ? '600' : '400'
               }}>
@@ -447,7 +450,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/' ? '#F27F09' : 'transparent',
                 color: pathname === '/' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/' ? '600' : '400'
               }}>
@@ -464,7 +467,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/carte-incidents' ? '#F27F09' : 'transparent',
                 color: pathname === '/carte-incidents' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/carte-incidents' ? '600' : '400'
               }}>
@@ -481,7 +484,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/lois' ? '#F27F09' : 'transparent',
                 color: pathname === '/lois' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/lois' ? '600' : '400'
               }}>
@@ -498,7 +501,7 @@ export default function SidebarMenu() {
                 textDecoration: 'none',
                 backgroundColor: pathname === '/signalements' ? '#F27F09' : 'transparent',
                 color: pathname === '/signalements' ? 'black' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'background-color 0.2s',
                 fontWeight: pathname === '/signalements' ? '600' : '400'
               }}>
@@ -518,7 +521,7 @@ export default function SidebarMenu() {
               backgroundColor: '#F27F09',
               color: 'black',
               fontWeight: '600',
-              fontSize: '15px',
+              fontSize: '20px',
               padding: '12px 20px',
               borderRadius: '8px',
               textDecoration: 'none',
@@ -540,7 +543,7 @@ export default function SidebarMenu() {
               backgroundColor: '#F27F09',
               color: 'black',
               fontWeight: '600',
-              fontSize: '15px',
+              fontSize: '20px',
               padding: '12px 20px',
               borderRadius: '8px',
               textDecoration: 'none',
@@ -566,7 +569,7 @@ export default function SidebarMenu() {
                 borderRadius: '8px',
                 textDecoration: 'none',
                 color: pathname === '/mairie/ma-mairie' ? '#F27F09' : 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'color 0.2s',
                 fontWeight: pathname === '/mairie/ma-mairie' ? '600' : '400'
               }}>
@@ -583,7 +586,7 @@ export default function SidebarMenu() {
               borderRadius: '8px',
               textDecoration: 'none',
               color: pathname === '/parametres' ? '#F27F09' : 'white',
-              fontSize: '15px',
+              fontSize: '20px',
               transition: 'color 0.2s',
               fontWeight: pathname === '/parametres' ? '600' : '400'
             }}>
@@ -599,7 +602,7 @@ export default function SidebarMenu() {
               borderRadius: '8px',
               textDecoration: 'none',
               color: pathname === '/mon-compte' ? '#F27F09' : 'white',
-              fontSize: '15px',
+              fontSize: '20px',
               transition: 'color 0.2s',
               fontWeight: pathname === '/mon-compte' ? '600' : '400'
             }}>
@@ -621,7 +624,7 @@ export default function SidebarMenu() {
                 borderRadius: '8px',
                 textDecoration: 'none',
                 color: 'white',
-                fontSize: '15px',
+                fontSize: '20px',
                 transition: 'color 0.2s',
                 fontWeight: '400',
                 backgroundColor: 'transparent',

@@ -13,6 +13,7 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { UserRole } from '@/types/auth'
 import { useState } from 'react'
+import { StarIcon } from '@heroicons/react/24/outline'
 
 function MairieContent() {
   const router = useRouter()
@@ -248,15 +249,15 @@ function MairieContent() {
 
         {/* Filter buttons */}
         <div className="flex gap-[15px]">
-          <Button size="xs" variant="outline">Anciens arrêtés</Button>
-          <Button size="xs" variant="outline">Anciennes délibérations</Button>
+          <Button size="xs" variant="outline"> <StarIcon width="16" height="16" /> Anciens arrêtés</Button>
+          <Button size="xs" variant="outline"> <StarIcon width="16" height="16" />Anciennes délibérations</Button>
         </div>
       </div>
 
       {/* Derniers incidents déclarés */}
       <div className="mb-[58px] space-y-[25px]">
         <div className="flex items-center justify-between">
-          <h2 className="text-[20px] font-['Poppins'] font-medium text-[#4a4a4a]">Derniers incidents déclarés</h2>
+          <h2 className="text-[30px] font-['Poppins'] font-medium text-[#4a4a4a]">Derniers incidents déclarés</h2>
           <div className="relative">
             <Button 
               size="sm" 

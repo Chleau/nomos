@@ -58,7 +58,7 @@ body {
 }
 
 .btn:focus {
-  outline: 2px solid rgba(242,127,9,0.12);
+  outline: 2px solid rgba(159, 159, 159, 0.12);
   outline-offset: 2px;
 }
 
@@ -80,7 +80,7 @@ body {
   border-radius: var(--radius-md);
 }
 .btn-outline:hover {
-  background: rgba(242,127,9,0.06);
+  background: var(--color-slate-50);
   border-color: var(--color-slate-500);
 }
 
