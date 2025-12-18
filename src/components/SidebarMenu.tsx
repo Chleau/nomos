@@ -302,18 +302,6 @@ export default function SidebarMenu() {
               Mon compte
             </Link>
           </li>
-          <li>
-            <button
-              onClick={() => {
-                signOut?.()
-                router.push('/signin')
-              }}
-              className="bottom-menu-link"
-            >
-              <ArrowLeftOnRectangleIcon width="24" height="24" style={{ marginRight: '12px' }} />
-              Se déconnecter
-            </button>
-          </li>
         </ul>
       </div>
     </aside>
