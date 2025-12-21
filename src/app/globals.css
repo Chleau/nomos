@@ -161,9 +161,12 @@ body {
 
 /* dans src/app/globals.css ou palette.css */
 .btn-kaki {
-  background-color: var(--color-kaki-500);
-  color: white;
+  background-color: var(--color-kaki-500); /*F27F09*/
+  color: black;
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  font-family: var(--font-poppins);
+  font-weight: 400;
+
 }
 .btn-kaki:hover { background-color: var(--color-kaki-600); }
 .btn-kaki:active { background-color: var(--color-kaki-400); }
@@ -175,9 +178,10 @@ body {
   justify-content: center;
   gap: var(--Spacing-Margin-2_5, 10px);
   /* Reduced vertical padding to avoid oversized buttons while keeping roomy horizontal padding */
-  padding: 8px 32px; /* vertical 8, horizontal 32 */
+  padding: 16px 32px; /* vertical 8, horizontal 32 */
   border-radius: 12px;
-  min-height: 40px;
+  height: 59px;
+  width: 176px;
   line-height: 1;
 }
 .btn--md {
@@ -185,30 +189,37 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 8px 24px;
+  padding: 12px 24px;
   border-radius: 10px;
-  min-height: 36px;
+  height: 48px;
+  width: 153px;
   line-height: 1;
+  font-size: 16px;
 }
 .btn--sm {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 16px;
+  gap: 12px;
+  padding: 8px 16px;
   border-radius: 8px;
-  min-height: 32px;
+  height: 37px;
+  width: 131px;
   line-height: 1;
+  font-size: 14px;
 }
 .btn--xs {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 4px 8px;
+  gap: 12px;
+  padding: 6px 12px;
   border-radius: 6px;
-  min-height: 28px;
+  height: 30px;
+  width: 104px;
   line-height: 1;
+  font-size: 12px;
+
 }
 
 /* Sidebar */
