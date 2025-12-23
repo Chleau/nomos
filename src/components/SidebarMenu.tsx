@@ -227,7 +227,7 @@ export default function SidebarMenu() {
         ) : (
           <ul className="menu-list">
             <li className="menu-item">
-              <Link href="/accueil" className={`menu-item-link ${pathname === '/accueil' ? 'active' : ''}`}>
+              <Link href="/" className={`menu-item-link ${pathname === '/' ? 'active' : ''}`}>
                 <HomeIcon width="24" height="24" style={{ marginRight: '12px' }} />
                 Accueil
               </Link>

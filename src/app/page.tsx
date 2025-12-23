@@ -8,6 +8,7 @@ import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant, useHabitantSignalementsCount } from '@/lib/hooks/useHabitants'
 import { UserRole } from '@/types/auth'
+import Button from '@/components/ui/Button'
 
 function HomeContent() {
   const router = useRouter()
@@ -349,13 +350,8 @@ function HomeContent() {
               })}
             </div>
 
-            <div className="text-center hidden md:block">
-              <button 
-                onClick={() => router.push('/signalements')}
-                className="bg-gray-900 text-white px-6 py-2 rounded-lg text-sm md:text-base hover:bg-gray-800 transition-colors"
-              >
-                Voir tout
-              </button>
+            <div className="text-right hidden md:block">
+              <Button onClick={() => router.push('/signalements')} size="xs" variant="primary"> Voir tout</Button>
             </div>
           </>
         ) : (
@@ -428,6 +424,9 @@ function HomeContent() {
                   />
                 )
               })}
+            </div>
+            <div className="text-right mt-4">
+              <Button onClick={() => router.push('/signalements')} size="xs" variant="primary"> Voir tout</Button>
             </div>
           </>
         ) : (
