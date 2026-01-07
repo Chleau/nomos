@@ -4,18 +4,43 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
- 
-const menuItems = [
-  { label: 'Accueil', href: '/', icon: '🏠' },
-  { label: 'Carte des incidents', href: '/carte-incidents', icon: '🗺️' },
-  { label: 'Dernières lois en vigueur', href: '/lois', icon: '⚖️' },
-];
- 
+import { useHabitants } from '@/lib/hooks/useHabitants';
+import { UserRole } from '@/types/auth';
+import {
+  HomeIcon,
+  MapIcon,
+  DocumentTextIcon,
+  ClockIcon,
+  PencilSquareIcon,
+  ArchiveBoxIcon,
+  UserGroupIcon,
+  BuildingOfficeIcon,
+  Cog6ToothIcon,
+  UserIcon,
+  ArrowLeftOnRectangleIcon,
+  BellIcon,
+  BellSlashIcon,
+  ExclamationTriangleIcon,
+  PlusCircleIcon,
+  NewspaperIcon,
+  InboxIcon,
+  FolderIcon,
+  MapPinIcon,
+  BuildingLibraryIcon
+} from '@heroicons/react/24/outline';
+
 const mobileMenuItems = [
-  { label: 'Accueil', href: '/', icon: '🏠' },
-  { label: 'Carte incidents', href: '/carte-incidents', icon: '🗺️' },
-  { label: 'Lois', href: '/lois', icon: '⚖️' },
-  { label: 'Menu', href: '/mon-compte', icon: '☰' },
+  // Habitants
+  { label: 'Accueil', href: '/', icon: HomeIcon, roles: ['habitant'] },
+  { label: 'Carte', href: '/carte-incidents', icon: MapIcon, roles: ['habitant'] },
+  { label: 'Lois', href: '/lois', icon: DocumentTextIcon, roles: ['habitant', 'mairie'] },
+  { label: 'Signalements', href: '/signalements', icon: ClockIcon, roles: ['habitant'] },
+  // Mairie
+  { label: 'Accueil', href: '/mairie', icon: HomeIcon, roles: ['mairie'] },
+  { label: 'Lois', href: '/mairie/derniere-lois-en-vigueur', icon: DocumentTextIcon, roles: ['mairie'] },
+  { label: 'Rédactions', href: '/mairie/dernieres-redactions', icon: PencilSquareIcon, roles: ['mairie'] },
+  { label: 'Archives', href: '/mairie/archives', icon: ArchiveBoxIcon, roles: ['mairie'] },
+  { label: 'Signalements', href: '/mairie/signalement-habitants', icon: UserGroupIcon, roles: ['mairie'] },
 ];
  
 export default function SidebarMenu() {
@@ -23,11 +48,41 @@ export default function SidebarMenu() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const { user, loading, signOut } = useSupabaseAuth();
+  const [habitantData, setHabitantData] = useState<any>(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [notificationsMuted, setNotificationsMuted] = useState(false);
+
+  // Déterminer le rôle de l'utilisateur - attendre que habitantData soit chargé
+  const userRole = habitantData?.role as UserRole;
+  const isMairieUser = habitantData ? [
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.MAIRIE
+  ].includes(userRole) : false;
 
   const handleSignOut = async () => {
     await signOut();
     router.push('/signin');
   };
+
+  // Charger les données de l'habitant depuis la table habitants
+  useEffect(() => {
+    async function loadHabitantData() {
+      if (user) {
+        try {
+          const response = await fetch(`/api/habitants?auth_user_id=${user.id}`);
+          const result = await response.json();
+          if (!result.error && result.data && result.data.length > 0) {
+            setHabitantData(result.data[0]);
+          }
+        } catch (err) {
+          console.error('Error loading habitant data:', err);
+        }
+        setDataLoaded(true);
+      }
+    }
+    loadHabitantData();
+  }, [user]);
  
   useEffect(() => {
     const checkScreenSize = () => {
@@ -39,212 +94,224 @@ export default function SidebarMenu() {
  
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
- 
-  // Style pour la sidebar desktop (gauche)
-  const sidebarStyle = {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    height: '100%',
-    width: '20vw',
-    minWidth: '20vw',
-    backgroundColor: '#1e293b',
-    color: 'white',
-    padding: '16px',
-    position: 'sticky' as const,
-    top: 0,
-    flexShrink: 0,
-    boxSizing: 'border-box' as const
-  };
- 
-  // Style pour la bottom bar mobile
-  const bottomBarStyle = {
-    display: 'flex',
-    position: 'fixed' as const,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '70px',
-    backgroundColor: '#1e293b',
-    color: 'white',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderTop: '1px solid #334155',
-    zIndex: 1000,
-    boxSizing: 'border-box' as const
-  };
- 
+
   // Rendu conditionnel selon la taille d'écran
   if (isMobile) {
+    // Filtrer les items du menu selon le rôle
+    const filteredMobileItems = mobileMenuItems.filter(item => {
+      if (!dataLoaded) return false;
+      
+      if (isMairieUser) {
+        return item.roles.includes('mairie');
+      } else {
+        return item.roles.includes('habitant');
+      }
+    });
+
     return (
       <>
         {/* Bouton flottant "Signaler un incident" */}
-        <Link
-          href="/signaler-incident"
-          style={{
-            position: 'fixed' as const,
-            bottom: '90px', // Au-dessus de la bottom bar (70px + 20px de marge)
-            right: '20px',
-            width: '60px',
-            height: '60px',
-            backgroundColor: '#ea580c',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textDecoration: 'none',
-            color: 'white',
-            fontSize: '24px',
-            boxShadow: '0 4px 20px rgba(234, 88, 12, 0.4)',
-            zIndex: 1001,
-            transition: 'all 0.3s ease',
-            transform: pathname === '/signaler-incident' ? 'scale(1.1)' : 'scale(1)',
-            border: '3px solid white'
-          }}
-        >
-          ⚠️
-        </Link>
-       
+        {dataLoaded && (
+          <Link
+            href="/signaler-incident"
+            className={`floating-button ${pathname === '/signaler-incident' ? 'active' : ''}`}
+          >
+            ⚠️
+          </Link>
+        )}
+
         {/* Bottom Bar Navigation */}
-        <nav style={bottomBarStyle}>
-          {mobileMenuItems.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              style={{
-                display: 'flex',
-                flexDirection: 'column' as const,
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                color: pathname === item.href ? '#f97316' : 'white',
-                backgroundColor: pathname === item.href ? 'rgba(249, 115, 22, 0.1)' : 'transparent',
-                minWidth: '60px',
-                fontSize: '12px',
-                fontWeight: pathname === item.href ? '600' : '400'
-              }}
-            >
-              <span style={{ fontSize: '20px', marginBottom: '4px' }}>{item.icon}</span>
-              <span style={{ textAlign: 'center' }}>{item.label}</span>
-            </Link>
-          ))}
+        <nav className="mobile-bottom-bar">
+          {dataLoaded ? (
+            <div className="mobile-menu-container">
+              {filteredMobileItems.map(item => {
+                const IconComponent = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`mobile-menu-item ${pathname === item.href ? 'active' : ''}`}
+                  >
+                    <IconComponent width="24" height="24" style={{ marginBottom: '4px' }} />
+                    <span style={{ textAlign: 'center' }}>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mobile-loading">Chargement...</div>
+          )}
         </nav>
       </>
     );
   }
- 
-  // Sidebar desktop (code existant)
- 
+
+  // Sidebar desktop
   return (
-    <aside style={sidebarStyle}>
+    <aside className="sidebar">
       {/* Profil */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column' as const,
-        alignItems: 'center',
-        marginBottom: '32px',
-        marginTop: '8px'
-      }}>
-        <div style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '50%',
-          backgroundColor: '#d1d5db',
-          marginBottom: '8px'
-        }} />
-        <div style={{ fontSize: '18px', fontWeight: '600' }}>
-          {user?.user_metadata?.prenom || 'Utilisateur'} {user?.user_metadata?.nom || ''}
+      <div className="profile-section">
+        <div className="profile-avatar">
+          {habitantData?.prenom?.[0]?.toUpperCase() || user?.user_metadata?.prenom?.[0]?.toUpperCase()}{habitantData?.nom?.[0]?.toUpperCase() || user?.user_metadata?.nom?.[0]?.toUpperCase()}
         </div>
-        <div style={{ fontSize: '12px', color: '#cbd5e1' }}>
-          {user?.user_metadata?.role || 'Habitant'}
+        <div className="profile-info">
+          <div className="profile-name">
+            {habitantData?.prenom || user?.user_metadata?.prenom} {habitantData?.nom || user?.user_metadata?.nom}
+          </div>
+          <div className="profile-role">
+            {habitantData?.role || user?.user_metadata?.role || 'Habitant'}
+          </div>
         </div>
-        <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '4px', textAlign: 'center' }}>
-          {user?.email}
+        <button 
+          onClick={() => setNotificationsMuted(!notificationsMuted)}
+          className="bell-button"
+          title={notificationsMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
+        >
+          {notificationsMuted ? (
+            <BellSlashIcon width="24" height="24" />
+          ) : (
+            <BellIcon width="24" height="24" />
+          )}
+        </button>
+      </div>
+
+      {/* Commune */}
+      <div className="commune-section">
+        <div className="commune-label">
+          Commune
+        </div>
+        <div className="commune-name">
+          {habitantData?.communes?.nom || user?.user_metadata?.commune}
         </div>
       </div>
+
       {/* Menu principal */}
-      <nav style={{ flex: 1 }}>
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-          {menuItems.map(item => (
-            <li key={item.href} style={{ marginBottom: '8px' }}>
-              <Link href={item.href} style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                textDecoration: 'none',
-                backgroundColor: pathname === item.href ? 'white' : 'transparent',
-                color: pathname === item.href ? '#1e293b' : 'white'
-              }}>
-                <span style={{ marginRight: '12px', fontSize: '18px' }}>{item.icon}</span>
-                {item.label}
+      <nav>
+        {!dataLoaded ? (
+          <div className="menu-loading">
+            <p>Chargement du menu...</p>
+          </div>
+        ) : isMairieUser ? (
+          <ul className="menu-list">
+            <li className="menu-item">
+              <Link href="/mairie" className={`menu-item-link ${pathname === '/mairie' ? 'active' : ''}`}>
+                <HomeIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Accueil
               </Link>
             </li>
-          ))}
-        </ul>
-        <div style={{ marginTop: '24px' }}>
-          <Link href="/signaler-incident" style={{
-            // width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#ea580c',
-            color: 'white',
-            fontWeight: '600',
-            padding: '12px',
-            borderRadius: '6px',
-            textDecoration: 'none'
-          }}>
-            <span style={{ marginRight: '8px' }}>⚠️</span> Signaler un incident
-          </Link>
-        </div>
-      </nav>
-      {/* Bas du menu */}
-      <div style={{ marginTop: 'auto', marginBottom: '8px' }}>
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-          <li style={{ marginBottom: '8px' }}>
-            <Link href="/parametres" style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '8px 12px',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              color: 'white'
-            }}>
-              <span style={{ marginRight: '12px' }}>⚙️</span> Paramètres
+            <li className="menu-item">
+              <Link href="/mairie/lois-en-vigueur" className={`menu-item-link ${pathname === '/mairie/lois-en-vigueur' ? 'active' : ''}`}>
+                <DocumentTextIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Lois en vigueur
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link href="/mairie/redactions" className={`menu-item-link ${pathname === '/mairie/redactions' ? 'active' : ''}`}>
+                <InboxIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Mes rédactions
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link href="/mairie/archives" className={`menu-item-link ${pathname === '/mairie/archives' ? 'active' : ''}`}>
+                <FolderIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Archives
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link href="/mairie/signalement-habitants" className={`menu-item-link ${pathname === '/mairie/signalement-habitants' ? 'active' : ''}`}>
+                <MapPinIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Signalement des habitants
+              </Link>
+            </li>
+          </ul>
+        ) : (
+          <ul className="menu-list">
+            <li className="menu-item">
+              <Link href="/accueil" className={`menu-item-link ${pathname === '/accueil' ? 'active' : ''}`}>
+                <HomeIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Accueil
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link href="/carte-incidents" className={`menu-item-link ${pathname === '/carte-incidents' ? 'active' : ''}`}>
+                <MapIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Carte des incidents
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link href="/lois" className={`menu-item-link ${pathname === '/lois' ? 'active' : ''}`}>
+                <NewspaperIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Lois en vigueur
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link href="/signalements" className={`menu-item-link ${pathname === '/signalements' ? 'active' : ''}`}>
+                <PlusCircleIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Déclarations d'incidents
+              </Link>
+            </li>
+          </ul>
+        )}
+        {dataLoaded && !isMairieUser && (
+          <div>
+            <Link href="/signaler-incident" className="action-button habitant">
+              <ExclamationTriangleIcon width="24" height="24" />
+              Signaler un incident
             </Link>
-          </li>
-          <li style={{ marginBottom: '8px' }}>
-            <Link href="/mon-compte" style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '8px 12px',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              color: 'white'
-            }}>
-              <span style={{ marginRight: '12px' }}>👤</span> Mon compte
+          </div>
+        )}
+        {dataLoaded && isMairieUser && (
+          <div>
+            <Link href="/signaler-incident" className="action-button mairie">
+              <PencilSquareIcon width="24" height="24" />
+              Nouvelle rédaction
+            </Link>
+          </div>
+        )}
+      </nav>
+      
+      {/* Bas du menu */}
+      <div className="bottom-menu">
+        <ul>
+          {isMairieUser && (
+            <li>
+              <Link 
+                href="/mairie/ma-mairie" 
+                className={`bottom-menu-link ${pathname === '/mairie/ma-mairie' ? 'active' : ''}`}
+              >
+                <BuildingLibraryIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Ma mairie
+              </Link>
+            </li>
+          )}
+          <li>
+            <Link 
+              href="/parametres" 
+              className={`bottom-menu-link ${pathname === '/parametres' ? 'active' : ''}`}
+            >
+              <Cog6ToothIcon width="24" height="24" style={{ marginRight: '12px' }} />
+              Paramètres
             </Link>
           </li>
           <li>
-            <button 
-              onClick={handleSignOut}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                textDecoration: 'none',
-                color: 'white',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                width: '100%',
-                fontSize: '14px'
-              }}
+            <Link 
+              href="/mon-compte" 
+              className={`bottom-menu-link ${pathname === '/mon-compte' ? 'active' : ''}`}
             >
-              <span style={{ marginRight: '12px' }}>🚪</span> Déconnexion
+              <UserIcon width="24" height="24" style={{ marginRight: '12px' }} />
+              Mon compte
+            </Link>
+          </li>
+          <li>
+            <button
+              onClick={() => {
+                signOut?.()
+                router.push('/signin')
+              }}
+              className="bottom-menu-link"
+            >
+              <ArrowLeftOnRectangleIcon width="24" height="24" style={{ marginRight: '12px' }} />
+              Se déconnecter
             </button>
           </li>
         </ul>

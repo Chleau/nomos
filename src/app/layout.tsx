@@ -6,9 +6,6 @@ import { usePathname } from 'next/navigation';
 import SidebarMenu from '../components/SidebarMenu';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import './globals.css';
-import { Poppins } from 'next/font/google';
-
-const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600', '700'] });
  
 export default function RootLayout({
   children,
@@ -44,7 +41,7 @@ export default function RootLayout({
   
   return (
     <html lang="fr" style={{ margin: 0, padding: 0, height: '100%', overflow: 'hidden' }}>
-      <body className={poppins.className} style={{ margin: 0, padding: 0, height: '100%', boxSizing: 'border-box', overflow: 'hidden' }} suppressHydrationWarning>
+      <body style={{ margin: 0, padding: 0, height: '100%', boxSizing: 'border-box', overflow: 'hidden' }} suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             {isAuthPage ? (

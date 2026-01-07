@@ -1,13 +1,15 @@
 'use client'
 
 import SignalementCard from '@/components/signalements/SignalementCard'
+import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { useRouter } from 'next/navigation'
 import { useAllSignalements, useHabitantSignalements, useCommuneSignalementsCount } from '@/lib/hooks/useSignalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant, useHabitantSignalementsCount } from '@/lib/hooks/useHabitants'
+import { UserRole } from '@/types/auth'
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter()
   const { user } = useSupabaseAuth()
   
@@ -103,7 +105,8 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-6 lg:p-8">
+    <RoleProtectedPage allowedRoles={[UserRole.HABITANT]}>
+      <main className="min-h-screen p-4 md:p-6 lg:p-8">
       {/* Header */}
       <h1 className="text-xl md:text-3xl lg:text-4xl font-bold mb-6 md:mb-8">
         Bienvenue {loadingHabitant ? '...' : habitant ? `${habitant.prenom} ${habitant.nom}` : 'Invité'}
@@ -434,5 +437,10 @@ export default function Home() {
         )}
       </div>
     </main>
+    </RoleProtectedPage>
   )
+}
+
+export default function Home() {
+  return <HomeContent />
 }

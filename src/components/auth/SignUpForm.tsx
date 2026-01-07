@@ -60,7 +60,6 @@ export function SignUpForm() {
 
     try {
       const { data: authData, error } = await authService.signUp(data)
-      console.log('Signup response:', { authData, error }) // Pour le débogage
       
       if (error) {
         console.error('Signup error:', error) // Pour le débogage

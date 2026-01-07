@@ -1,9 +1,8 @@
 // Types de rôles disponibles
 export enum UserRole {
     HABITANT = 'habitant',
-    AGENT_BASIQUE = 'agent_basique',         // Peut gérer les signalements uniquement
-    AGENT_REDACTEUR = 'agent_redacteur',     // Peut gérer les signalements et rédiger des arrêtés
-    ADMIN_MAIRIE = 'admin_mairie',           // Accès complet pour sa mairie
+    ADMIN = 'admin',                         // Accès complet pour sa mairie (équivalent ADMIN_MAIRIE)
+    MAIRIE = 'mairie',                       // Accès mairie
     SUPER_ADMIN = 'super_admin'              // Accès complet sur toutes les mairies
 }
 
@@ -40,16 +39,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
         Permission.VOIR_ARRETES
     ],
     
-    [UserRole.AGENT_BASIQUE]: [
-        Permission.VOIR_SIGNALEMENTS,
-        Permission.CREER_SIGNALEMENT,
-        Permission.GERER_SIGNALEMENTS,
-        Permission.VALIDER_SIGNALEMENTS,
-        Permission.VOIR_ARRETES,
-        Permission.GERER_HABITANTS
-    ],
-    
-    [UserRole.AGENT_REDACTEUR]: [
+    [UserRole.MAIRIE]: [
         Permission.VOIR_SIGNALEMENTS,
         Permission.CREER_SIGNALEMENT,
         Permission.GERER_SIGNALEMENTS,
@@ -57,10 +47,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
         Permission.VOIR_ARRETES,
         Permission.CREER_ARRETE,
         Permission.MODIFIER_ARRETE,
-        Permission.GERER_HABITANTS
+        Permission.SUPPRIMER_ARRETE,
+        Permission.GERER_AGENTS,
+        Permission.GERER_HABITANTS,
+        Permission.ADMIN_MAIRIE
     ],
     
-    [UserRole.ADMIN_MAIRIE]: [
+    [UserRole.ADMIN]: [
         Permission.VOIR_SIGNALEMENTS,
         Permission.CREER_SIGNALEMENT,
         Permission.GERER_SIGNALEMENTS,
