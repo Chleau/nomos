@@ -27,6 +27,15 @@ export const signalementsService = {
         photos_signalement (
           id,
           url
+        ),
+        types_signalement (
+          id,
+          libelle
+        ),
+        habitants (
+          id,
+          nom,
+          prenom
         )
       `)
       .order('date_signalement', { ascending: false })
@@ -46,6 +55,10 @@ export const signalementsService = {
         photos_signalement (
           id,
           url
+        ),
+        types_signalement (
+          id,
+          libelle
         )
       `)
       .eq('habitant_id', habitantId)

@@ -65,7 +65,7 @@ export default function RootLayout({
                 <main style={{
                   flex: 1,
                   backgroundColor: '#f9fafb',
-                  padding: isMobile ? '24px 24px 94px 24px' : '24px',
+                  padding: 0,
                   minWidth: 0,
                   overflow: 'auto',
                   height: isMobile ? 'calc(100% - 70px)' : '100%',
