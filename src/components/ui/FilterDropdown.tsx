@@ -7,6 +7,7 @@ interface FilterDropdownProps {
   onClose: () => void
   onApply: (filters: FilterState) => void
   onClear: () => void
+  categories?: string[]
 }
 
 export interface FilterState {
@@ -16,13 +17,13 @@ export interface FilterState {
   themes: string[]
 }
 
-export default function FilterDropdown({ isOpen, onClose, onApply, onClear }: FilterDropdownProps) {
+export default function FilterDropdown({ isOpen, onClose, onApply, onClear, categories }: FilterDropdownProps) {
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
   const [periodType, setPeriodType] = useState<'custom' | '7days' | '30days' | 'thisyear' | null>(null)
   const [themes, setThemes] = useState<string[]>([])
 
-  const availableThemes = ['Filtre 1', 'Filtre 2', 'Filtre 3', 'Filtre 4', 'Filtre 5', 'Filtre 6']
+  const availableThemes = categories || ['Filtre 1', 'Filtre 2', 'Filtre 3', 'Filtre 4', 'Filtre 5', 'Filtre 6']
 
   const handleThemeToggle = (theme: string) => {
     setThemes(prev => 
