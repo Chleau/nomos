@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { FunnelIcon } from '@heroicons/react/24/outline'; 
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage';
 import Button from '@/components/ui/Button';
+import { UserRole } from '@/types/auth';
 
 function HomeContent() {
   const { user } = useSupabaseAuth();
@@ -22,8 +23,11 @@ function HomeContent() {
   const { data: habitant } = useCurrentHabitant(user?.id || null);
   const { data: userDeclarations = 0 } = useHabitantSignalementsCount(habitant?.id || null);
   const { data: totalDeclarations = 0 } = useCommuneSignalementsCount(habitant?.commune_id || null);
-  const { data: derniersSignalements = [] } = useAllSignalements(2);
-  const { data: mesSignalements = [] } = useHabitantSignalements(habitant?.id || null, 2);
+  const { data: derniersSignalementsData } = useAllSignalements(2);
+  const derniersSignalements = derniersSignalementsData || [];
+
+  const { data: mesSignalementsData } = useHabitantSignalements(habitant?.id || null, 2);
+  const mesSignalements = mesSignalementsData || [];
 
   const getLevelInfo = (count: number) => {
     if (count < 3) return { 
@@ -127,7 +131,7 @@ function HomeContent() {
               <h2 className="font-['Poppins'] font-medium text-[#242a35] text-[30px]">
                 Derniers incidents déclarés
               </h2>
-              <Button variant="outline" className="gap-2 bg-white border-[#e7eaed] text-[#475569] hover:bg-gray-50">
+              <Button variant="outline" size="xs">
                 <FunnelIcon className="w-5 h-5" />
                 <span className="font-['Montserrat'] text-[16px]">Filtres</span>
               </Button>
@@ -201,7 +205,7 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <RoleProtectedPage allowedRoles={['habitant']}>
+    <RoleProtectedPage allowedRoles={[UserRole.HABITANT]}>
       <HomeContent />
     </RoleProtectedPage>
   );
