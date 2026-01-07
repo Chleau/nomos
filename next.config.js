@@ -1,11 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  experimental: {
-    serverActions: {
-      enabled: true
-    }
-  },
   // Configuration pour hot reload sous Windows avec Docker
   webpack: (config, { dev }) => {
     if (dev) {

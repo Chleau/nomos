@@ -21,4 +21,7 @@ export interface Signalement {
   prenom?: string
   telephone?: string
   email?: string
+  photos_signalement?: { id: number; url: string }[]
+  types_signalement?: { id: number; libelle: string }
+  habitants?: { id: number; nom: string; prenom: string }
 }

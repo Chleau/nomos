@@ -12,10 +12,8 @@ import CardRaccourci from '@/components/accueil-v2/CardRaccourci';
 import { getPublicUrlFromPath } from '@/lib/services/storage.service';
 import Link from 'next/link';
 import { FunnelIcon } from '@heroicons/react/24/outline'; 
-import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage';
-import Button from '@/components/ui/Button';
 
-function HomeContent() {
+export default function AccueilV2() {
   const { user } = useSupabaseAuth();
   
   // Data fetching
@@ -127,10 +125,10 @@ function HomeContent() {
               <h2 className="font-['Poppins'] font-medium text-[#242a35] text-[30px]">
                 Derniers incidents déclarés
               </h2>
-              <Button variant="outline" className="gap-2 bg-white border-[#e7eaed] text-[#475569] hover:bg-gray-50">
-                <FunnelIcon className="w-5 h-5" />
-                <span className="font-['Montserrat'] text-[16px]">Filtres</span>
-              </Button>
+              <button className="bg-white border border-[#e7eaed] flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <FunnelIcon className="w-5 h-5 text-[#475569]" />
+                <span className="font-['Montserrat'] text-[#475569] text-[16px]">Filtres</span>
+              </button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -151,10 +149,8 @@ function HomeContent() {
             </div>
             
             <div className="flex justify-end">
-                <Link href="/signalements">
-                  <Button size="xs" variant='primary'>
-                    Voir tout
-                  </Button>
+                <Link href="/signalements" className="bg-[#f27f09] text-[#242a35] font-['Poppins'] font-medium text-[12px] px-3 py-1.5 rounded-lg">
+                  Voir tout
                 </Link>
             </div>
           </div>
@@ -185,10 +181,8 @@ function HomeContent() {
             </div>
 
             <div className="flex justify-end">
-                <Link href="/signalements">
-                  <Button size="xs" variant='primary'>
-                    Voir tout
-                  </Button>
+                <Link href="/signalements" className="bg-[#f27f09] text-[#242a35] font-['Poppins'] font-medium text-[12px] px-3 py-1.5 rounded-lg">
+                  Voir tout
                 </Link>
             </div>
           </div>
@@ -196,13 +190,5 @@ function HomeContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <RoleProtectedPage allowedRoles={['habitant']}>
-      <HomeContent />
-    </RoleProtectedPage>
   );
 }

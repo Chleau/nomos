@@ -65,7 +65,7 @@ body {
 /* Primary filled button (kaki) */
 .btn-kaki {
   background-color: var(--color-primary);
-  color: white;
+  color: black;
   box-shadow: var(--shadow-1);
   border-radius: var(--radius-md);
 }
