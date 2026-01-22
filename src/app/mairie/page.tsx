@@ -497,13 +497,7 @@ function MairieContent() {
               />
             </div>
             
-            <Button 
-              size="sm" 
-              variant="primary"
-              onClick={() => setSortLois(sortLois === 'recent' ? 'ancien' : 'recent')}
-            >
-              {sortLois === 'recent' ? 'trier par : le plus récent' : 'trier par : le plus ancien'}
-            </Button>
+         
           </div>
         </div>
 
