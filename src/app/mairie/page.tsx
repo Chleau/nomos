@@ -262,7 +262,7 @@ function MairieContent() {
   const lois = Array.from({ length: 2 }).map((_, i) => ({
     id: i + 1,
     title: "LOI organique n° 2022-400 du 21 mars 2022 visant à renforcer le rôle du Défenseur des droits en matière de signalement d'alerte",
-    date: new Date(Date.now() - i * 7 * 24 * 60 * 60 * 1000), // Dates décalées par semaine
+    date: new Date(1735689600000 - i * 7 * 24 * 60 * 60 * 1000), // Fixed date (Jan 1 2025) to avoid hydration mismatch
     category: 'Droit'
   }))
 
@@ -459,8 +459,12 @@ function MairieContent() {
     },
     { 
       header: 'Date', 
-      accessorKey: 'dateStr',
       align: 'left',
+      render: (row) => (
+        <span suppressHydrationWarning>
+          {row.dateStr}
+        </span>
+      ),
       width: '15%'
     },
     {
@@ -494,7 +498,7 @@ function MairieContent() {
            <button 
              className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 transition-colors" 
              title="Voir"
-             onClick={() => router.push(`/mairie/nouveau-arrete?id=${row.id}`)}
+             onClick={() => router.push(`/mairie/nouveau-arrete?id=${row.id}&mode=view`)}
            >
              <EyeIcon className="w-5 h-5" />
            </button>
@@ -647,7 +651,7 @@ function MairieContent() {
 
         {/* Action buttons */}
         <div className="flex items-center justify-between pt-[25px]">
-          <Button variant="primary" size="sm">Actions groupées</Button>
+          <Button variant="outline" size="sm">Actions groupées</Button>
           <Button variant="primary" size="sm">Voir tout</Button>
         </div>
       </div>

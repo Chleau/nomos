@@ -30,19 +30,27 @@ export function useCreateArrete() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: (arrete: Partial<ArreteMunicipal>) => arretesService.create(arrete),
+    mutationFn: async (arrete: Partial<ArreteMunicipal>) => {
+      const { data, error } = await arretesService.create(arrete)
+      if (error) throw error
+      return data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['arretes'] })
     }
   })
 }
 
+
 export function useUpdateArrete() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string | number, updates: Partial<ArreteMunicipal> }) => 
-      arretesService.update(id, updates),
+    mutationFn: async ({ id, updates }: { id: string | number, updates: Partial<ArreteMunicipal> }) => {
+      const { data, error } = await arretesService.update(id, updates)
+      if (error) throw error
+      return data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['arretes'] })
     }
@@ -53,10 +61,25 @@ export function useDeleteArrete() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string | number) => arretesService.delete(id),
+    mutationFn: async (id: string | number) => {
+      const { error } = await arretesService.delete(id)
+      if (error) throw error
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['arretes'] })
     }
+  })
+}
+
+export function useArrete(id: string | number | null) {
+  return useQuery({
+    queryKey: ['arrete', id],
+    queryFn: async () => {
+      const { data, error } = await arretesService.getById(id!)
+      if (error) throw error
+      return data
+    },
+    enabled: !!id
   })
 }
 

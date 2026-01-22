@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useState, useEffect, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
-import { useCreateArrete, useRecentArretes } from '@/lib/hooks/useArretes'
+import { useCreateArrete, useRecentArretes, useArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
+
 import { agentsService } from '@/lib/services/agents.service'
 import Button from '@/components/ui/Button'
 import { 
@@ -34,7 +35,14 @@ export default function NouveauArretePage() {
   const { user } = useSupabaseAuth()
   const { data: habitant } = useCurrentHabitant(user?.id || null)
   const createArrete = useCreateArrete()
+  const updateArrete = useUpdateArrete()
   const { data: recentArretes } = useRecentArretes(habitant?.commune_id || null)
+
+  const searchParams = useSearchParams()
+  const arreteId = searchParams.get('id')
+  const mode = searchParams.get('mode')
+  const isReadOnly = mode === 'view'
+  const { data: existingArrete, isLoading: loadingArrete } = useArrete(arreteId)
 
   // Form State
   const [title, setTitle] = useState('')
@@ -61,6 +69,35 @@ Article 1 : ...
   const [isActionsOpen, setIsActionsOpen] = useState(false)
   const [isTypeOpen, setIsTypeOpen] = useState(false)
   const [isCategoryOpen, setIsCategoryOpen] = useState(false)
+  const editorRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (existingArrete) {
+      setTitle(existingArrete.titre || '')
+      setNumero(existingArrete.numero || '')
+      setCategory(existingArrete.categorie || 'Sans catégorie')
+      setTypeDocument(existingArrete.type || 'Arrêté')
+      
+      const contentToSet = existingArrete.contenu || ''
+      setContent(contentToSet)
+      if (editorRef.current) {
+        // Handle basic conversion from plain text if needed
+        if (contentToSet && !contentToSet.includes('<') && contentToSet.includes('\n')) {
+             editorRef.current.innerHTML = contentToSet.replace(/\n/g, '<br>')
+        } else {
+             editorRef.current.innerHTML = contentToSet
+        }
+      }
+    }
+  }, [existingArrete])
+
+  // Initial Content Setup for new documents
+  useEffect(() => {
+    if (!arreteId && editorRef.current && !editorRef.current.innerHTML) {
+         // Convert the default state content newlines to breaks
+         editorRef.current.innerHTML = content.replace(/\n/g, '<br>')
+    }
+  }, []) // Run once on mount
 
   // Actions Handlers
   const handleDownload = () => {
@@ -124,41 +161,61 @@ Article 1 : ...
     if (!habitant?.commune_id || !title) return
 
     try {
-      // 1. Récupérer ou Créer l'agent correspondant à l'habitant connecté
-      const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant)
-      
-      if (agentError || !agent) {
-          console.error('Erreur récupération agent:', agentError)
-          alert("Impossible de récupérer le profil agent pour cet utilisateur.")
-          return
+      if (arreteId) {
+        console.log('Updating arrete:', arreteId)
+        const updateData = {
+          titre: title,
+          numero: numero,
+          contenu: content,
+          categorie: category,
+          type: typeDocument,
+          date_modification: new Date().toISOString()
+        }
+        console.log('Update payload:', updateData)
+        
+        const result = await updateArrete.mutateAsync({
+            id: arreteId,
+            updates: updateData
+        })
+        console.log('Update result:', result)
+      } else {
+        // 1. Récupérer ou Créer l'agent correspondant à l'habitant connecté
+        const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant)
+        
+        if (agentError || !agent) {
+            console.error('Erreur récupération agent:', agentError)
+            alert("Impossible de récupérer le profil agent pour cet utilisateur.")
+            return
+        }
+
+        console.log('Agent found/created:', agent)
+
+        console.log('Sending arrete data...', {
+            titre: title,
+            contenu: content,
+            commune_id: habitant.commune_id,
+            agent_id: agent.id,
+            statut: 'Brouillon',
+            categorie: category,
+            type: typeDocument
+        })
+
+        await createArrete.mutateAsync({
+            titre: title,
+            numero: numero,
+            contenu: content,
+            commune_id: habitant.commune_id,
+            agent_id: agent.id, 
+            statut: 'Brouillon', // Décommenter si la colonne existe
+            categorie: category, // Assurez-vous que votre hook useCreateArrete transmet ce champ
+            type: typeDocument, // Nouveau champ
+            date_creation: new Date().toISOString(),
+            archive: false
+        } as any)
       }
 
-      console.log('Agent found/created:', agent)
-
-      console.log('Sending arrete data...', {
-        titre: title,
-        contenu: content,
-        commune_id: habitant.commune_id,
-        agent_id: agent.id,
-        statut: 'Brouillon',
-        categorie: category,
-        type: typeDocument
-      })
-
-      await createArrete.mutateAsync({
-        titre: title,
-        numero: numero,
-        contenu: content,
-        commune_id: habitant.commune_id,
-        agent_id: agent.id, 
-        statut: 'Brouillon', // Décommenter si la colonne existe
-        categorie: category, // Assurez-vous que votre hook useCreateArrete transmet ce champ
-        type: typeDocument, // Nouveau champ
-        date_creation: new Date().toISOString(),
-        archive: false
-      } as any)
-
       router.push('/mairie')
+      router.refresh()
     } catch (error) {
       console.error('Erreur lors de la création de l\'arrêté:', error)
       alert("Une erreur est survenue lors de l'enregistrement. Vérifiez la console pour plus de détails.")
@@ -170,10 +227,47 @@ Article 1 : ...
     setIsGenerating(true)
     // Simulation of AI generation
     setTimeout(() => {
-      setContent(prev => prev + `\n\n[Texte généré pour : "${prompt}"]\nConsidérant que...`)
+      const newText = `\n\n[Texte généré pour : "${prompt}"]\nConsidérant que...`
+      const newHtml = newText.replace(/\n/g, '<br>')
+      
+      setContent(prev => prev + newHtml)
+      if (editorRef.current) {
+        editorRef.current.innerHTML += newHtml
+      }
+      
       setPrompt('')
       setIsGenerating(false)
     }, 1500)
+  }
+
+  const handleFormat = (command: string, value?: string) => {
+    if (isReadOnly) return
+    document.execCommand(command, false, value)
+    editorRef.current?.focus()
+    // Sync state
+    if (editorRef.current) {
+        setContent(editorRef.current.innerHTML)
+    }
+  }
+
+  const handleLink = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (isReadOnly) return
+
+    const selection = window.getSelection()
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        alert("Veuillez sélectionner le texte à transformer en lien.")
+        return
+    }
+
+    const range = selection.getRangeAt(0)
+    const url = window.prompt("Entrez l'URL du lien :")
+    
+    if (url) {
+      selection.removeAllRanges()
+      selection.addRange(range)
+      handleFormat('createLink', url)
+    }
   }
 
   // Sidebar Card Component
@@ -207,9 +301,10 @@ Article 1 : ...
                         <input 
                             type="text" 
                             placeholder="Ex: 2024-001" 
-                            className="w-full text-base text-gray-800 placeholder:text-gray-300 border-none focus:ring-0 p-0 font-mono bg-transparent transition-all"
+                            className="w-full text-base text-gray-800 placeholder:text-gray-300 border-none focus:ring-0 p-0 font-mono bg-transparent transition-all disabled:opacity-50"
                             value={numero}
                             onChange={(e) => setNumero(e.target.value)}
+                            disabled={isReadOnly}
                         />
                     </div>
                 </div>
@@ -218,13 +313,13 @@ Article 1 : ...
                     {/* Type Document Dropdown */}
                     <div className="relative">
                         <button 
-                            onClick={() => setIsTypeOpen(!isTypeOpen)}
-                            className="flex items-center gap-2 px-3 py-1.5 border border-[#e7eaed] rounded-lg bg-white text-gray-600 hover:bg-gray-50 transition-colors"
+                            onClick={() => !isReadOnly && setIsTypeOpen(!isTypeOpen)}
+                            className={`flex items-center gap-2 px-3 py-1.5 border border-[#e7eaed] rounded-lg bg-white text-gray-600 transition-colors ${!isReadOnly ? 'hover:bg-gray-50' : 'opacity-70 cursor-default'}`}
                         >
                             <span className="text-sm">{typeDocument}</span>
-                            <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                            {!isReadOnly && <ChevronDownIcon className="w-4 h-4 text-gray-400" />}
                         </button>
-                        {isTypeOpen && (
+                        {isTypeOpen && !isReadOnly && (
                             <>
                                 <div className="fixed inset-0 z-40" onClick={() => setIsTypeOpen(false)}></div>
                                 <div className="absolute top-full right-0 mt-1 w-40 bg-white border border-gray-100 shadow-lg rounded-md p-1 z-50">
@@ -245,13 +340,13 @@ Article 1 : ...
                     {/* Category Dropdown */}
                     <div className="relative">
                         <button 
-                            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                            className="flex items-center gap-2 px-3 py-1.5 border border-[#e7eaed] rounded-lg bg-white text-gray-600 hover:bg-gray-50 transition-colors"
+                            onClick={() => !isReadOnly && setIsCategoryOpen(!isCategoryOpen)}
+                            className={`flex items-center gap-2 px-3 py-1.5 border border-[#e7eaed] rounded-lg bg-white text-gray-600 transition-colors ${!isReadOnly ? 'hover:bg-gray-50' : 'opacity-70 cursor-default'}`}
                         >
                             <span className="text-sm truncate max-w-[120px]">{category}</span>
-                            <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                            {!isReadOnly && <ChevronDownIcon className="w-4 h-4 text-gray-400" />}
                         </button>
-                        {isCategoryOpen && (
+                        {isCategoryOpen && !isReadOnly && (
                             <>
                                 <div className="fixed inset-0 z-40" onClick={() => setIsCategoryOpen(false)}></div>
                                 <div className="absolute top-full right-0 mt-1 w-56 bg-white border border-gray-100 shadow-lg rounded-md p-1 z-50 max-h-[300px] overflow-y-auto">
@@ -301,15 +396,17 @@ Article 1 : ...
                     </div>
 
                     {/* Primary Action */}
+                    {!isReadOnly && (
                     <Button 
                         variant="primary" 
                         size="sm" 
                         className="bg-[#f27f09] hover:bg-[#d67008] text-white border-transparent"
                         onClick={handleSave}
-                        disabled={createArrete.isPending}
+                        disabled={createArrete.isPending || updateArrete.isPending}
                     >
-                        {createArrete.isPending ? 'Enregistrement...' : 'Enregistrer'}
+                        {createArrete.isPending || updateArrete.isPending ? 'Enregistrement...' : 'Enregistrer'}
                     </Button>
+                    )}
                 </div>
             </div>
 
@@ -319,41 +416,73 @@ Article 1 : ...
                 <input 
                     type="text" 
                     placeholder="Saisissez l'objet du document ici..." 
-                    className="w-full text-xl text-gray-800 placeholder:text-gray-300 border-none focus:ring-0 p-0 font-medium bg-transparent"
+                    className="w-full text-xl text-gray-800 placeholder:text-gray-300 border-none focus:ring-0 p-0 font-medium bg-transparent disabled:opacity-70"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    disabled={isReadOnly}
+                    readOnly={isReadOnly}
                 />
             </div>
 
             {/* Editor Formatting Toolbar */}
             <div className="bg-white border-b border-[#e7eaed] px-6 py-2 flex items-center gap-4 shrink-0 z-20">
                 <div className="flex items-center gap-1 border-r border-gray-200 pr-4">
-                    <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500"><BoldIcon className="w-4 h-4" /></button>
-                    <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500"><ItalicIcon className="w-4 h-4" /></button>
-                    <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500"><UnderlineIcon className="w-4 h-4" /></button>
+                    <button 
+                        onMouseDown={(e) => { e.preventDefault(); handleFormat('bold') }}
+                        className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
+                        title="Gras"
+                    >
+                        <BoldIcon className="w-4 h-4" />
+                    </button>
+                    <button 
+                         onMouseDown={(e) => { e.preventDefault(); handleFormat('italic') }}
+                         className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
+                         title="Italique"
+                    >
+                        <ItalicIcon className="w-4 h-4" />
+                    </button>
+                    <button 
+                        onMouseDown={(e) => { e.preventDefault(); handleFormat('underline') }}
+                        className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
+                        title="Souligner"
+                    >
+                        <UnderlineIcon className="w-4 h-4" />
+                    </button>
                 </div>
                 <div className="flex items-center gap-1 border-r border-gray-200 pr-4">
-                    <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500"><ListBulletIcon className="w-4 h-4" /></button>
-                    <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500"><LinkIcon className="w-4 h-4" /></button>
-                </div>
-                <div className="flex items-center gap-1">
-                    <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500"><PhotoIcon className="w-4 h-4" /></button>
+                    <button 
+                        onMouseDown={(e) => { e.preventDefault(); handleFormat('insertUnorderedList') }}
+                        className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
+                        title="Liste à puces"
+                    >
+                        <ListBulletIcon className="w-4 h-4" />
+                    </button>
+                    <button 
+                         onMouseDown={handleLink}
+                         className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
+                         title="Lien"
+                    >
+                        <LinkIcon className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
 
             {/* Document Content (Scrollable) */}
             <div className="flex-1 overflow-y-auto bg-[#f5fcfe] p-8 flex justify-center relative">
                 <div className="bg-white w-[210mm] min-h-[297mm] shadow-sm p-[20mm] text-[#4a4a4a] text-[12pt] leading-normal font-serif">
-                    <textarea 
-                        className="w-full h-full min-h-[800px] resize-none border-none outline-none focus:ring-0 p-0 bg-transparent font-[Montserrat] opacity-90"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
+                    <div 
+                        ref={editorRef}
+                        className="w-full h-full min-h-[800px] outline-none focus:ring-0 p-0 bg-transparent font-[Montserrat] opacity-90 disabled:cursor-default whitespace-pre-wrap"
+                        contentEditable={!isReadOnly}
+                        suppressContentEditableWarning
+                        onInput={(e) => setContent(e.currentTarget.innerHTML)}
                         spellCheck={false}
                     />
                 </div>
             </div>
 
             {/* AI Prompt Section (Bottom) */}
+            {!isReadOnly && (
             <div className="bg-[#cbd5e1] p-0 shrink-0 z-30">
                 <div className="flex items-center gap-4 max-w-5xl mx-auto w-full px-6 py-6">
                     <div className="flex-1 flex flex-col gap-2">
@@ -387,6 +516,7 @@ Article 1 : ...
                     </div>
                 </div>
             </div>
+            )}
         </div>
 
         {/* RIGHT: Context Sidebar */}
