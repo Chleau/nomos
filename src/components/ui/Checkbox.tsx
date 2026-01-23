@@ -1,6 +1,6 @@
 'use client'
 
-import React, { forwardRef, useState } from 'react'
+import React, { forwardRef, useState, useEffect } from 'react'
 
 type Size = 'md' | 'lg'
 type State = 'checked' | 'unchecked' | 'indeterminate' | 'disabled'
@@ -12,8 +12,14 @@ interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>
 }
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ size = 'md', state, label, className = '', checked: initialChecked, disabled, onChange, ...props }, ref) => {
-    const [isChecked, setIsChecked] = useState(initialChecked || false)
+  ({ size = 'md', state, label, className = '', checked: controlledChecked, disabled, onChange, ...props }, ref) => {
+    const [isChecked, setIsChecked] = useState(controlledChecked || false)
+
+    useEffect(() => {
+      if (controlledChecked !== undefined) {
+        setIsChecked(!!controlledChecked)
+      }
+    }, [controlledChecked])
 
     const sizeClasses = {
       md: 'w-5 h-5',

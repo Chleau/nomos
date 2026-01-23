@@ -51,16 +51,41 @@ export interface TypeSignalement extends BaseEntity {
     libelle: string;
 }
 
+// Enum pour les catégories d'arrêtés
+export type CategorieArrete = 
+    | 'Sécurité publique' 
+    | 'Environnement' 
+    | 'Commerce' 
+    | 'Transport' 
+    | 'Fonction publique / RH' 
+    | 'Sans catégorie'
+    | 'Urbanisme'
+    | 'Voirie'
+    | 'État civil'
+    | 'Finance'
+    | 'Éducation'
+    | 'Autre';
+
+// Enum pour le statut d'un arrêté
+export type StatutArrete = 'Brouillon' | 'En cours de validation' | 'Validé' | 'Publié' | 'Archivé';
+
 // Types pour les arrêtés municipaux
 export interface ArreteMunicipal extends BaseEntity {
     commune_id: number;
     agent_id: number;
     titre: string;
     contenu: string;
+    categorie?: CategorieArrete;
     date_creation: Timestamp;
     date_modification: Timestamp | null;
     fichier_url: string | null;
+    statut?: StatutArrete | string; 
     archive: boolean;
+    numero?: string;
+    type?: string;
+    // Relations (optionnelles)
+    agents_mairie?: AgentMairie;
+    auteur?: { habitant: Habitant }; // Legacy/Alias support
 }
 
 // Types pour les lois et réglementations
