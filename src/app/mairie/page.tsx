@@ -12,6 +12,7 @@ import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useRecentArretes, useDeleteArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
+import { ARRETE_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
 import { UserRole } from '@/types/auth'
 import { useState, useRef, useEffect } from 'react'
 
@@ -144,21 +145,6 @@ function ActionMenu({ row }: { row: Redaction }) {
     </div>
   )
 }
-
-const ARRETE_CATEGORIES = [
-  'Sécurité publique', 
-  'Environnement', 
-  'Commerce', 
-  'Transport', 
-  'Fonction publique / RH', 
-  'Urbanisme', 
-  'Voirie', 
-  'État civil', 
-  'Finance', 
-  'Éducation', 
-  'Autre', 
-  'Sans catégorie'
-]
 
 function MairieContent() {
   const router = useRouter()
@@ -404,22 +390,8 @@ function MairieContent() {
   const filteredRedactions = filterRedactionsArray(sortedRedactions)
   const filteredLois = filterLoisArray(sortedLois)
 
-  const getBadgeColor = (category: string): 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' => {
-    switch (category) {
-      case 'Sécurité publique': return 'blue'
-      case 'Environnement': return 'success'
-      case 'Commerce': return 'orange'
-      case 'Transport': return 'indigo'
-      case 'Fonction publique / RH': return 'pink'
-      case 'Urbanisme': return 'purple'
-      case 'Voirie': return 'neutral'
-      case 'État civil': return 'teal'
-      case 'Finance': return 'warning'
-      case 'Éducation': return 'info'
-      case 'Autre': return 'neutral'
-      case 'Sans catégorie': return 'neutral'
-      default: return 'neutral'
-    }
+  const getBadgeColor = (category: string) => {
+    return CATEGORY_COLORS[category] || 'neutral'
   }
 
   const columns: Column<Redaction>[] = [

@@ -1,4 +1,5 @@
 // Types communs
+import { ArreteCategory } from '@/lib/constants';
 export type Timestamp = string;
 
 // Type de base avec les champs communs
@@ -52,19 +53,7 @@ export interface TypeSignalement extends BaseEntity {
 }
 
 // Enum pour les catégories d'arrêtés
-export type CategorieArrete = 
-    | 'Sécurité publique' 
-    | 'Environnement' 
-    | 'Commerce' 
-    | 'Transport' 
-    | 'Fonction publique / RH' 
-    | 'Sans catégorie'
-    | 'Urbanisme'
-    | 'Voirie'
-    | 'État civil'
-    | 'Finance'
-    | 'Éducation'
-    | 'Autre';
+export type CategorieArrete = ArreteCategory;
 
 // Enum pour le statut d'un arrêté
 export type StatutArrete = 'Brouillon' | 'En cours de validation' | 'Validé' | 'Publié' | 'Archivé';

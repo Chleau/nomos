@@ -40,7 +40,7 @@ export default function RootLayout({
   }, []);
   
   return (
-    <html lang="fr" style={{ margin: 0, padding: 0, height: '100%', overflow: 'hidden' }}>
+    <html lang="fr" style={{ margin: 0, padding: 0, height: '100%', overflow: 'hidden' }} suppressHydrationWarning>
       <body style={{ margin: 0, padding: 0, height: '100%', boxSizing: 'border-box', overflow: 'hidden' }} suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
