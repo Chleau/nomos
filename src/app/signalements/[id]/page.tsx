@@ -202,7 +202,7 @@ export default function SignalementDetailPage() {
           <h2 className="text-lg font-semibold mb-3">Photos de l&apos;incident</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {photos.length > 0 ? (
-              photos.map((photo, index: number) => {
+              photos.map((photo: { id: number; url: string }, index: number) => {
                 const photoUrl = getPublicUrlFromPath(photo.url)
                 return (
                   <div key={photo.id || index} className="aspect-square bg-gray-200 rounded-xl overflow-hidden">
