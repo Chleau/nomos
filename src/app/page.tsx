@@ -184,7 +184,7 @@ function HomeContent() {
                 />
               ))}
                {mesSignalements.length === 0 && (
-                  <p className="text-gray-500">Vous n'avez pas encore déclaré d'incident.</p>
+                  <p className="text-gray-500">Vous n&apos;avez pas encore déclaré d&apos;incident.</p>
               )}
             </div>
 
