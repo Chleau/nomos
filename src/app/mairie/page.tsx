@@ -33,25 +33,25 @@ import {
   PlusIcon,
 } from '@heroicons/react/24/outline'
 
-// Définition du type pour une rédaction
-type Redaction = {
-  id: number | string
-  numero?: string
-  type?: string
-  title: string
-  date: Date
-  dateStr: string
-  category: string
-  status?: string
-  location?: string
+// Définition du type pour une ligne de rédaction dans le tableau
+interface RedactionRow {
+  id: number;
+  numero: string;
+  type: string;
+  title: string;
+  date: Date;
+  dateStr: string;
+  category: string;
+  location: string;
+  status: string;
   user: {
-    initials: string
-    name: string
-    id: string
-  }
+    initials: string;
+    name: string;
+    id: number;
+  };
 }
 
-function ActionMenu({ row }: { row: Redaction }) {
+function ActionMenu({ row }: { row: RedactionRow }) {
   const router = useRouter()
   const deleteArrete = useDeleteArrete()
   const updateArrete = useUpdateArrete()
@@ -179,7 +179,7 @@ function MairieContent() {
     return date.toLocaleDateString('fr-FR')
   }
 
-  const getStatut = (statut: string | null): 'En cours' | 'Résolu' | 'Signalé' => {
+  const getStatut = (statut: string | null | undefined): 'En cours' | 'Résolu' | 'Signalé' => {
     if (!statut) return 'Signalé'
     if (statut.toLowerCase().includes('résolu') || statut.toLowerCase().includes('resolu')) return 'Résolu'
     if (statut.toLowerCase().includes('cours')) return 'En cours'
@@ -217,17 +217,7 @@ function MairieContent() {
   }
 
   // Transformation des données API en format compatible pour le tableau
-  interface Redaction {
-    id: number;
-    date: Date;
-    title: string;
-    status: string;
-    category: string;
-    author: string;
-    initials: string;
-  }
-
-  const redactions: Redaction[] = arretes.map((arrete) => {
+  const redactions: RedactionRow[] = (arretes || []).map((arrete) => {
     const date = new Date(arrete.date_creation)
     const habitant = arrete.auteur?.habitant
     const initials = habitant 
@@ -268,14 +258,14 @@ function MairieContent() {
     if (!signalements) return []
     const sorted = [...signalements]
     if (sortIncidents === 'recent') {
-      sorted.sort((a, b) => new Date(b.date_signalement).getTime() - new Date(a.date_signalement).getTime())
+      sorted.sort((a, b) => new Date(b.date_signalement || 0).getTime() - new Date(a.date_signalement || 0).getTime())
     } else {
-      sorted.sort((a, b) => new Date(a.date_signalement).getTime() - new Date(b.date_signalement).getTime())
+      sorted.sort((a, b) => new Date(a.date_signalement || 0).getTime() - new Date(b.date_signalement || 0).getTime())
     }
     return sorted
   }
 
-  const sortRedactionsArray = (items: Redaction[]) => {
+  const sortRedactionsArray = (items: RedactionRow[]) => {
     const sorted = [...items]
     if (sortRedactions === 'recent') {
       sorted.sort((a, b) => b.date.getTime() - a.date.getTime())
@@ -315,6 +305,7 @@ function MairieContent() {
     // Filtre par dates
     if (filterIncidents.startDate || filterIncidents.endDate) {
       filtered = filtered.filter(s => {
+        if (!s.date_signalement) return false
         const signalDate = new Date(s.date_signalement)
         if (filterIncidents.startDate) {
           const startDate = new Date(filterIncidents.startDate)
@@ -340,7 +331,7 @@ function MairieContent() {
     return filtered
   }
 
-  const filterRedactionsArray = (items: Redaction[]) => {
+  const filterRedactionsArray = (items: RedactionRow[]) => {
     if (!filterRedactionsState) return items
     
     let filtered = items
@@ -412,7 +403,7 @@ function MairieContent() {
     return CATEGORY_COLORS[category] || 'neutral'
   }
 
-  const columns: Column<Redaction>[] = [
+  const columns: Column<RedactionRow>[] = [
     {
       header: '',
       width: '5%',
@@ -482,7 +473,7 @@ function MairieContent() {
     {
       header: 'Action',
       align: 'center',
-      render: (row) => (
+      render: (row: RedactionRow) => (
         <div className="flex items-center gap-2">
            <ActionMenu row={row} />
            <button 
@@ -554,7 +545,7 @@ function MairieContent() {
                     image={imageUrl}
                     title={signalement.titre || 'Sans titre'}
                     label={getStatut(signalement.statut)}
-                    date={formatDate(signalement.date_signalement)}
+                    date={formatDate(signalement.date_signalement || null)}
                     username={userName}
                     description={signalement.description || 'Aucune description'}
                     onClick={() => router.push(`/signalements/${signalement.id}`)}
@@ -592,7 +583,7 @@ function MairieContent() {
               <FilterDropdown
                 isOpen={showFilterRedactions}
                 onClose={() => setShowFilterRedactions(false)}
-                categories={ARRETE_CATEGORIES}
+                categories={[...ARRETE_CATEGORIES]}
                 onApply={(filters) => {
                   setFilterRedactionsState(filters)
                   setShowFilterRedactions(false)

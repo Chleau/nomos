@@ -46,8 +46,8 @@ interface RedactionRow {
 }
 
 // Helper pour mapper les couleurs de badge
-const getCategoryColor = (categorie: string): string => {
-  return CATEGORY_COLORS[categorie] || 'neutral'
+const getCategoryColor = (categorie: string): 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' => {
+  return (CATEGORY_COLORS[categorie] as 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal') || 'neutral'
 }
 
 function ActionMenu({ row }: { row: RedactionRow }) {
@@ -205,7 +205,7 @@ export default function DerniereRedactionsPage() {
 
 
   // Transformation des données
-  const redactions: RedactionRow[] = arretes.map(arrete => {
+  const redactions: RedactionRow[] = (arretes || []).map(arrete => {
       const date = new Date(arrete.date_creation)
       return {
           id: arrete.id,
@@ -318,7 +318,7 @@ export default function DerniereRedactionsPage() {
 
   const handleGroupDownload = () => {
     selectedRedactions.forEach(id => {
-        const arrete = arretes.find(a => a.id === id)
+        const arrete = (arretes || []).find(a => a.id === id)
         if (arrete) {
             const element = document.createElement("a");
             const file = new Blob([arrete.contenu || ''], {type: 'text/plain'});
@@ -341,7 +341,7 @@ export default function DerniereRedactionsPage() {
       }
       
       if (links.length === 1 && navigator.share) {
-         const arrete = arretes.find(a => a.id === Array.from(selectedRedactions)[0])
+         const arrete = (arretes || []).find(a => a.id === Array.from(selectedRedactions)[0])
          navigator.share({ title: arrete?.titre, url: links[0] }).catch(console.error)
       } else {
          await navigator.clipboard.writeText(links.join('\n'))
@@ -519,7 +519,8 @@ export default function DerniereRedactionsPage() {
                   </Button>
                   <FilterDropdown
                     isOpen={showFilterDropdown}
-                    categories={ARRETE_CATEGORIES}
+                    onClose={() => setShowFilterDropdown(false)}
+                    categories={[...ARRETE_CATEGORIES]}
                     onApply={(filters) => {
                       setFilterState(filters)
                       setShowFilterDropdown(false)

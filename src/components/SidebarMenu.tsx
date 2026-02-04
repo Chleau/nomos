@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { useHabitants } from '@/lib/hooks/useHabitants';
 import { UserRole } from '@/types/auth';
+import type { Habitant } from '@/types/habitants';
 import {
   HomeIcon,
   MapIcon,
@@ -181,7 +182,7 @@ export default function SidebarMenu() {
           Commune
         </div>
         <div className="commune-name">
-          {habitantData?.communes?.nom || user?.user_metadata?.commune}
+          {user?.user_metadata?.commune || 'Non spécifiée'}
         </div>
       </div>
 
