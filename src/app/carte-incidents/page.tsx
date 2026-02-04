@@ -50,7 +50,7 @@ export default function CartePage() {
   const markers = filteredSignalements
     .filter((s) => s.latitude != null && s.longitude != null)
     .map((s) => {
-      const firstPhotoPath = (s as any).photos_signalement?.[0]?.url
+      const firstPhotoPath = s.photos_signalement?.[0]?.url
       const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : null
 
       return {
@@ -216,7 +216,7 @@ export default function CartePage() {
           ) : derniers4Signalements.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {derniers4Signalements.map((signalement) => {
-                const firstPhotoPath = (signalement as any).photos_signalement?.[0]?.url
+                const firstPhotoPath = signalement.photos_signalement?.[0]?.url
                 const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
 
                 return (

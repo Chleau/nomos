@@ -46,7 +46,7 @@ interface RedactionRow {
 }
 
 // Helper pour mapper les couleurs de badge
-const getCategoryColor = (categorie: string): any => {
+const getCategoryColor = (categorie: string): string => {
   return CATEGORY_COLORS[categorie] || 'neutral'
 }
 
@@ -335,7 +335,7 @@ export default function DerniereRedactionsPage() {
   const handleGroupShare = async () => {
       // Pour le partage de masse, on copie les liens dans le presse-papier un par un (limitation navigateur)
       // Ou on affiche une alerte pour dire que ce n'est pas pleinement supporté en masse par l'API Web Share
-      let links = []
+      const links: string[] = []
       for (const id of selectedRedactions) {
          links.push(`${window.location.origin}/mairie/nouveau-arrete?id=${id}`)
       }

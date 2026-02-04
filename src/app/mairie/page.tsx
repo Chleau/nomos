@@ -15,6 +15,7 @@ import { useRecentArretes, useDeleteArrete, useUpdateArrete } from '@/lib/hooks/
 import { ARRETE_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
 import { UserRole } from '@/types/auth'
 import { useState, useRef, useEffect } from 'react'
+import { Signalement } from '@/types/signalements'
 
 import { DataTable, Column, TableBadge, TableUserInfo, TableStatus } from '@/components/ui/Table'
 import { 
@@ -216,6 +217,16 @@ function MairieContent() {
   }
 
   // Transformation des données API en format compatible pour le tableau
+  interface Redaction {
+    id: number;
+    date: Date;
+    title: string;
+    status: string;
+    category: string;
+    author: string;
+    initials: string;
+  }
+
   const redactions: Redaction[] = arretes.map((arrete) => {
     const date = new Date(arrete.date_creation)
     const habitant = arrete.auteur?.habitant
@@ -253,7 +264,7 @@ function MairieContent() {
   }))
 
   // Fonctions de tri
-  const sortSignalements = (signalements: any[] | null) => {
+  const sortSignalements = (signalements: Signalement[] | null) => {
     if (!signalements) return []
     const sorted = [...signalements]
     if (sortIncidents === 'recent') {
@@ -264,7 +275,7 @@ function MairieContent() {
     return sorted
   }
 
-  const sortRedactionsArray = (items: any[]) => {
+  const sortRedactionsArray = (items: Redaction[]) => {
     const sorted = [...items]
     if (sortRedactions === 'recent') {
       sorted.sort((a, b) => b.date.getTime() - a.date.getTime())
@@ -274,7 +285,14 @@ function MairieContent() {
     return sorted
   }
 
-  const sortLoisArray = (items: any[]) => {
+  interface Loi {
+    id: number;
+    date: Date;
+    title: string;
+    category: string;
+  }
+
+  const sortLoisArray = (items: Loi[]) => {
     const sorted = [...items]
     if (sortLois === 'recent') {
       sorted.sort((a, b) => b.date.getTime() - a.date.getTime())
@@ -289,7 +307,7 @@ function MairieContent() {
   const sortedLois = sortLoisArray(lois)
 
   // Fonctions de filtrage
-  const filterSignalements = (signalements: any[]) => {
+  const filterSignalements = (signalements: Signalement[]) => {
     if (!filterIncidents) return signalements
     
     let filtered = signalements
@@ -322,7 +340,7 @@ function MairieContent() {
     return filtered
   }
 
-  const filterRedactionsArray = (items: any[]) => {
+  const filterRedactionsArray = (items: Redaction[]) => {
     if (!filterRedactionsState) return items
     
     let filtered = items
@@ -354,7 +372,7 @@ function MairieContent() {
     return filtered
   }
 
-  const filterLoisArray = (items: any[]) => {
+  const filterLoisArray = (items: Loi[]) => {
     if (!filterLoisState) return items
     
     let filtered = items
@@ -526,7 +544,7 @@ function MairieContent() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[58px]">
               {filteredSignalements.slice(0, 2).map((signalement) => {
-                const firstPhotoPath = (signalement as any).photos_signalement?.[0]?.url
+                const firstPhotoPath = signalement.photos_signalement?.[0]?.url
                 const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
                 const userName = signalement.prenom ? `${signalement.prenom} ${signalement.nom}` : 'Anonyme'
 

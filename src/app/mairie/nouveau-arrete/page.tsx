@@ -193,7 +193,7 @@ Article 1 : ...
           titre: title,
           numero: numero,
           contenu: content,
-          categorie: category as any, // Cast to any to avoid Enum mismatch issues if strict
+          categorie: category,
           type: typeDocument,
           date_modification: new Date().toISOString()
         }
@@ -231,7 +231,7 @@ Article 1 : ...
             type: typeDocument, // Nouveau champ
             date_creation: new Date().toISOString(),
             archive: false
-        } as any)
+        })
       }
 
       router.push('/mairie')
@@ -522,7 +522,7 @@ Article 1 : ...
                     <div className="flex-1 flex flex-col gap-2">
                         <label className="text-[#053f5c] font-medium text-lg flex items-center gap-2 font-['Poppins']">
                             <SparklesIcon className="w-5 h-5" />
-                            Aidez vous de l'IA pour rédiger votre arrêté
+                            Aidez vous de l&apos;IA pour rédiger votre arrêté
                         </label>
                         <div className="bg-white rounded-md flex items-center p-2.5 gap-3 border border-[#e7eaed]">
                             <SparklesIcon className="w-5 h-5 text-gray-400" />
