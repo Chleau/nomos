@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
 import { supabase } from './client'
 
 export function useSupabaseAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  // const router = useRouter()
 
   useEffect(() => {
     // Get current session
@@ -32,7 +34,9 @@ export function useSupabaseAuth() {
   }, [])
 
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut({ scope: 'local' })
+    await supabase.auth.refreshSession(); // Rajout car sinon impossible de se déco
+    // L'état local sera mis à jour automatiquement par onAuthStateChange
     return { error }
   }, [])
 

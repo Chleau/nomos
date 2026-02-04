@@ -178,6 +178,7 @@ body {
   padding: 8px 32px; /* vertical 8, horizontal 32 */
   border-radius: 12px;
   min-height: 40px;
+  max-width: 176px;
   line-height: 1;
 }
 .btn--md {
@@ -188,6 +189,7 @@ body {
   padding: 8px 24px;
   border-radius: 10px;
   min-height: 36px;
+  max-width: 153px;
   line-height: 1;
 }
 .btn--sm {
@@ -198,6 +200,7 @@ body {
   padding: 6px 16px;
   border-radius: 8px;
   min-height: 32px;
+  max-width: 131px;
   line-height: 1;
 }
 .btn--xs {
@@ -208,6 +211,7 @@ body {
   padding: 4px 8px;
   border-radius: 6px;
   min-height: 28px;
+  max-width: 104px;
   line-height: 1;
 }
 

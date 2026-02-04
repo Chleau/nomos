@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 
@@ -10,21 +10,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { user, loading } = useSupabaseAuth()
   const router = useRouter()
   const pathname = usePathname()
+  const lastUserState = useRef<boolean | null>(null)
 
   useEffect(() => {
     if (loading) return
 
     const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route))
+    const isCurrentlyLoggedIn = !!user
 
     // Si l'utilisateur n'est pas connecté et n'est pas sur une page publique
-    if (!user && !isPublicRoute) {
+    if (!isCurrentlyLoggedIn && !isPublicRoute) {
       router.push('/signin')
     }
 
-    // Si l'utilisateur est connecté et sur une page d'auth, le rediriger vers l'accueil
-    if (user && isPublicRoute) {
-      router.push('/')
+    // Si l'utilisateur est connecté et sur une page d'auth
+    // MAIS seulement si l'utilisateur était précédemment déconnecté (pas une reconnexion instant)
+    if (isCurrentlyLoggedIn && isPublicRoute) {
+      // Vérifier que ce n'est pas un changement d'état immédiat après déconnexion
+      if (lastUserState.current !== false) {
+        router.push('/')
+      }
     }
+
+    // Tracker l'état de connexion
+    lastUserState.current = isCurrentlyLoggedIn
   }, [user, loading, pathname, router])
 
   // Afficher un loader pendant le chargement
