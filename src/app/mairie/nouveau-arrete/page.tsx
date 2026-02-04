@@ -9,6 +9,7 @@ import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useCreateArrete, useRecentArretes, useArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
 
 import { agentsService } from '@/lib/services/agents.service'
+import { ARRETE_CATEGORIES } from '@/lib/constants'
 import Button from '@/components/ui/Button'
 import { 
   ArrowLeftIcon, 
@@ -42,7 +43,7 @@ export default function NouveauArretePage() {
   const arreteId = searchParams.get('id')
   const mode = searchParams.get('mode')
   const isReadOnly = mode === 'view'
-  const { data: existingArrete, isLoading: loadingArrete } = useArrete(arreteId)
+  const { data: existingArrete, isLoading: loadingArrete, isError: isArreteError, refetch: refetchArrete } = useArrete(arreteId)
 
   // Form State
   const [title, setTitle] = useState('')
@@ -70,9 +71,25 @@ Article 1 : ...
   const [isTypeOpen, setIsTypeOpen] = useState(false)
   const [isCategoryOpen, setIsCategoryOpen] = useState(false)
   const editorRef = useRef<HTMLDivElement>(null)
+  
+  // Indicateur de synchronisation avec la DB
+  const [hasSyncedWithDb, setHasSyncedWithDb] = useState(false)
 
+  // Reset de la synchro si l'ID dans l'URL change
   useEffect(() => {
-    if (existingArrete) {
+    setHasSyncedWithDb(false)
+    // On nettoie aussi l'éditeur pour éviter de voir l'ancien contenu pendant le chargement
+    if (editorRef.current) {
+        editorRef.current.innerHTML = ''
+    }
+  }, [arreteId])
+
+  // Effet principal de chargement et synchronisation
+  useEffect(() => {
+    // Cas 1 : Modification d'un arrêté existant
+    if (arreteId && existingArrete && !loadingArrete && !hasSyncedWithDb) {
+      console.log('Synchronisation DB -> Editeur', existingArrete.id)
+      
       setTitle(existingArrete.titre || '')
       setNumero(existingArrete.numero || '')
       setCategory(existingArrete.categorie || 'Sans catégorie')
@@ -80,16 +97,29 @@ Article 1 : ...
       
       const contentToSet = existingArrete.contenu || ''
       setContent(contentToSet)
+      
       if (editorRef.current) {
-        // Handle basic conversion from plain text if needed
+        // Normalisation des sauts de ligne pour l'affichage HTML
         if (contentToSet && !contentToSet.includes('<') && contentToSet.includes('\n')) {
              editorRef.current.innerHTML = contentToSet.replace(/\n/g, '<br>')
         } else {
              editorRef.current.innerHTML = contentToSet
         }
       }
+      
+      setHasSyncedWithDb(true)
     }
-  }, [existingArrete])
+    
+    // Cas 2 : Création d'un nouvel arrêté (pas d'ID)
+    else if (!arreteId && !hasSyncedWithDb) {
+        console.log('Initialisation nouveau document')
+        // On s'assure que le contenu par défaut du state est bien dans l'éditeur
+        if (editorRef.current && content) {
+            editorRef.current.innerHTML = content.replace(/\n/g, '<br>')
+        }
+        setHasSyncedWithDb(true)
+    }
+  }, [arreteId, existingArrete, loadingArrete, hasSyncedWithDb, content])
 
   // Initial Content Setup for new documents
   useEffect(() => {
@@ -136,20 +166,7 @@ Article 1 : ...
     }
   }
 
-  const categories = [
-    'Sécurité publique',
-    'Environnement',
-    'Commerce',
-    'Transport',
-    'Fonction publique / RH',
-    'Urbanisme',
-    'Voirie',
-    'État civil',
-    'Finance',
-    'Éducation',
-    'Autre',
-    'Sans catégorie'
-  ]
+  const categories = ARRETE_CATEGORIES
 
   const typesDocument = [
     'Arrêté',
@@ -161,33 +178,36 @@ Article 1 : ...
     if (!habitant?.commune_id || !title) return
 
     try {
+      // 0. Vérifier que l'agent existe pour l'utilisateur courant (important pour les règles RLS)
+      const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant)
+      
+      if (agentError || !agent) {
+          console.error('Erreur récupération agent:', agentError)
+          alert("Impossible de récupérer le profil agent pour cet utilisateur. Vérifiez vos droits.")
+          return
+      }
+
       if (arreteId) {
         console.log('Updating arrete:', arreteId)
         const updateData = {
           titre: title,
           numero: numero,
           contenu: content,
-          categorie: category,
+          categorie: category as any, // Cast to any to avoid Enum mismatch issues if strict
           type: typeDocument,
           date_modification: new Date().toISOString()
         }
         console.log('Update payload:', updateData)
         
+        // Ensure ID is passed as number if possible for strict DB consistency
+        const idToUpdate = !isNaN(Number(arreteId)) ? Number(arreteId) : arreteId
+
         const result = await updateArrete.mutateAsync({
-            id: arreteId,
+            id: idToUpdate,
             updates: updateData
         })
         console.log('Update result:', result)
       } else {
-        // 1. Récupérer ou Créer l'agent correspondant à l'habitant connecté
-        const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant)
-        
-        if (agentError || !agent) {
-            console.error('Erreur récupération agent:', agentError)
-            alert("Impossible de récupérer le profil agent pour cet utilisateur.")
-            return
-        }
-
         console.log('Agent found/created:', agent)
 
         console.log('Sending arrete data...', {
@@ -295,6 +315,14 @@ Article 1 : ...
                 <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700">
                     <ArrowLeftIcon className="w-5 h-5" />
                 </button>
+                
+                {isArreteError && (
+                    <div className="text-red-500 text-sm flex items-center gap-2">
+                        Erreur de chargement
+                        <Button size="xs" variant="outline" onClick={() => refetchArrete()}>Réessayer</Button>
+                    </div>
+                )}
+                
                 <div className="flex-1 flex items-center gap-4">
                     <div className="w-64 relative group border border-[#e7eaed] rounded px-3 py-1">
                         <span className="text-[10px] text-gray-400 uppercase font-semibold absolute -top-2 left-2 bg-white px-1 tracking-wider">N°</span>
@@ -385,11 +413,15 @@ Article 1 : ...
                                         <ShareIcon className="w-4 h-4 text-gray-500" />
                                         Partager
                                     </button>
-                                    <div className="h-px bg-gray-100 my-1"></div>
-                                    <button onClick={() => { handleDelete(); setIsActionsOpen(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg text-left">
-                                        <TrashIcon className="w-4 h-4" />
-                                        Supprimer
-                                    </button>
+                                    {!isReadOnly && (
+                                    <>
+                                        <div className="h-px bg-gray-100 my-1"></div>
+                                        <button onClick={() => { handleDelete(); setIsActionsOpen(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg text-left">
+                                            <TrashIcon className="w-4 h-4" />
+                                            Supprimer
+                                        </button>
+                                    </>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -425,6 +457,7 @@ Article 1 : ...
             </div>
 
             {/* Editor Formatting Toolbar */}
+            {!isReadOnly && (
             <div className="bg-white border-b border-[#e7eaed] px-6 py-2 flex items-center gap-4 shrink-0 z-20">
                 <div className="flex items-center gap-1 border-r border-gray-200 pr-4">
                     <button 
@@ -466,6 +499,7 @@ Article 1 : ...
                     </button>
                 </div>
             </div>
+            )}
 
             {/* Document Content (Scrollable) */}
             <div className="flex-1 overflow-y-auto bg-[#f5fcfe] p-8 flex justify-center relative">
@@ -520,6 +554,7 @@ Article 1 : ...
         </div>
 
         {/* RIGHT: Context Sidebar */}
+        {!isReadOnly && (
         <div className={`${isSidebarOpen ? 'w-[400px]' : 'w-[48px]'} bg-[#f5fcfe] border-l border-[#e7eaed] flex flex-col transition-all duration-300 relative z-20 shrink-0`}>
             <div className="p-2 flex justify-start">
                  <button 
@@ -573,6 +608,7 @@ Article 1 : ...
                 </div>
             )}
         </div>
+        )}
 
       </div>
     </RoleProtectedPage>
