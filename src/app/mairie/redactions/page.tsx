@@ -24,7 +24,8 @@ import {
   BarsArrowDownIcon,
   PlusIcon,
   MagnifyingGlassIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
@@ -557,11 +558,11 @@ export default function DerniereRedactionsPage() {
                         className={`
                             whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
                             ${activeCategory === 'Mes favoris' 
-                                ? 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d]' 
+                                ? 'bg-[#e67e22] text-[#242a35] border-[#e67e22] hover:bg-[#d35400] hover:text-white font-medium' 
                                 : 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d] hover:bg-[#fff9c4]'}
                         `}
                     >
-                        <StarIcon className="w-4 h-4" />
+                        {activeCategory === 'Mes favoris' ? <XMarkIcon className="w-4 h-4" /> : <StarIcon className="w-4 h-4" />}
                         Mes favoris
                     </button>
 
@@ -572,10 +573,11 @@ export default function DerniereRedactionsPage() {
                             className={`
                                 whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
                                 ${activeCategory === cat 
-                                    ? 'bg-[#E5E7EB] text-[#1F2937] border-gray-300 font-medium' 
+                                    ? 'bg-[#e67e22] text-[#242a35] border-[#e67e22] hover:bg-[#d35400] hover:text-white font-medium' 
                                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
                             `}
                         >
+                            {activeCategory === cat && <XMarkIcon className="w-4 h-4" />}
                             {cat}
                         </button>
                     ))}
