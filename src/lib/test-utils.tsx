@@ -9,20 +9,14 @@ export function createTestQueryClient() {
       queries: {
         // Désactive les retries pour des tests plus rapides
         retry: false,
-        // Désactive le cache entre les tests
-        cacheTime: 0,
+        // Désactive le cache entre les tests (gcTime remplace cacheTime dans React Query v5)
+        gcTime: 0,
         // Désactive le staleTime
         staleTime: 0,
       },
       mutations: {
         retry: false,
       },
-    },
-    // Supprime les logs d'erreur pendant les tests
-    logger: {
-      log: console.log,
-      warn: console.warn,
-      error: () => { },
     },
   })
 }
