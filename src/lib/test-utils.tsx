@@ -22,7 +22,7 @@ export function createTestQueryClient() {
     logger: {
       log: console.log,
       warn: console.warn,
-      error: () => {},
+      error: () => { },
     },
   })
 }
@@ -32,12 +32,14 @@ export function createTestQueryClient() {
  */
 export function createTestWrapper() {
   const queryClient = createTestQueryClient()
-  
-  return ({ children }: { children: React.ReactNode }) => (
+
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
       {children}
     </QueryClientProvider>
   )
+  Wrapper.displayName = 'TestQueryWrapper'
+  return Wrapper
 }
 
 // Import nécessaire pour le JSX
