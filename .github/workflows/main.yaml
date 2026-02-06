@@ -30,7 +30,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --ignore-optional
 
       - name: Run ESLint
         run: npm run lint
@@ -55,7 +55,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --ignore-optional
 
       - name: Run tests
         run: npm run test:ci
@@ -165,7 +165,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --ignore-optional
 
       - name: Build Next.js application
         run: npm run build
@@ -190,7 +190,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --ignore-optional
 
       - name: Run tests with coverage
         run: npm run test:ci
