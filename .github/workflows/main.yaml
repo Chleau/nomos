@@ -27,10 +27,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --ignore-optional
+        run: |
+          rm -f package-lock.json
+          npm install
 
       - name: Run ESLint
         run: npm run lint
@@ -52,10 +53,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --ignore-optional
+        run: |
+          rm -f package-lock.json
+          npm install
 
       - name: Run tests
         run: npm run test:ci
@@ -162,10 +164,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --ignore-optional
+        run: |
+          rm -f package-lock.json
+          npm install
 
       - name: Build Next.js application
         run: npm run build
@@ -187,10 +190,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --ignore-optional
+        run: |
+          rm -f package-lock.json
+          npm install
 
       - name: Run tests with coverage
         run: npm run test:ci
