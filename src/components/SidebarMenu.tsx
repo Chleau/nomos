@@ -40,7 +40,7 @@ const mobileMenuItems = [
   { label: 'Archives', href: '/mairie/archives', icon: ArchiveBoxIcon, roles: ['mairie'] },
   { label: 'Signalements', href: '/mairie/signalement-habitants', icon: UserGroupIcon, roles: ['mairie'] },
 ];
- 
+
 export default function SidebarMenu() {
   const pathname = usePathname();
   const router = useRouter();
@@ -76,15 +76,15 @@ export default function SidebarMenu() {
     }
     loadHabitantData();
   }, [user]);
- 
+
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth <= 1024); // Tablette et mobile
     };
- 
+
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
- 
+
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
@@ -93,7 +93,7 @@ export default function SidebarMenu() {
     // Filtrer les items du menu selon le rôle
     const filteredMobileItems = mobileMenuItems.filter(item => {
       if (!dataLoaded) return false;
-      
+
       if (isMairieUser) {
         return item.roles.includes('mairie');
       } else {
@@ -155,7 +155,7 @@ export default function SidebarMenu() {
             {habitantData?.role || user?.user_metadata?.role || 'Habitant'}
           </div>
         </div>
-        <button 
+        <button
           onClick={() => setNotificationsMuted(!notificationsMuted)}
           className="bell-button"
           title={notificationsMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
@@ -262,14 +262,14 @@ export default function SidebarMenu() {
           </div>
         )}
       </nav>
-      
+
       {/* Bas du menu */}
       <div className="bottom-menu">
         <ul>
           {isMairieUser && (
             <li>
-              <Link 
-                href="/mairie/ma-mairie" 
+              <Link
+                href="/mairie/ma-mairie"
                 className={`bottom-menu-link ${pathname === '/mairie/ma-mairie' ? 'active' : ''}`}
               >
                 <BuildingLibraryIcon width="24" height="24" style={{ marginRight: '12px' }} />
@@ -278,8 +278,8 @@ export default function SidebarMenu() {
             </li>
           )}
           <li>
-            <Link 
-              href="/parametres" 
+            <Link
+              href="/parametres"
               className={`bottom-menu-link ${pathname === '/parametres' ? 'active' : ''}`}
             >
               <Cog6ToothIcon width="24" height="24" style={{ marginRight: '12px' }} />
@@ -287,8 +287,8 @@ export default function SidebarMenu() {
             </Link>
           </li>
           <li>
-            <Link 
-              href="/mon-compte" 
+            <Link
+              href="/mon-compte"
               className={`bottom-menu-link ${pathname === '/mon-compte' ? 'active' : ''}`}
             >
               <UserIcon width="24" height="24" style={{ marginRight: '12px' }} />
@@ -300,5 +300,4 @@ export default function SidebarMenu() {
     </aside>
   );
 }
- 
- 
+
