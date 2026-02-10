@@ -25,6 +25,7 @@ import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown'
 import CardIncident from '@/components/ui/CardIncident'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { useAllSignalements } from '@/lib/hooks/useSignalements'
+import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
@@ -157,6 +158,7 @@ function MairieContent() {
   const router = useRouter()
   const { user } = useSupabaseAuth()
   const { data: habitant } = useCurrentHabitant(user?.id || null)
+  const { types } = useTypesSignalement()
 
   const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(2)
   const { data: arretes = [], isLoading: loadingArretes } = useRecentArretes(habitant?.commune_id || null, 10)
@@ -288,11 +290,13 @@ function MairieContent() {
         return true
       })
     }
-    // Filtre par thèmes (statut)
+
+    // Filtre par thématiques (types de signalement)
     if (filterIncidents.themes && filterIncidents.themes.length > 0) {
       filtered = filtered.filter(s => {
-        const statut = getStatut(s.statut || null)
-        return filterIncidents.themes.includes(statut)
+        const typeId = s.type_id
+        const typeLibelle = types.find((t) => t.id === typeId)?.libelle
+        return typeLibelle && filterIncidents.themes.includes(typeLibelle)
       })
     }
     return filtered
@@ -518,6 +522,28 @@ function MairieContent() {
         <div className="mb-[58px] space-y-[25px]">
           <div className="flex items-center justify-between">
             <h2 className="text-[30px] font-['Poppins'] font-medium text-[#4a4a4a]">Derniers incidents déclarés</h2>
+            <div className="relative">
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={() => setShowFilterIncidents(!showFilterIncidents)}
+              >
+                Filtres
+              </Button>
+              <FilterDropdown
+                isOpen={showFilterIncidents}
+                onClose={() => setShowFilterIncidents(false)}
+                onApply={(filters) => {
+                  setFilterIncidents(filters)
+                  setShowFilterIncidents(false)
+                }}
+                onClear={() => {
+                  setFilterIncidents(null)
+                  setShowFilterIncidents(false)
+                }}
+                themes={types}
+              />
+            </div>
           </div>
 
           {loadingAll ? (
@@ -564,17 +590,14 @@ function MairieContent() {
               <div className="relative">
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="gap-2"
+                  variant="primary"
                   onClick={() => setShowFilterRedactions(!showFilterRedactions)}
                 >
-                  <AdjustmentsVerticalIcon className="w-5 h-5" />
                   Filtres
                 </Button>
                 <FilterDropdown
                   isOpen={showFilterRedactions}
                   onClose={() => setShowFilterRedactions(false)}
-                  categories={[...ARRETE_CATEGORIES]}
                   onApply={(filters) => {
                     setFilterRedactionsState(filters)
                     setShowFilterRedactions(false)
@@ -583,86 +606,148 @@ function MairieContent() {
                     setFilterRedactionsState(null)
                     setShowFilterRedactions(false)
                   }}
+                  themes={types}
                 />
               </div>
 
               <Button
                 size="sm"
-                variant="outline"
+                variant="primary"
                 onClick={() => setSortRedactions(sortRedactions === 'recent' ? 'ancien' : 'recent')}
               >
-                <BarsArrowDownIcon className="w-5 h-5" />
                 {sortRedactions === 'recent' ? 'trier par : le plus récent' : 'trier par : le plus ancien'}
               </Button>
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={() => router.push('/mairie/nouveau-arrete')}
-              >
-                <PlusIcon className="w-5 h-5" />
-                Nouveau
-              </Button>
+              <Button size="sm" variant="primary">Nouveau</Button>
             </div>
           </div>
 
           {/* Redactions table */}
-          <div className="bg-white">
-            <DataTable
-              columns={columns}
-              data={filteredRedactions}
-              emptyMessage="Aucune rédaction trouvée"
-              headerCheckbox={
+          <div className="bg-white rounded-lg overflow-hidden border border-[#e7eaed]">
+            {/* Table header */}
+            <div className="grid grid-cols-[48px_76px_1fr_123px_212px_222px_199px_167px_auto] bg-white border-b border-[#e7eaed] px-0 py-0">
+              <div className="flex items-center justify-center h-[40px] border-r border-[#e7eaed]">
                 <Checkbox
-                  checked={filteredRedactions.length > 0 && selectedRedactions.size === filteredRedactions.length}
-                  state={selectedRedactions.size > 0 && selectedRedactions.size < filteredRedactions.length ? 'indeterminate' : undefined}
+                  size="lg"
+                  checked={selectedRedactions.size === filteredRedactions.length && filteredRedactions.length > 0}
                   onChange={toggleSelectAllRedactions}
                 />
-              }
-            />
+              </div>
+              <div className="flex items-center justify-center h-[40px] px-[16px] border-r border-[#e7eaed]">
+                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Favoris</span>
+              </div>
+              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
+                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Contenu</span>
+              </div>
+              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
+                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Date</span>
+              </div>
+              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
+                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Lieu</span>
+              </div>
+              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
+                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Habitant</span>
+              </div>
+              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
+                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Catégorie</span>
+              </div>
+              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
+                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Statut</span>
+              </div>
+              <div className="flex items-center h-[40px] px-[16px]">
+                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Action</span>
+              </div>
+            </div>
+
+            {/* Redactions table */}
+            <div className="bg-white">
+              <DataTable
+                columns={columns}
+                data={filteredRedactions}
+                emptyMessage="Aucune rédaction trouvée"
+                headerCheckbox={
+                  <Checkbox
+                    checked={filteredRedactions.length > 0 && selectedRedactions.size === filteredRedactions.length}
+                    state={selectedRedactions.size > 0 && selectedRedactions.size < filteredRedactions.length ? 'indeterminate' : undefined}
+                    onChange={toggleSelectAllRedactions}
+                  />
+                }
+              />
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center justify-between pt-[25px]">
+              <Button variant="outline" size="sm">Actions groupées</Button>
+              <Button variant="primary" size="sm">Voir tout</Button>
+            </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center justify-between pt-[25px]">
-            <Button variant="outline" size="sm">Actions groupées</Button>
-            <Button variant="primary" size="sm">Voir tout</Button>
-          </div>
-        </div>
-
-        {/* Dernières lois mises à jour */}
-        <div className="space-y-[23px]">
-          <div className="flex items-center justify-between">
-            <h2 className="text-[18px] font-['Montserrat'] font-medium text-[#242a35]">Dernières lois mises à jour</h2>
-          </div>
-
-          {/* Lois cards */}
-          <div className="grid grid-cols-2 gap-[73px]">
-            {filteredLois.map((loi) => (
-              <div key={loi.id} className="bg-white rounded-lg border border-[#e7eaed] px-[20px] py-[20px] space-y-[20px]">
-                <p className="text-[16px] font-['Montserrat'] font-normal text-[#64748b] line-clamp-4 leading-[20px]">
-                  {loi.title}
-                </p>
-
-                <div className="bg-[#f5f5f5] border border-[#d1d5db] rounded-lg px-[12px] py-[6px] inline-block">
-                  <span className="text-[14px] font-['Montserrat'] font-medium text-[#242a35]">
-                    {loi.category}
-                  </span>
+          {/* Dernières lois mises à jour */}
+          <div className="space-y-[23px]">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[18px] font-['Montserrat'] font-medium text-[#242a35]">Dernières lois mises à jour</h2>
+              <div className="flex gap-[20px]">
+                <div className="relative">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => setShowFilterLois(!showFilterLois)}
+                  >
+                    Filtres
+                  </Button>
+                  <FilterDropdown
+                    isOpen={showFilterLois}
+                    onClose={() => setShowFilterLois(false)}
+                    onApply={(filters) => {
+                      setFilterLoisState(filters)
+                      setShowFilterLois(false)
+                    }}
+                    onClear={() => {
+                      setFilterLoisState(null)
+                      setShowFilterLois(false)
+                    }}
+                    themes={types}
+                  />
                 </div>
 
-                <Link
-                  href="#"
-                  className="inline-block text-[16px] font-['Montserrat'] font-medium text-[#787878] hover:text-[#f27f09] transition-colors"
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => setSortLois(sortLois === 'recent' ? 'ancien' : 'recent')}
                 >
-                  lire plus
-                </Link>
+                  {sortLois === 'recent' ? 'trier par : le plus récent' : 'trier par : le plus ancien'}
+                </Button>
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* See all button */}
-          <div className="flex justify-end pt-[25px]">
-            <Button variant="primary" size="sm">Voir tout</Button>
+            {/* Lois cards */}
+            <div className="grid grid-cols-2 gap-[73px]">
+              {filteredLois.map((loi) => (
+                <div key={loi.id} className="bg-white rounded-lg border border-[#e7eaed] px-[20px] py-[20px] space-y-[20px]">
+                  <p className="text-[16px] font-['Montserrat'] font-normal text-[#64748b] line-clamp-4 leading-[20px]">
+                    {loi.title}
+                  </p>
+
+                  <div className="bg-[#f5f5f5] border border-[#d1d5db] rounded-lg px-[12px] py-[6px] inline-block">
+                    <span className="text-[14px] font-['Montserrat'] font-medium text-[#242a35]">
+                      {loi.category}
+                    </span>
+                  </div>
+
+                  <Link
+                    href="#"
+                    className="inline-block text-[16px] font-['Montserrat'] font-medium text-[#787878] hover:text-[#f27f09] transition-colors"
+                  >
+                    lire plus
+                  </Link>
+                </div>
+              ))}
+            </div>
+
+            {/* See all button */}
+            <div className="flex justify-end pt-[25px]">
+              <Button variant="primary" size="sm">Voir tout</Button>
+            </div>
           </div>
-        </div>
       </main>
     </RoleProtectedPage>
   )

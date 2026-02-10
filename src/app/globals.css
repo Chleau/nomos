@@ -75,13 +75,13 @@ body {
 /* Outline variant */
 .btn-outline {
   background: var(--color-surface);
-  color: var(--color-slate-500);
-  border: 1px solid var(--color-slate-500);
+  color: var(--color-slate-600);
+  border: 1px solid var(--color-slate-300);
   border-radius: var(--radius-md);
 }
 .btn-outline:hover {
   background: var(--color-slate-50);
-  border-color: var(--color-slate-500);
+  border-color: var(--color-slate-300);
 }
 
 /* Ghost variant */
@@ -211,7 +211,7 @@ body {
   padding: 4px 8px;
   border-radius: 6px;
   min-height: 28px;
-  max-width: 104px;
+  max-width: 300px;
   line-height: 1;
 }
 
