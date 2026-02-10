@@ -190,7 +190,7 @@ export default function SignalementForm() {
           <div className="mb-4">
             <div className="grid grid-cols-2 gap-4 w-full pb-8">
               <div className="w-full">
-                <label className="block mb-3 font-medium text-gray-700">Type d'incident *</label>
+                <label className="block mb-3 font-medium text-gray-700">Type d&apos;incident *</label>
                 <select
                   value={typeId}
                   onChange={e => setTypeId(e.target.value === '' ? '' : Number(e.target.value))}
@@ -236,7 +236,7 @@ export default function SignalementForm() {
       {step === 2 && (
         <>
           <div className="mb-4 pb-4">
-            <label className="block mb-3 font-medium text-gray-700">Localisation de l'incident</label>
+            <label className="block mb-3 font-medium text-gray-700">Localisation de l&apos;incident</label>
             <div className="w-full mb-4">
               <div className="relative">
                 <input
@@ -391,7 +391,7 @@ export default function SignalementForm() {
             
             {/* Section Rappel de l'incident */}
             <div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Rappel de l'incident</h3>
+              <h3 className="text-xl font-semibold mb-4 text-gray-900">Rappel de l&apos;incident</h3>
               <div className="bg-white rounded-3xl shadow-lg p-8 relative">
                 {/* Titre de l'incident en italique */}
                 <h4 className="text-xl italic mb-6 text-black">{titre}</h4>
@@ -447,7 +447,7 @@ export default function SignalementForm() {
 
             {/* Section Lieu de l'incident */}
             <div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Lieu de l'incident</h3>
+              <h3 className="text-xl font-semibold mb-4 text-gray-900">Lieu de l&apos;incident</h3>
               <div className="bg-white rounded-3xl shadow-lg p-8 relative flex flex-col">
                 {/* Zone de la map (vide pour l'instant) */}
                 <div className="flex-1 bg-gray-100 rounded-2xl mb-4 min-h-[300px] flex items-center justify-center relative overflow-hidden">

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { useHabitants } from '@/lib/hooks/useHabitants';
 import { UserRole } from '@/types/auth';
+import type { Habitant } from '@/types/habitants';
 import {
   HomeIcon,
   MapIcon,
@@ -48,7 +49,7 @@ export default function SidebarMenu() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const { user, loading, signOut } = useSupabaseAuth();
-  const [habitantData, setHabitantData] = useState<any>(null);
+  const [habitantData, setHabitantData] = useState<Habitant | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [notificationsMuted, setNotificationsMuted] = useState(false);
 
@@ -181,7 +182,7 @@ export default function SidebarMenu() {
           Commune
         </div>
         <div className="commune-name">
-          {habitantData?.communes?.nom || user?.user_metadata?.commune}
+          {user?.user_metadata?.commune || 'Non spécifiée'}
         </div>
       </div>
 
@@ -247,7 +248,7 @@ export default function SidebarMenu() {
             <li className="menu-item">
               <Link href="/signalements" className={`menu-item-link ${pathname === '/signalements' ? 'active' : ''}`}>
                 <PlusCircleIcon width="24" height="24" style={{ marginRight: '12px' }} />
-                Déclarations d'incidents
+                Déclarations d&apos;incidents
               </Link>
             </li>
           </ul>

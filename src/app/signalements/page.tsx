@@ -50,7 +50,7 @@ export default function SignalementsPage() {
             Retour
           </button>
         </div>
-        <h1 className="text-2xl md:text-3xl lg:text-4xl mb-6 font-bold">Toutes les déclarations d'incident</h1>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl mb-6 font-bold">Toutes les déclarations d&apos;incident</h1>
 
 
         {/* Filtres */}
@@ -95,7 +95,7 @@ export default function SignalementsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
             {sortedSignalements.map((signalement) => {
-              const firstPhotoPath = (signalement as any).photos_signalement?.[0]?.url
+              const firstPhotoPath = signalement.photos_signalement?.[0]?.url
               const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
 
               return (

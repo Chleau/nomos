@@ -9,7 +9,7 @@ import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useCreateArrete, useRecentArretes, useArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
 
 import { agentsService } from '@/lib/services/agents.service'
-import { ARRETE_CATEGORIES } from '@/lib/constants'
+import { ARRETE_CATEGORIES, type ArreteCategory } from '@/lib/constants'
 import Button from '@/components/ui/Button'
 import { 
   ArrowLeftIcon, 
@@ -179,7 +179,8 @@ Article 1 : ...
 
     try {
       // 0. Vérifier que l'agent existe pour l'utilisateur courant (important pour les règles RLS)
-      const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant as any)
       
       if (agentError || !agent) {
           console.error('Erreur récupération agent:', agentError)
@@ -193,7 +194,7 @@ Article 1 : ...
           titre: title,
           numero: numero,
           contenu: content,
-          categorie: category as any, // Cast to any to avoid Enum mismatch issues if strict
+          categorie: category as ArreteCategory,
           type: typeDocument,
           date_modification: new Date().toISOString()
         }
@@ -227,11 +228,11 @@ Article 1 : ...
             commune_id: habitant.commune_id,
             agent_id: agent.id, 
             statut: 'Brouillon', // Décommenter si la colonne existe
-            categorie: category, // Assurez-vous que votre hook useCreateArrete transmet ce champ
-            type: typeDocument, // Nouveau champ
+            categorie: category as ArreteCategory,
+            type: typeDocument,
             date_creation: new Date().toISOString(),
             archive: false
-        } as any)
+        })
       }
 
       router.push('/mairie')
@@ -522,7 +523,7 @@ Article 1 : ...
                     <div className="flex-1 flex flex-col gap-2">
                         <label className="text-[#053f5c] font-medium text-lg flex items-center gap-2 font-['Poppins']">
                             <SparklesIcon className="w-5 h-5" />
-                            Aidez vous de l'IA pour rédiger votre arrêté
+                            Aidez vous de l&apos;IA pour rédiger votre arrêté
                         </label>
                         <div className="bg-white rounded-md flex items-center p-2.5 gap-3 border border-[#e7eaed]">
                             <SparklesIcon className="w-5 h-5 text-gray-400" />
