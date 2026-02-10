@@ -156,7 +156,7 @@ function HomeContent() {
             
             <div className="flex justify-end">
                 <Link href="/signalements">
-                  <Button size="xs" variant='primary'>
+                  <Button size="xs" variant='ghost'>
                     Voir tout
                   </Button>
                 </Link>

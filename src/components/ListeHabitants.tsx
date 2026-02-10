@@ -41,7 +41,7 @@ export default function ListeHabitants() {
             <h2 className="font-semibold">{habitant.prenom} {habitant.nom}</h2>
             <p className="text-gray-600">{habitant.email}</p>
             <p className="text-sm text-gray-500">
-              Commune: {habitant.commune ?? 'Non spécifiée'}
+              Commune: {habitant.commune_id ?? 'Non spécifiée'}
             </p>
           </div>
         ))}

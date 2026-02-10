@@ -65,7 +65,7 @@ export default function SignalementDetailPage() {
   }
 
   // Récupérer les photos
-  const photos = (signalement as any).photos_signalement || []
+  const photos = signalement.photos_signalement || []
 
   return (
     <div className="min-h-screen  p-4 md:p-8">

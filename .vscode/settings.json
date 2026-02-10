@@ -3,5 +3,31 @@
         "activityBar.background": "#00351F",
         "titleBar.activeBackground": "#004B2C",
         "titleBar.activeForeground": "#E8FFF6"
+    },
+    // Jest configuration
+    "jest.autoRun": "off",
+    "jest.showCoverageOnLoad": false,
+    "jest.runMode": "on-demand",
+    // TypeScript
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    // Editor
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "editor.formatOnSave": true,
+    // Files to exclude from explorer
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/node_modules": true,
+        "**/.next": true,
+        "**/coverage": true
+    },
+    // Search exclusions
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/coverage": true,
+        "**/.next": true
     }
 }

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { UserRole } from '@/types/auth';
+import type { Habitant } from '@/types/habitants';
 import {
   HomeIcon,
   MapIcon,
@@ -45,7 +46,7 @@ export default function SidebarMenu() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const { user, signOut } = useSupabaseAuth();
-  const [habitantData, setHabitantData] = useState<any>(null);
+  const [habitantData, setHabitantData] = useState<Habitant | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [notificationsMuted, setNotificationsMuted] = useState(false);
 
@@ -173,7 +174,7 @@ export default function SidebarMenu() {
           Commune
         </div>
         <div className="commune-name">
-          {habitantData?.communes?.nom || user?.user_metadata?.commune}
+          {user?.user_metadata?.commune || 'Non spécifiée'}
         </div>
       </div>
 
@@ -254,7 +255,7 @@ export default function SidebarMenu() {
         )}
         {dataLoaded && isMairieUser && (
           <div>
-            <Link href="/signaler-incident" className="action-button mairie">
+            <Link href="/mairie/nouveau-arrete" className="action-button mairie">
               <PencilSquareIcon width="24" height="24" />
               Nouvelle rédaction
             </Link>

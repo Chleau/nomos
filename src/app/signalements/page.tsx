@@ -95,7 +95,7 @@ export default function SignalementsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
             {sortedSignalements.map((signalement) => {
-              const firstPhotoPath = (signalement as any).photos_signalement?.[0]?.url
+              const firstPhotoPath = signalement.photos_signalement?.[0]?.url
               const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
 
               return (
