@@ -13,7 +13,7 @@ export default function ProgressBar({ className, current, total }: ProgressBarPr
     <div className={className}>
       <div className="bg-[#e9e9e9] flex flex-col h-[12px] items-start overflow-hidden relative rounded-full w-full">
         <div 
-          className="bg-[#f27f09] h-[12px] rounded-full transition-all duration-300" 
+          className="bg-[#F27F09] h-[12px] rounded-full transition-all duration-300" 
           style={{ width: `${percentage}%` }}
         />
       </div>

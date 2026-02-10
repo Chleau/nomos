@@ -24,11 +24,11 @@ export default function CardIncident({
   return (
     <div
       onClick={onClick}
-      className="flex bg-white rounded-[24px] h-[200px] overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+      className="flex w-full h-[177px] bg-white rounded-[24px] overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow"
     >
       {/* Image section */}
       {image && (
-        <div className="w-[189px] h-auto bg-gray-300 flex-shrink-0">
+        <div className="w-[189px] h-full bg-gray-300 flex-shrink-0">
           <img
             src={image}
             alt={title}
@@ -44,13 +44,17 @@ export default function CardIncident({
           {title}
         </h3>
 
-        {/* Info row - badge, date, and user */}
-        <div className="flex items-center gap-5">
+        {/* Badge and date row */}
+        <div className="flex items-center gap-[12px]">
           <DotBadge label={label} color="red" />
           <span className="text-[12px] font-['Montserrat'] font-normal text-[#64748b]" suppressHydrationWarning>
             Déclaré le {date}
           </span>
-          <span className="ml-auto text-[12px] font-['Montserrat'] font-medium text-[#242a35]">
+        </div>
+
+        {/* Username row */}
+        <div>
+          <span className="text-[14px] font-['Montserrat'] font-medium text-[#242a35]">
             {username}
           </span>
         </div>

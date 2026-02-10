@@ -13,6 +13,14 @@ export function useSignalements() {
     }
   })
 
+  const updateSignalement = useMutation({
+    mutationFn: ({ id, updates }: { id: number; updates: Partial<Signalement> }) =>
+      signalementsService.update(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['signalements'] })
+    }
+  })
+
   const updateSignalementUrl = useMutation({
     mutationFn: ({ id, url }: { id: number; url: string }) =>
       signalementsService.updateUrl(id, url),
@@ -23,6 +31,7 @@ export function useSignalements() {
 
   return {
     createSignalement,
+    updateSignalement,
     updateSignalementUrl
   }
 }

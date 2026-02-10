@@ -18,8 +18,17 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      "coverage/**",
+      "jest.config.js",
+      "jest.setup.js",
     ],
   },
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn"
+    }
+  }
 ];
 
 export default eslintConfig;

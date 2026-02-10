@@ -4,7 +4,7 @@ import React from 'react'
 // Primitives de Tableau (Style Système)
 // ----------------------------------------------------------------------------
 
-export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {}
+export type TableProps = React.HTMLAttributes<HTMLTableElement>;
 
 export function Table({ className = '', ...props }: TableProps) {
   return (
@@ -14,19 +14,19 @@ export function Table({ className = '', ...props }: TableProps) {
   )
 }
 
-export interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+export type TableHeaderProps = React.HTMLAttributes<HTMLTableSectionElement>;
 
 export function TableHeader({ className = '', ...props }: TableHeaderProps) {
   return <thead className={`bg-[#e2e8f0] border-b border-[#e7eaed] ${className}`} {...props} />
 }
 
-export interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+export type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
 
 export function TableBody({ className = '', ...props }: TableBodyProps) {
   return <tbody className={`[&_tr:last-child]:border-0 text-[#475569] ${className}`} {...props} />
 }
 
-export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {}
+export type TableRowProps = React.HTMLAttributes<HTMLTableRowElement>;
 
 export function TableRow({ className = '', ...props }: TableRowProps) {
   return (
@@ -37,7 +37,7 @@ export function TableRow({ className = '', ...props }: TableRowProps) {
   )
 }
 
-export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {}
+export type TableHeadProps = React.ThHTMLAttributes<HTMLTableCellElement>;
 
 export function TableHead({ className = '', ...props }: TableHeadProps) {
   return (
@@ -48,7 +48,7 @@ export function TableHead({ className = '', ...props }: TableHeadProps) {
   )
 }
 
-export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {}
+export type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement>;
 
 export function TableCell({ className = '', ...props }: TableCellProps) {
   return (

@@ -266,7 +266,8 @@ export default function ArchivesPage() {
             </Button>
             <FilterDropdown
               isOpen={showFilterDropdown}
-              categories={ARRETE_CATEGORIES}
+              onClose={() => setShowFilterDropdown(false)}
+              categories={[...ARRETE_CATEGORIES]}
               onApply={(filters) => {
                 setFilterState(filters)
                 setShowFilterDropdown(false)

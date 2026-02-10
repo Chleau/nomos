@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { TrashIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline'
 
 interface FilterDropdownProps {
   isOpen: boolean
   onClose: () => void
   onApply: (filters: FilterState) => void
   onClear: () => void
+  themes?: { libelle: string; id?: number }[]
   categories?: string[]
 }
 
@@ -17,28 +19,36 @@ export interface FilterState {
   themes: string[]
 }
 
-export default function FilterDropdown({ isOpen, onClose, onApply, onClear, categories }: FilterDropdownProps) {
+export default function FilterDropdown({ isOpen, onClose, onApply, onClear, themes: themesFromProps = [], categories }: FilterDropdownProps) {
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
   const [periodType, setPeriodType] = useState<'custom' | '7days' | '30days' | 'thisyear' | null>(null)
   const [themes, setThemes] = useState<string[]>([])
 
-  const availableThemes = categories || ['Filtre 1', 'Filtre 2', 'Filtre 3', 'Filtre 4', 'Filtre 5', 'Filtre 6']
+  const availableThemes = categories || themesFromProps.map(t => t.libelle)
 
   const handleThemeToggle = (theme: string) => {
-    setThemes(prev => 
-      prev.includes(theme) 
+    setThemes(prev =>
+      prev.includes(theme)
         ? prev.filter(t => t !== theme)
         : [...prev, theme]
     )
   }
 
   const handlePeriodClick = (type: '7days' | '30days' | 'thisyear') => {
+    // Si on clique sur le même, on décoche
+    if (periodType === type) {
+      setPeriodType(null)
+      setStartDate('')
+      setEndDate('')
+      return
+    }
+
     setPeriodType(type)
-    
+
     const today = new Date()
     const startOfYear = new Date(today.getFullYear(), 0, 1)
-    
+
     switch (type) {
       case '7days':
         const date7DaysAgo = new Date(today)
@@ -86,11 +96,11 @@ export default function FilterDropdown({ isOpen, onClose, onApply, onClear, cate
   }
 
   return (
-    <div className="absolute right-0 top-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-[280px]">
+    <div className="absolute right-0 top-full mt-2 w-96 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 px-2 py-1 border-b border-gray-200">
+      <div className="flex items-center justify-between gap-2 px-2 py-1">
         <p className="font-['Montserrat'] font-semibold text-base text-gray-600">Filtres</p>
-        <button 
+        <button
           onClick={onClose}
           className="text-gray-500 hover:text-gray-700 text-xl"
         >
@@ -105,27 +115,66 @@ export default function FilterDropdown({ isOpen, onClose, onApply, onClear, cate
           <div className="px-2 py-1">
             <p className="text-sm font-['Montserrat'] font-normal text-gray-600">Période</p>
           </div>
-          
-          {/* Date inputs */}
-          <div className="flex gap-[6px] items-center px-[6px] py-[6px]">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value)
-                setPeriodType('custom')
-              }}
-              className="border border-gray-600 px-3 py-[6px] rounded-bl-lg rounded-tl-lg text-xs text-[#053f5c] font-['Poppins'] font-medium flex-1 placeholder-gray-400"
-            />
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value)
-                setPeriodType('custom')
-              }}
-              className="border border-gray-600 px-3 py-[6px] rounded-br-lg rounded-tr-lg text-xs text-[#053f5c] font-['Poppins'] font-medium flex-1 placeholder-gray-400"
-            />
+
+          {/* Date inputs - Hidden but functional */}
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value)
+              setPeriodType('custom')
+            }}
+            className="hidden"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => {
+              setEndDate(e.target.value)
+              setPeriodType('custom')
+            }}
+            className="hidden"
+          />
+
+          {/* Date display as interactive pills */}
+          <div className="px-[6px] py-[6px]">
+            <div className="flex flex-wrap gap-[6px]">
+              {startDate && (
+                <div className="flex items-center gap-2 bg-gray-100 border border-gray-300 px-3 py-[6px] rounded-lg">
+                  <span className="text-xs text-[#053f5c] font-['Poppins'] font-medium">
+                    {formatDateDisplay(startDate)}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setStartDate('')
+                    }}
+                    className="text-gray-500 hover:text-gray-700 text-sm font-bold leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+              {endDate && (
+                <div className="flex items-center gap-2 bg-gray-100 border border-gray-300 px-3 py-[6px] rounded-lg">
+                  <span className="text-xs text-[#053f5c] font-['Poppins'] font-medium">
+                    {formatDateDisplay(endDate)}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setEndDate('')
+                    }}
+                    className="text-gray-500 hover:text-gray-700 text-sm font-bold leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+              {!startDate && !endDate && (
+                <span className="text-xs text-gray-400 italic">Aucune date sélectionnée</span>
+              )}
+            </div>
           </div>
 
           {/* Period presets */}
@@ -182,18 +231,20 @@ export default function FilterDropdown({ isOpen, onClose, onApply, onClear, cate
       </div>
 
       {/* Actions */}
-      <div className="flex gap-[6px] items-start p-[6px] border-t border-gray-200 bg-gray-50">
+      <div className="flex gap-[6px] items-center p-[6px] border-t border-gray-200 bg-gray-50">
         <button
           onClick={handleClear}
-          className="flex-1 border border-gray-600 px-3 py-[6px] rounded-lg text-xs font-['Poppins'] font-medium text-[#053f5c] hover:bg-gray-100 flex items-center justify-center gap-2"
+          className="flex-1 border border-gray-600 px-3 py-[6px] rounded-lg text-xs font-['Poppins'] font-medium text-[#053f5c] hover:bg-gray-100 flex items-center justify-center gap-2 whitespace-nowrap"
         >
-          🗑️ Supprimer les filtres
+          <TrashIcon className="w-4 h-4" />
+          <span>Supprimer les filtres</span>
         </button>
         <button
           onClick={handleApply}
-          className="flex-1 bg-[#f27f09] px-3 py-[6px] rounded-lg text-xs font-['Poppins'] font-medium text-[#242a35] hover:bg-[#e67e00] flex items-center justify-center gap-2"
+          className="flex-1 bg-[#f27f09] px-3 py-[6px] rounded-lg text-xs font-['Poppins'] font-medium text-[#242a35] hover:bg-[#e67e00] flex items-center justify-center gap-2 whitespace-nowrap"
         >
-          ⚙️ Appliquer les filtres
+          <AdjustmentsHorizontalIcon className="w-4 h-4" />
+          <span>Appliquer les filtres</span>
         </button>
       </div>
     </div>

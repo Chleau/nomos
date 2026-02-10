@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 
@@ -21,6 +21,7 @@ function escapeAttr(s: string): string {
 }
 
 // Fix pour les icônes par défaut de Leaflet
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -51,37 +52,54 @@ export default function IncidentMap({
 }: Props) {
   const mapRef = useRef<HTMLDivElement | null>(null)
   const leafletMapRef = useRef<L.Map | null>(null)
+  const [mapReady, setMapReady] = useState(false)
 
+  // Initialiser la carte avec un délai pour laisser le DOM se mettre en place
   useEffect(() => {
     if (!mapRef.current) return
 
-    // Initialiser la carte une seule fois
-    if (!leafletMapRef.current) {
-      leafletMapRef.current = L.map(mapRef.current, {
-        center,
-        zoom,
-      })
+    const timer = setTimeout(() => {
+      if (mapRef.current && !leafletMapRef.current) {
+        try {
+          const mapContainer = mapRef.current
+          
+          // Créer la carte
+          const mapInstance = L.map(mapContainer, {
+            center,
+            zoom,
+            trackResize: true,
+          })
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-      }).addTo(leafletMapRef.current)
-    }
+          // Ajouter les tiles
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+          }).addTo(mapInstance)
+
+          // Important: invalider la taille pour que Leaflet recalcule
+          setTimeout(() => {
+            mapInstance.invalidateSize()
+          }, 0)
+
+          leafletMapRef.current = mapInstance
+          setMapReady(true)
+        } catch (error) {
+          console.error('Erreur lors de l\'initialisation de la carte:', error)
+        }
+      }
+    }, 100)
 
     return () => {
-      // Cleanup lors du démontage
-      if (leafletMapRef.current) {
-        leafletMapRef.current.remove()
-        leafletMapRef.current = null
-      }
+      clearTimeout(timer)
     }
-  }, [center, zoom])
+  }, [])
 
   useEffect(() => {
     const mapInstance = leafletMapRef.current
-    if (!mapInstance) return
+    if (!mapInstance || !mapReady) return
 
     // Nettoyer les markers existants
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const existing = (mapInstance as any)._nomos_markers
     if (existing) {
       mapInstance.removeLayer(existing)
@@ -109,6 +127,7 @@ export default function IncidentMap({
     }
 
     // Sauvegarder et ajouter le groupe à la carte
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mapInstance as any)._nomos_markers = markersGroup
     markersGroup.addTo(mapInstance)
 
@@ -126,7 +145,7 @@ export default function IncidentMap({
         console.warn('Erreur fitBounds:', error)
       }
     }
-  }, [markers])
+  }, [markers, mapReady])
 
   return (
     <div className="w-full h-full rounded-lg overflow-hidden shadow-lg border border-gray-200 relative z-0">

@@ -45,12 +45,12 @@ export default function SignalementsPage() {
             className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
+              <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
             Retour
           </button>
         </div>
-        <h1 className="text-2xl md:text-3xl lg:text-4xl mb-6 font-bold">Toutes les déclarations d'incident</h1>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl mb-6 font-bold">Toutes les déclarations d&apos;incident</h1>
 
 
         {/* Filtres */}
@@ -95,7 +95,7 @@ export default function SignalementsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
             {sortedSignalements.map((signalement) => {
-              const firstPhotoPath = (signalement as any).photos_signalement?.[0]?.url
+              const firstPhotoPath = signalement.photos_signalement?.[0]?.url
               const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
 
               return (

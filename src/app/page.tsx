@@ -1,33 +1,72 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { useCurrentHabitant, useHabitantSignalementsCount } from '@/lib/hooks/useHabitants';
 import { useCommuneSignalementsCount, useAllSignalements, useHabitantSignalements } from '@/lib/hooks/useSignalements';
+import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement';
 import CardIncident from '@/components/ui/CardIncident';
+import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown';
 import Acteur from '@/components/accueil-v2/Acteur';
 import InformationNiveau from '@/components/accueil-v2/InformationNiveau';
 import ProgressBar from '@/components/accueil-v2/ProgressBar';
 import CardRaccourci from '@/components/accueil-v2/CardRaccourci';
 import { getPublicUrlFromPath } from '@/lib/services/storage.service';
 import Link from 'next/link';
-import { FunnelIcon } from '@heroicons/react/24/outline'; 
+import { AdjustmentsVerticalIcon } from '@heroicons/react/24/outline'; 
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage';
 import Button from '@/components/ui/Button';
 import { UserRole } from '@/types/auth';
 
 function HomeContent() {
+  const router = useRouter();
   const { user } = useSupabaseAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filters, setFilters] = useState<FilterState | null>(null);
   
   // Data fetching
   const { data: habitant } = useCurrentHabitant(user?.id || null);
   const { data: userDeclarations = 0 } = useHabitantSignalementsCount(habitant?.id || null);
   const { data: totalDeclarations = 0 } = useCommuneSignalementsCount(habitant?.commune_id || null);
-  const { data: derniersSignalementsData } = useAllSignalements(2);
+  const { data: derniersSignalementsData } = useAllSignalements(1000);
   const derniersSignalements = derniersSignalementsData || [];
+  const { types } = useTypesSignalement();
 
-  const { data: mesSignalementsData } = useHabitantSignalements(habitant?.id || null, 2);
+  const { data: mesSignalementsData } = useHabitantSignalements(habitant?.id || null, 1000);
   const mesSignalements = mesSignalementsData || [];
+
+  // Fonction de filtrage
+  const getFilteredSignalements = (signalements: any[]): any[] => {
+    if (!filters) return signalements;
+
+    return signalements.filter((signalement) => {
+      // Filtrer par dates
+      if (filters.startDate || filters.endDate) {
+        const sigDate = new Date(signalement.created_at);
+        if (filters.startDate) {
+          const startDate = new Date(filters.startDate);
+          if (sigDate < startDate) return false;
+        }
+        if (filters.endDate) {
+          const endDate = new Date(filters.endDate);
+          endDate.setHours(23, 59, 59, 999);
+          if (sigDate > endDate) return false;
+        }
+      }
+
+      // Filtrer par thématiques
+      if (filters.themes.length > 0) {
+        const typeId = signalement.type_id;
+        const typeLibelle = types.find((t) => t.id === typeId)?.libelle;
+        if (!typeLibelle || !filters.themes.includes(typeLibelle)) return false;
+      }
+
+      return true;
+    });
+  };
+
+  const filteredDerniersSignalements = getFilteredSignalements(derniersSignalements).slice(0, 2);
 
   const getLevelInfo = (count: number) => {
     if (count < 3) return { 
@@ -59,6 +98,10 @@ function HomeContent() {
 
   const levelInfo = getLevelInfo(userDeclarations);
 
+  const handleCardClick = (signalementId: string) => {
+    router.push(`/signalements/${signalementId}`);
+  };
+
   return (
     <div className="bg-[#f5fcfe] min-h-screen w-full relative">
       {/* Alerte Banner */}
@@ -68,7 +111,8 @@ function HomeContent() {
         </p>
       </div>
 
-      <div className="max-w-[1328px] mx-auto px-10 pb-12 flex flex-col gap-12">
+      <div className="px-12 pb-12">
+        <div className="flex flex-col gap-6 mx-auto">
         {/* Welcome Section */}
         <div>
           <h1 className="font-['Poppins'] font-semibold text-[#242a35] text-[36px]">
@@ -82,7 +126,7 @@ function HomeContent() {
           <div className="flex flex-col lg:flex-row gap-12">
             {/* Acteur Card */}
             <Acteur 
-              className="bg-white h-[340px] flex flex-col gap-8 items-center justify-center p-12 rounded-[24px] shadow-sm flex-shrink-0 lg:w-[450px]" 
+              className="bg-white h-[340px] flex flex-col items-center justify-center rounded-[24px] shadow-sm flex-shrink-0 lg:w-[450px]" 
               message={levelInfo.message}
             />
             
@@ -93,10 +137,10 @@ function HomeContent() {
               <div className="flex flex-col gap-5 w-full max-w-[350px]">
                 {/* User Declarations */}
                 <div className="flex flex-col gap-2">
-                  <p className="font-['Poppins'] font-medium text-[#053f5c] text-[18px]">
+                  <p className="font-['Poppins'] font-medium text-[#053f5c] text-[16px]">
                     Votre nombre de déclarations
                   </p>
-                  <p className="font-['Montserrat'] font-semibold text-[#053f5c] text-[60px] leading-none mb-2">
+                  <p className="font-['Montserrat'] font-semibold text-[#053f5c] text-[36px] leading-[48px] mb-2">
                     {userDeclarations}
                   </p>
                   <ProgressBar current={userDeclarations} total={levelInfo.threshold} />
@@ -104,10 +148,10 @@ function HomeContent() {
 
                 {/* Commune Declarations */}
                 <div className="flex flex-col gap-2 mt-4">
-                  <p className="font-['Poppins'] font-medium text-[#053f5c] text-[18px]">
+                  <p className="font-['Poppins'] font-medium text-[#053f5c] text-[16px]">
                     Déclarations total dans la commune
                   </p>
-                  <p className="font-['Montserrat'] font-semibold text-[#053f5c] text-[40px] leading-none">
+                  <p className="font-['Montserrat'] font-semibold text-[#053f5c] text-[36px] leading-[48px]">
                     {totalDeclarations}
                   </p>
                 </div>
@@ -131,26 +175,46 @@ function HomeContent() {
               <h2 className="font-['Poppins'] font-medium text-[#242a35] text-[30px]">
                 Derniers incidents déclarés
               </h2>
-              <Button variant="outline" size="xs">
-                <FunnelIcon className="w-5 h-5" />
-                <span className="font-['Montserrat'] text-[16px]">Filtres</span>
-              </Button>
+              <div className="relative">
+                <Button 
+                  variant="outline" 
+                  size="xs"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                >
+                  <AdjustmentsVerticalIcon className="w-5 h-5" />
+                  <span className="font-['Montserrat'] text-[16px]">Filtres</span>
+                </Button>
+                <FilterDropdown
+                  isOpen={showDropdown}
+                  onClose={() => setShowDropdown(false)}
+                  onApply={(newFilters: FilterState) => {
+                    setFilters(newFilters)
+                    setShowDropdown(false)
+                  }}
+                  onClear={() => {
+                    setFilters(null)
+                    setShowDropdown(false)
+                  }}
+                  themes={types}
+                />
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {derniersSignalements.map((signalement) => (
+              {filteredDerniersSignalements.map((signalement) => (
                 <CardIncident
                   key={signalement.id}
                   title={signalement.titre}
-                  label={signalement.types_signalement?.libelle || 'Incident'}
+                  label={signalement.statut || 'Signalé'}
                   date={new Date(signalement.created_at).toLocaleDateString()}
                   username={`${signalement.habitants?.prenom} ${signalement.habitants?.nom}`}
                   description={signalement.description}
                   image={signalement.photos_signalement?.[0]?.url ? getPublicUrlFromPath(signalement.photos_signalement[0].url) : undefined}
+                  onClick={() => handleCardClick(signalement.id)}
                 />
               ))}
-              {derniersSignalements.length === 0 && (
-                  <p className="text-gray-500">Aucun incident déclaré récemment.</p>
+              {filteredDerniersSignalements.length === 0 && (
+                  <p className="text-gray-500">Aucun incident ne correspond à vos filtres.</p>
               )}
             </div>
             
@@ -172,19 +236,20 @@ function HomeContent() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {mesSignalements.map((signalement) => (
+              {mesSignalements.slice(0, 2).map((signalement) => (
                 <CardIncident
                   key={signalement.id}
                   title={signalement.titre}
-                  label={signalement.types_signalement?.libelle || 'Incident'}
+                  label={signalement.statut || 'Signalé'}
                   date={new Date(signalement.created_at).toLocaleDateString()}
                   username="Vous"
                   description={signalement.description}
                   image={signalement.photos_signalement?.[0]?.url ? getPublicUrlFromPath(signalement.photos_signalement[0].url) : undefined}
+                  onClick={() => handleCardClick(signalement.id)}
                 />
               ))}
                {mesSignalements.length === 0 && (
-                  <p className="text-gray-500">Vous n'avez pas encore déclaré d'incident.</p>
+                  <p className="text-gray-500">Vous n&apos;avez pas encore déclaré d&apos;incident.</p>
               )}
             </div>
 
@@ -197,6 +262,7 @@ function HomeContent() {
             </div>
           </div>
 
+        </div>
         </div>
       </div>
     </div>
