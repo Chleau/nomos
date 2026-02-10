@@ -8,15 +8,14 @@ import {
   StarIcon,
   EyeIcon,
   PencilIcon,
-  AdjustmentsVerticalIcon,
-  BarsArrowDownIcon,
-  PlusIcon,
   EllipsisVerticalIcon,
   ArrowDownTrayIcon,
   PaperAirplaneIcon,
   ShareIcon,
   TrashIcon,
-  ArchiveBoxIcon
+  ArchiveBoxIcon,
+  PlusIcon,
+  BarsArrowDownIcon,
 } from '@heroicons/react/24/outline'
 
 import Button from '@/components/ui/Button'
@@ -30,7 +29,7 @@ import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useRecentArretes, useDeleteArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
-import { ARRETE_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
+import { CATEGORY_COLORS, ARRETE_CATEGORIES } from '@/lib/constants'
 import { UserRole } from '@/types/auth'
 import type { Signalement } from '@/types/signalements'
 import { TableBadge, DataTable, type Column } from '@/components/ui/Table'
@@ -62,8 +61,7 @@ interface Loi {
   category: string;
 }
 
-function ActionMenu({ row }: { row: RedactionRow }) {
-  const router = useRouter()
+function ActionMenu({ row }: Readonly<{ row: RedactionRow }>) {
   const deleteArrete = useDeleteArrete()
   const updateArrete = useUpdateArrete()
 
@@ -82,23 +80,23 @@ function ActionMenu({ row }: { row: RedactionRow }) {
 
   const handleDelete = async () => {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce document ?")) {
-      await deleteArrete.mutateAsync(row.id as number)
+      await deleteArrete.mutateAsync(row.id)
     }
     setIsOpen(false)
   }
 
   const handlePublish = async () => {
-    await updateArrete.mutateAsync({ id: row.id as number, updates: { statut: 'Publié' } })
+    await updateArrete.mutateAsync({ id: row.id, updates: { statut: 'Publié' } })
     setIsOpen(false)
   }
 
   const handleArchive = async () => {
-    await updateArrete.mutateAsync({ id: row.id as number, updates: { archive: true, statut: 'Archivé' } })
+    await updateArrete.mutateAsync({ id: row.id, updates: { archive: true, statut: 'Archivé' } })
     setIsOpen(false)
   }
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/mairie/nouveau-arrete?id=${row.id}`
+    const url = `${globalThis.location.origin}/mairie/nouveau-arrete?id=${row.id}`
     if (navigator.share) {
       try {
         await navigator.share({ title: row.title, url })
@@ -161,20 +159,21 @@ function MairieContent() {
   const { types } = useTypesSignalement()
 
   const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(2)
-  const { data: arretes = [], isLoading: loadingArretes } = useRecentArretes(habitant?.commune_id || null, 10)
+  const { data: arretes = [] } = useRecentArretes(habitant?.commune_id || null, 10)
 
   // États de tri
-  const [sortIncidents, _setSortIncidents] = useState<'recent' | 'ancien'>('recent')
+  const [sortIncidents] = useState<'recent' | 'ancien'>('recent')
   const [sortRedactions, setSortRedactions] = useState<'recent' | 'ancien'>('recent')
   const [sortLois, setSortLois] = useState<'recent' | 'ancien'>('recent')
 
   // États de filtre
-  const [filterIncidents, setFilterIncidents] = useState<FilterState | null>(null)
+  const [filterIncidents] = useState<FilterState | null>(null) // Non utilisé dans l'UI pour le moment
   const [filterRedactionsState, setFilterRedactionsState] = useState<FilterState | null>(null)
   const [filterLoisState, setFilterLoisState] = useState<FilterState | null>(null)
 
   // Modales de filtre
   const [showFilterRedactions, setShowFilterRedactions] = useState(false)
+  const [showFilterLois, setShowFilterLois] = useState(false)
 
   // États pour les checkboxes de la table
   const [selectedRedactions, setSelectedRedactions] = useState<Set<string | number>>(new Set())
@@ -197,6 +196,12 @@ function MairieContent() {
 
   const getBadgeColor = (category: string) => {
     return CATEGORY_COLORS[category] || 'neutral'
+  }
+
+  const getStatusColor = (status: string | undefined): 'success' | 'neutral' | 'warning' => {
+    if (status === 'Publié') return 'success'
+    if (status === 'Archivé') return 'neutral'
+    return 'warning'
   }
 
   // --- Data Transformation ---
@@ -449,11 +454,7 @@ function MairieContent() {
       render: (row) => (
         <TableBadge
           label={row.status || 'Brouillon'}
-          color={
-            row.status === 'Publié' ? 'success'
-              : row.status === 'Archivé' ? 'neutral'
-                : 'warning'
-          }
+          color={getStatusColor(row.status)}
         />
       ),
       width: '20%'
@@ -522,33 +523,11 @@ function MairieContent() {
         <div className="mb-[58px] space-y-[25px]">
           <div className="flex items-center justify-between">
             <h2 className="text-[30px] font-['Poppins'] font-medium text-[#4a4a4a]">Derniers incidents déclarés</h2>
-            <div className="relative">
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={() => setShowFilterIncidents(!showFilterIncidents)}
-              >
-                Filtres
-              </Button>
-              <FilterDropdown
-                isOpen={showFilterIncidents}
-                onClose={() => setShowFilterIncidents(false)}
-                onApply={(filters) => {
-                  setFilterIncidents(filters)
-                  setShowFilterIncidents(false)
-                }}
-                onClear={() => {
-                  setFilterIncidents(null)
-                  setShowFilterIncidents(false)
-                }}
-                themes={types}
-              />
-            </div>
           </div>
 
-          {loadingAll ? (
-            <div className="text-gray-500">Chargement...</div>
-          ) : derniersSignalements && derniersSignalements.length > 0 ? (
+          {loadingAll && <div className="text-gray-500">Chargement...</div>}
+
+          {!loadingAll && derniersSignalements && derniersSignalements.length > 0 && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-[58px]">
                 {filteredSignalements.slice(0, 2).map((signalement) => {
@@ -577,7 +556,9 @@ function MairieContent() {
                 </Button>
               </div>
             </>
-          ) : (
+          )}
+
+          {!loadingAll && (!derniersSignalements || derniersSignalements.length === 0) && (
             <div className="text-gray-500">Aucun incident récemment déclaré</div>
           )}
         </div>
@@ -590,7 +571,7 @@ function MairieContent() {
               <div className="relative">
                 <Button
                   size="sm"
-                  variant="primary"
+                  variant="outline"
                   onClick={() => setShowFilterRedactions(!showFilterRedactions)}
                 >
                   Filtres
@@ -606,148 +587,119 @@ function MairieContent() {
                     setFilterRedactionsState(null)
                     setShowFilterRedactions(false)
                   }}
-                  themes={types}
+                  categories={[...ARRETE_CATEGORIES]}
                 />
               </div>
 
               <Button
                 size="sm"
-                variant="primary"
+                variant="outline"
                 onClick={() => setSortRedactions(sortRedactions === 'recent' ? 'ancien' : 'recent')}
               >
+                <BarsArrowDownIcon className="w-5 h-5" />
+
                 {sortRedactions === 'recent' ? 'trier par : le plus récent' : 'trier par : le plus ancien'}
               </Button>
-              <Button size="sm" variant="primary">Nouveau</Button>
-            </div>
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={() => router.push('/mairie/nouveau-arrete')}
+              >
+                <PlusIcon className="w-5 h-5" />
+                Nouveau
+              </Button>            </div>
           </div>
 
           {/* Redactions table */}
           <div className="bg-white rounded-lg overflow-hidden border border-[#e7eaed]">
-            {/* Table header */}
-            <div className="grid grid-cols-[48px_76px_1fr_123px_212px_222px_199px_167px_auto] bg-white border-b border-[#e7eaed] px-0 py-0">
-              <div className="flex items-center justify-center h-[40px] border-r border-[#e7eaed]">
+            <DataTable
+              columns={columns}
+              data={filteredRedactions}
+              emptyMessage="Aucune rédaction trouvée"
+              headerCheckbox={
                 <Checkbox
-                  size="lg"
-                  checked={selectedRedactions.size === filteredRedactions.length && filteredRedactions.length > 0}
+                  checked={filteredRedactions.length > 0 && selectedRedactions.size === filteredRedactions.length}
+                  state={selectedRedactions.size > 0 && selectedRedactions.size < filteredRedactions.length ? 'indeterminate' : undefined}
                   onChange={toggleSelectAllRedactions}
                 />
-              </div>
-              <div className="flex items-center justify-center h-[40px] px-[16px] border-r border-[#e7eaed]">
-                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Favoris</span>
-              </div>
-              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
-                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Contenu</span>
-              </div>
-              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
-                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Date</span>
-              </div>
-              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
-                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Lieu</span>
-              </div>
-              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
-                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Habitant</span>
-              </div>
-              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
-                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Catégorie</span>
-              </div>
-              <div className="flex items-center h-[40px] px-[16px] border-r border-[#e7eaed]">
-                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Statut</span>
-              </div>
-              <div className="flex items-center h-[40px] px-[16px]">
-                <span className="text-[14px] font-['Montserrat'] font-normal text-[#475569]">Action</span>
-              </div>
-            </div>
-
-            {/* Redactions table */}
-            <div className="bg-white">
-              <DataTable
-                columns={columns}
-                data={filteredRedactions}
-                emptyMessage="Aucune rédaction trouvée"
-                headerCheckbox={
-                  <Checkbox
-                    checked={filteredRedactions.length > 0 && selectedRedactions.size === filteredRedactions.length}
-                    state={selectedRedactions.size > 0 && selectedRedactions.size < filteredRedactions.length ? 'indeterminate' : undefined}
-                    onChange={toggleSelectAllRedactions}
-                  />
-                }
-              />
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex items-center justify-between pt-[25px]">
-              <Button variant="outline" size="sm">Actions groupées</Button>
-              <Button variant="primary" size="sm">Voir tout</Button>
-            </div>
+              }
+            />
           </div>
 
-          {/* Dernières lois mises à jour */}
-          <div className="space-y-[23px]">
-            <div className="flex items-center justify-between">
-              <h2 className="text-[18px] font-['Montserrat'] font-medium text-[#242a35]">Dernières lois mises à jour</h2>
-              <div className="flex gap-[20px]">
-                <div className="relative">
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => setShowFilterLois(!showFilterLois)}
-                  >
-                    Filtres
-                  </Button>
-                  <FilterDropdown
-                    isOpen={showFilterLois}
-                    onClose={() => setShowFilterLois(false)}
-                    onApply={(filters) => {
-                      setFilterLoisState(filters)
-                      setShowFilterLois(false)
-                    }}
-                    onClear={() => {
-                      setFilterLoisState(null)
-                      setShowFilterLois(false)
-                    }}
-                    themes={types}
-                  />
-                </div>
+          {/* Action buttons */}
+          <div className="flex items-center justify-between pt-[25px]">
+            <Button variant="outline" size="sm">Actions groupées</Button>
+            <Button variant="primary" size="sm">Voir tout</Button>
+          </div>
+        </div>
 
+        {/* Dernières lois mises à jour */}
+        <div className="mb-[58px] space-y-[23px]">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[18px] font-['Montserrat'] font-medium text-[#242a35]">Dernières lois mises à jour</h2>
+            <div className="flex gap-[20px]">
+              <div className="relative">
                 <Button
                   size="sm"
-                  variant="primary"
-                  onClick={() => setSortLois(sortLois === 'recent' ? 'ancien' : 'recent')}
+                  variant="outline"
+                  onClick={() => setShowFilterLois(!showFilterLois)}
                 >
-                  {sortLois === 'recent' ? 'trier par : le plus récent' : 'trier par : le plus ancien'}
+                  Filtres
                 </Button>
+                <FilterDropdown
+                  isOpen={showFilterLois}
+                  onClose={() => setShowFilterLois(false)}
+                  onApply={(filters) => {
+                    setFilterLoisState(filters)
+                    setShowFilterLois(false)
+                  }}
+                  onClear={() => {
+                    setFilterLoisState(null)
+                    setShowFilterLois(false)
+                  }}
+                  categories={[...ARRETE_CATEGORIES]}
+                />
               </div>
-            </div>
 
-            {/* Lois cards */}
-            <div className="grid grid-cols-2 gap-[73px]">
-              {filteredLois.map((loi) => (
-                <div key={loi.id} className="bg-white rounded-lg border border-[#e7eaed] px-[20px] py-[20px] space-y-[20px]">
-                  <p className="text-[16px] font-['Montserrat'] font-normal text-[#64748b] line-clamp-4 leading-[20px]">
-                    {loi.title}
-                  </p>
-
-                  <div className="bg-[#f5f5f5] border border-[#d1d5db] rounded-lg px-[12px] py-[6px] inline-block">
-                    <span className="text-[14px] font-['Montserrat'] font-medium text-[#242a35]">
-                      {loi.category}
-                    </span>
-                  </div>
-
-                  <Link
-                    href="#"
-                    className="inline-block text-[16px] font-['Montserrat'] font-medium text-[#787878] hover:text-[#f27f09] transition-colors"
-                  >
-                    lire plus
-                  </Link>
-                </div>
-              ))}
-            </div>
-
-            {/* See all button */}
-            <div className="flex justify-end pt-[25px]">
-              <Button variant="primary" size="sm">Voir tout</Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSortLois(sortLois === 'recent' ? 'ancien' : 'recent')}
+              >
+                {sortLois === 'recent' ? 'trier par : le plus récent' : 'trier par : le plus ancien'}
+              </Button>
             </div>
           </div>
+
+          {/* Lois cards */}
+          <div className="grid grid-cols-2 gap-[73px]">
+            {filteredLois.map((loi) => (
+              <div key={loi.id} className="bg-white rounded-lg border border-[#e7eaed] px-[20px] py-[20px] space-y-[20px]">
+                <p className="text-[16px] font-['Montserrat'] font-normal text-[#64748b] line-clamp-4 leading-[20px]">
+                  {loi.title}
+                </p>
+
+                <div className="bg-[#f5f5f5] border border-[#d1d5db] rounded-lg px-[12px] py-[6px] inline-block">
+                  <span className="text-[14px] font-['Montserrat'] font-medium text-[#242a35]">
+                    {loi.category}
+                  </span>
+                </div>
+
+                <Link
+                  href="#"
+                  className="inline-block text-[16px] font-['Montserrat'] font-medium text-[#787878] hover:text-[#f27f09] transition-colors"
+                >
+                  lire plus
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          {/* See all button */}
+          <div className="flex justify-end pt-[25px]">
+            <Button variant="primary" size="sm">Voir tout</Button>
+          </div>
+        </div>
       </main>
     </RoleProtectedPage>
   )
