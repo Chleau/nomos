@@ -21,6 +21,7 @@ function escapeAttr(s: string): string {
 }
 
 // Fix pour les icônes par défaut de Leaflet
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -98,6 +99,7 @@ export default function IncidentMap({
     if (!mapInstance || !mapReady) return
 
     // Nettoyer les markers existants
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const existing = (mapInstance as any)._nomos_markers
     if (existing) {
       mapInstance.removeLayer(existing)
@@ -125,6 +127,7 @@ export default function IncidentMap({
     }
 
     // Sauvegarder et ajouter le groupe à la carte
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mapInstance as any)._nomos_markers = markersGroup
     markersGroup.addTo(mapInstance)
 

@@ -28,13 +28,13 @@ export default function SignalementDetailPage() {
   const { data: signalement, isLoading, error } = useSignalement(parseInt(id))
   const { user } = useSupabaseAuth()
   const { data: currentHabitant } = useCurrentHabitant(user?.id ?? null)
-  
+
   const [fullAddress, setFullAddress] = useState<string>('')
   const [loadingAddress, setLoadingAddress] = useState(false)
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false)
   const [notificationsMuted, setNotificationsMuted] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  
+
   // Vérifier si l'utilisateur actuel est le créateur du signalement
   const isCreator = signalement && currentHabitant && signalement.habitant_id === currentHabitant.id
 
@@ -86,14 +86,14 @@ export default function SignalementDetailPage() {
         }
       );
       const data = await response.json();
-      
+
       if (data && data.address) {
         // Extraire tous les détails disponibles
         const houseNumber = data.address.house_number || ''
         const road = data.address.road || data.address.street || data.address.street_name || ''
         const city = data.address.city || data.address.town || data.address.village || data.address.municipality || ''
         const postalCode = data.address.postcode || ''
-        
+
         // Construire l'adresse complète
         const address = `${houseNumber} ${road}`.trim()
         const fullAddr = `${address} ${postalCode} ${city}`.trim()
@@ -149,13 +149,13 @@ export default function SignalementDetailPage() {
               Retour
             </button>
           </div>
-        </div>  
+        </div>
       </div>
     )
   }
 
   // Récupérer les photos
-  const photos = (signalement as any).photos_signalement || []
+  const photos = signalement.photos_signalement || []
 
   return (
     <div className="bg-[#f5fcfe] min-h-screen px-12 py-6">
@@ -167,11 +167,11 @@ export default function SignalementDetailPage() {
             className="flex items-center gap-2 px-4 py-2 bg-transparent border border-[#64748B] text-[#053F5C] text-sm rounded-lg hover:bg-[#D9F5FB] transition-colors"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
+              <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
             retour
           </button>
-          <button 
+          <button
             onClick={() => setNotificationsMuted(!notificationsMuted)}
             className="p-2 text-[#053F5C]"
             title={notificationsMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
@@ -212,7 +212,7 @@ export default function SignalementDetailPage() {
                   </button>
                 )
               })()}
-              
+
               {/* Dropdown Menu */}
               {isStatusDropdownOpen && (
                 <div className="absolute right-0 mt-2 min-w-[135px] bg-white flex flex-col items-start p-0 z-50 rounded-[8px] shadow-lg border border-gray-200">
@@ -227,7 +227,7 @@ export default function SignalementDetailPage() {
                         key={statut}
                         className="w-full text-left px-4 py-2 font-['Montserrat'] text-[14px] flex items-center gap-2"
                       >
-                        <div 
+                        <div
                           className="w-2 h-2 rounded-full flex-shrink-0"
                           style={{ backgroundColor: statusStyle.dotColor }}
                         ></div>
@@ -254,7 +254,7 @@ export default function SignalementDetailPage() {
             <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Rappel de l'incident</h2>
             <div className="bg-white rounded-2xl shadow-md p-5 w-full h-[295px] relative">
               <h3 className="font-['Poppins'] font-medium text-[20px] text-[#475569] mb-4">{signalement.titre || 'Sans titre'}</h3>
-              
+
               <div className="flex items-center gap-4 mb-4 text-sm">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 bg-gray-700 rounded-full"></div>
@@ -263,12 +263,12 @@ export default function SignalementDetailPage() {
                 <span className="text-sm text-[#053F5C]">Déclaré le {formatDate(signalement.date_signalement)}</span>
                 <span className="text-sm font-medium">{signalement.prenom} {signalement.nom?.charAt(0) || 'M'}</span>
               </div>
-              
+
               <div className="mb-4">
                 <h4 className="font-['Poppins'] font-medium text-[18px] text-[#64748B] mb-4">Contact</h4>
                 <div className='flex items-center gap-4 mb-4 text-sm'>
-                <p className="font-['Poppins'] font-regular text-[14px] text-gray-600">{signalement.telephone || 'Non renseigné'}</p>
-                <p className="font-['Poppins'] font-regular text-[14px] text-gray-600">{signalement.email || 'anonyme@gmail.com'}</p>
+                  <p className="font-['Poppins'] font-regular text-[14px] text-gray-600">{signalement.telephone || 'Non renseigné'}</p>
+                  <p className="font-['Poppins'] font-regular text-[14px] text-gray-600">{signalement.email || 'anonyme@gmail.com'}</p>
                 </div>
               </div>
 
@@ -277,7 +277,7 @@ export default function SignalementDetailPage() {
               </p>
 
               {isCreator && (
-                <button 
+                <button
                   onClick={() => setIsEditModalOpen(true)}
                   className="absolute p-2 text-[#053F5C] hover:bg-[#D9F5FB] rounded-lg transition-colors"
                   style={{ bottom: '25px', right: '25px' }}
@@ -288,7 +288,7 @@ export default function SignalementDetailPage() {
               )}
             </div>
           </div>
-          
+
           {/* Card Lieu de l'incident */}
           <div>
             <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Lieu de l'incident</h2>
@@ -321,7 +321,7 @@ export default function SignalementDetailPage() {
                   </div>
                 </div>
               )}
-              
+
               {/* Adresse en bas */}
               {signalement.latitude && signalement.longitude && (
                 <div className="absolute bottom-0 left-0 right-0 h-[58px] bg-white/95 backdrop-blur-sm p-3 shadow-md flex items-center justify-between z-10">
@@ -334,7 +334,7 @@ export default function SignalementDetailPage() {
                       {loadingAddress ? 'Chargement...' : (fullAddress || 'Adresse non disponible')}
                     </span>
                   </div>
-                  <button 
+                  <button
                     className="p-1 hover:bg-gray-100 rounded"
                     onClick={() => {
                       navigator.clipboard.writeText(fullAddress || `${signalement.latitude}, ${signalement.longitude}`)
@@ -356,11 +356,11 @@ export default function SignalementDetailPage() {
           <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Photos de l'incident</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {photos.length > 0 ? (
-              photos.map((photo: any, index: number) => {
+              photos.map((photo: { id: number; url: string }, index: number) => {
                 const photoUrl = getPublicUrlFromPath(photo.url)
                 return (
-                  <div key={photo.id || index} className="aspect-square bg-gray-200 rounded-xl overflow-hidden">
-                    <img src={photoUrl} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
+                  <div key={photo.id || index} className="aspect-square bg-gray-200 rounded-xl overflow-hidden relative">
+                    <Image src={photoUrl} alt={`Photo ${index + 1}`} className="object-cover" fill sizes="(max-width: 768px) 50vw, 25vw" />
                   </div>
                 )
               })
@@ -371,7 +371,7 @@ export default function SignalementDetailPage() {
             )}
           </div>
         </div>
-        
+
         {/* Modal de modification */}
         {isEditModalOpen && <EditSignalementModal signalement={signalement} onClose={() => setIsEditModalOpen(false)} />}
       </div>

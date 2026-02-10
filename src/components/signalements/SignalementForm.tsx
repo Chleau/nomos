@@ -77,7 +77,7 @@ export default function SignalementForm() {
   // Fonction pour géocoder une adresse
   const geocodeAddress = async (address: string) => {
     if (!address.trim()) return;
-    
+
     setIsGeocoding(true);
     try {
       const response = await fetch(
@@ -89,7 +89,7 @@ export default function SignalementForm() {
         }
       );
       const data = await response.json();
-      
+
       if (data && data.length > 0) {
         const { lat, lon } = data[0];
         setLatitude(parseFloat(lat));
@@ -110,14 +110,14 @@ export default function SignalementForm() {
     e.preventDefault();
     setMessage(null);
     setIsSubmitting(true);
-    
+
     // Vérifier que l'habitant est bien connecté
     if (!habitant) {
       setMessage("Vous devez être connecté pour créer un signalement");
       setIsSubmitting(false);
       return;
     }
-    
+
     // Préparer les données du signalement
     const signalementData = {
       titre,
@@ -125,7 +125,7 @@ export default function SignalementForm() {
       type_id: typeId === '' ? undefined : typeId,
       latitude: latitude === '' ? undefined : latitude,
       longitude: longitude === '' ? undefined : longitude,
-      statut: 'Signalé',      
+      statut: 'Signalé',
       habitant_id: habitant.id,
       commune_id: habitant.commune_id,
       nom: habitant.nom,
@@ -133,16 +133,16 @@ export default function SignalementForm() {
       telephone: telephone || undefined,
       email: habitant.email,
     };
-    
+
     // Création du signalement avec les données de l'habitant connecté
     const { data: signalement, error } = await createSignalement.mutateAsync(signalementData);
-    
+
     if (error) {
       setMessage("Erreur lors de la création du signalement");
       setIsSubmitting(false);
       return;
     }
-    
+
     if (!signalement) {
       setMessage("Erreur lors de la création du signalement");
       setIsSubmitting(false);
@@ -222,7 +222,7 @@ export default function SignalementForm() {
           <div className="mb-4">
             <div className="grid grid-cols-2 gap-4 w-full pb-8">
               <div className="w-full">
-                <label className="block mb-3 font-medium text-gray-700">Type d'incident *</label>
+                <label className="block mb-3 font-medium text-gray-700">Type d&apos;incident *</label>
                 <select
                   value={typeId}
                   onChange={e => setTypeId(e.target.value === '' ? '' : Number(e.target.value))}
@@ -268,7 +268,7 @@ export default function SignalementForm() {
       {step === 2 && (
         <>
           <div className="mb-4 pb-4">
-            <label className="block mb-3 font-medium text-gray-700">Localisation de l'incident</label>
+            <label className="block mb-3 font-medium text-gray-700">Localisation de l&apos;incident</label>
             <div className="w-full mb-4">
               <div className="relative">
                 <input
@@ -297,7 +297,7 @@ export default function SignalementForm() {
                     type="button"
                     onClick={() => geocodeAddress(adresse)}
                     disabled={isGeocoding || !adresse.trim()}
-                    aria-label="Rechercher l'adresse"
+                    aria-label="Rechercher l&apos;adresse"
                     className="bg-white rounded-full p-2 shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isGeocoding ? (
@@ -348,7 +348,7 @@ export default function SignalementForm() {
           </div>
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">Ajouter des photos</label>
-            <div 
+            <div
               className="relative"
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -363,9 +363,8 @@ export default function SignalementForm() {
                 onChange={e => handleAddPhotos(e.target.files)}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className={`flex flex-col items-center justify-center cursor-pointer bg-white rounded-2xl shadow px-6 py-8 w-full transition ${
-                isDragging ? 'shadow-lg border-2 border-blue-400 bg-blue-50' : 'hover:shadow-lg'
-              }`}>
+              <div className={`flex flex-col items-center justify-center cursor-pointer bg-white rounded-2xl shadow px-6 py-8 w-full transition ${isDragging ? 'shadow-lg border-2 border-blue-400 bg-blue-50' : 'hover:shadow-lg'
+                }`}>
                 <svg width="48" height="48" fill="none" viewBox="0 0 24 24" className="mb-2 text-gray-400">
                   <path d="M12 16v-4m0 0V8m0 4h4m-4 0H8m12 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2m16 0V8a2 2 0 0 0-2-2h-3.17a2 2 0 0 1-1.41-.59l-1.83-1.83a2 2 0 0 0-1.41-.59H6a2 2 0 0 0-2 2v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -413,41 +412,41 @@ export default function SignalementForm() {
           <div className="grid grid-cols-2 gap-4 w-full pb-8">
             <div className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">Nom</label>
-              <input 
-                type="text" 
-                value={nom} 
+              <input
+                type="text"
+                value={nom}
                 readOnly
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed" 
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed"
               />
             </div>
             <div className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">Prénom</label>
-              <input 
-                type="text" 
-                value={prenom} 
+              <input
+                type="text"
+                value={prenom}
                 readOnly
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed" 
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed"
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 w-full pb-8">
             <div className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">Téléphone</label>
-              <input 
-                type="tel" 
-                value={telephone} 
-                onChange={e => setTelephone(e.target.value)} 
+              <input
+                type="tel"
+                value={telephone}
+                onChange={e => setTelephone(e.target.value)}
                 placeholder="Optionnel"
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" 
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
             <div className="mb-4">
               <label className="block mb-1 font-medium text-gray-700">Adresse email</label>
-              <input 
-                type="email" 
-                value={email} 
+              <input
+                type="email"
+                value={email}
                 readOnly
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed" 
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-gray-50 text-gray-600 cursor-not-allowed"
               />
             </div>
           </div>
@@ -459,14 +458,14 @@ export default function SignalementForm() {
         <div className="mb-6">
           {/* Grid pour les deux cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
+
             {/* Section Rappel de l'incident */}
             <div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Rappel de l'incident</h3>
+              <h3 className="text-xl font-semibold mb-4 text-gray-900">Rappel de l&apos;incident</h3>
               <div className="bg-white rounded-3xl shadow-lg p-8 relative">
                 {/* Titre de l'incident en italique */}
                 <h4 className="text-xl italic mb-6 text-black">{titre}</h4>
-                
+
                 {/* Badge Signalé + Date + Nom */}
                 <div className="flex items-center gap-4 mb-6 text-sm flex-wrap">
                   <div className="flex items-center gap-2">
@@ -518,16 +517,16 @@ export default function SignalementForm() {
 
             {/* Section Lieu de l'incident */}
             <div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Lieu de l'incident</h3>
+              <h3 className="text-xl font-semibold mb-4 text-gray-900">Lieu de l&apos;incident</h3>
               <div className="bg-white rounded-3xl shadow-lg p-8 relative flex flex-col">
                 {/* Zone de la map (vide pour l'instant) */}
                 <div className="flex-1 bg-gray-100 rounded-2xl mb-4 min-h-[300px] flex items-center justify-center relative overflow-hidden">
                   {/* Pattern de map placeholder */}
                   <div className="absolute inset-0 opacity-20">
                     <svg className="w-full h-full" viewBox="0 0 400 300">
-                      <path d="M50,100 L100,50 L150,80 L200,40 L250,70 L300,30" stroke="#9CA3AF" strokeWidth="2" fill="none"/>
-                      <path d="M20,150 L80,120 L140,160 L200,130 L260,170 L320,140 L380,180" stroke="#9CA3AF" strokeWidth="2" fill="none"/>
-                      <circle cx="200" cy="150" r="30" fill="#EF4444" opacity="0.5"/>
+                      <path d="M50,100 L100,50 L150,80 L200,40 L250,70 L300,30" stroke="#9CA3AF" strokeWidth="2" fill="none" />
+                      <path d="M20,150 L80,120 L140,160 L200,130 L260,170 L320,140 L380,180" stroke="#9CA3AF" strokeWidth="2" fill="none" />
+                      <circle cx="200" cy="150" r="30" fill="#EF4444" opacity="0.5" />
                     </svg>
                   </div>
                   {/* Icône de localisation au centre */}

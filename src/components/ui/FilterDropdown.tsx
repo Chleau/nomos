@@ -9,6 +9,7 @@ interface FilterDropdownProps {
   onApply: (filters: FilterState) => void
   onClear: () => void
   themes?: { libelle: string; id?: number }[]
+  categories?: string[]
 }
 
 export interface FilterState {
@@ -18,17 +19,17 @@ export interface FilterState {
   themes: string[]
 }
 
-export default function FilterDropdown({ isOpen, onClose, onApply, onClear, themes: themesFromProps = [] }: FilterDropdownProps) {
+export default function FilterDropdown({ isOpen, onClose, onApply, onClear, themes: themesFromProps = [], categories }: FilterDropdownProps) {
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
   const [periodType, setPeriodType] = useState<'custom' | '7days' | '30days' | 'thisyear' | null>(null)
   const [themes, setThemes] = useState<string[]>([])
 
-  const availableThemes = themesFromProps.map(t => t.libelle)
+  const availableThemes = categories || themesFromProps.map(t => t.libelle)
 
   const handleThemeToggle = (theme: string) => {
-    setThemes(prev => 
-      prev.includes(theme) 
+    setThemes(prev =>
+      prev.includes(theme)
         ? prev.filter(t => t !== theme)
         : [...prev, theme]
     )
@@ -44,10 +45,10 @@ export default function FilterDropdown({ isOpen, onClose, onApply, onClear, them
     }
 
     setPeriodType(type)
-    
+
     const today = new Date()
     const startOfYear = new Date(today.getFullYear(), 0, 1)
-    
+
     switch (type) {
       case '7days':
         const date7DaysAgo = new Date(today)
@@ -99,7 +100,7 @@ export default function FilterDropdown({ isOpen, onClose, onApply, onClear, them
       {/* Header */}
       <div className="flex items-center justify-between gap-2 px-2 py-1">
         <p className="font-['Montserrat'] font-semibold text-base text-gray-600">Filtres</p>
-        <button 
+        <button
           onClick={onClose}
           className="text-gray-500 hover:text-gray-700 text-xl"
         >
@@ -114,7 +115,7 @@ export default function FilterDropdown({ isOpen, onClose, onApply, onClear, them
           <div className="px-2 py-1">
             <p className="text-sm font-['Montserrat'] font-normal text-gray-600">Période</p>
           </div>
-          
+
           {/* Date inputs - Hidden but functional */}
           <input
             type="date"

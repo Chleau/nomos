@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
-import { useHabitants } from '@/lib/hooks/useHabitants';
 import { UserRole } from '@/types/auth';
+import type { Habitant } from '@/types/habitants';
 import {
   HomeIcon,
   MapIcon,
@@ -16,7 +16,6 @@ import {
   UserGroupIcon,
   Cog6ToothIcon,
   UserIcon,
-  ArrowLeftOnRectangleIcon,
   BellIcon,
   BellSlashIcon,
   ExclamationTriangleIcon,
@@ -41,13 +40,13 @@ const mobileMenuItems = [
   { label: 'Archives', href: '/mairie/archives', icon: ArchiveBoxIcon, roles: ['mairie'] },
   { label: 'Signalements', href: '/mairie/signalement-habitants', icon: UserGroupIcon, roles: ['mairie'] },
 ];
- 
+
 export default function SidebarMenu() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
-  const { user, loading, signOut } = useSupabaseAuth();
-  const [habitantData, setHabitantData] = useState<any>(null);
+  const { user, signOut } = useSupabaseAuth();
+  const [habitantData, setHabitantData] = useState<Habitant | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [notificationsMuted, setNotificationsMuted] = useState(false);
 
@@ -58,11 +57,6 @@ export default function SidebarMenu() {
     UserRole.ADMIN,
     UserRole.MAIRIE
   ].includes(userRole) : false;
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.push('/signin');
-  };
 
   // Charger les données de l'habitant depuis la table habitants
   useEffect(() => {
@@ -82,15 +76,15 @@ export default function SidebarMenu() {
     }
     loadHabitantData();
   }, [user]);
- 
+
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth <= 1024); // Tablette et mobile
     };
- 
+
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
- 
+
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
@@ -99,7 +93,7 @@ export default function SidebarMenu() {
     // Filtrer les items du menu selon le rôle
     const filteredMobileItems = mobileMenuItems.filter(item => {
       if (!dataLoaded) return false;
-      
+
       if (isMairieUser) {
         return item.roles.includes('mairie');
       } else {
@@ -161,7 +155,7 @@ export default function SidebarMenu() {
             {habitantData?.role || user?.user_metadata?.role || 'Habitant'}
           </div>
         </div>
-        <button 
+        <button
           onClick={() => setNotificationsMuted(!notificationsMuted)}
           className="bell-button"
           title={notificationsMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
@@ -180,7 +174,7 @@ export default function SidebarMenu() {
           Commune
         </div>
         <div className="commune-name">
-          {habitantData?.communes?.nom || user?.user_metadata?.commune}
+          {user?.user_metadata?.commune || 'Non spécifiée'}
         </div>
       </div>
 
@@ -246,7 +240,7 @@ export default function SidebarMenu() {
             <li className="menu-item">
               <Link href="/signalements" className={`menu-item-link ${pathname === '/signalements' ? 'active' : ''}`}>
                 <PlusCircleIcon width="24" height="24" style={{ marginRight: '12px' }} />
-                Déclarations d'incidents
+                Déclarations d&apos;incidents
               </Link>
             </li>
           </ul>
@@ -261,21 +255,21 @@ export default function SidebarMenu() {
         )}
         {dataLoaded && isMairieUser && (
           <div>
-            <Link href="/signaler-incident" className="action-button mairie">
+            <Link href="/mairie/nouveau-arrete" className="action-button mairie">
               <PencilSquareIcon width="24" height="24" />
               Nouvelle rédaction
             </Link>
           </div>
         )}
       </nav>
-      
+
       {/* Bas du menu */}
       <div className="bottom-menu">
         <ul>
           {isMairieUser && (
             <li>
-              <Link 
-                href="/mairie/ma-mairie" 
+              <Link
+                href="/mairie/ma-mairie"
                 className={`bottom-menu-link ${pathname === '/mairie/ma-mairie' ? 'active' : ''}`}
               >
                 <BuildingLibraryIcon width="24" height="24" style={{ marginRight: '12px' }} />
@@ -284,8 +278,8 @@ export default function SidebarMenu() {
             </li>
           )}
           <li>
-            <Link 
-              href="/parametres" 
+            <Link
+              href="/parametres"
               className={`bottom-menu-link ${pathname === '/parametres' ? 'active' : ''}`}
             >
               <Cog6ToothIcon width="24" height="24" style={{ marginRight: '12px' }} />
@@ -293,8 +287,8 @@ export default function SidebarMenu() {
             </Link>
           </li>
           <li>
-            <Link 
-              href="/mon-compte" 
+            <Link
+              href="/mon-compte"
               className={`bottom-menu-link ${pathname === '/mon-compte' ? 'active' : ''}`}
             >
               <UserIcon width="24" height="24" style={{ marginRight: '12px' }} />
@@ -306,5 +300,4 @@ export default function SidebarMenu() {
     </aside>
   );
 }
- 
- 
+

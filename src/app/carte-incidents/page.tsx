@@ -14,6 +14,7 @@ import { AdjustmentsVerticalIcon, ExclamationTriangleIcon, BarsArrowDownIcon, Wr
 import { MdWaterDrop } from "react-icons/md"
 import { FaMapSigns, FaRoad } from "react-icons/fa"
 import Link from "next/link"
+import type { Signalement } from "@/types/signalements"
 
 export default function CartePage() {
   const router = useRouter()
@@ -74,7 +75,7 @@ export default function CartePage() {
   const markers = filteredSignalements
     .filter((s) => s.latitude != null && s.longitude != null)
     .map((s) => {
-      const firstPhotoPath = (s as any).photos_signalement?.[0]?.url
+      const firstPhotoPath = (s as Signalement).photos_signalement?.[0]?.url
       const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : null
 
       return {
@@ -115,7 +116,7 @@ export default function CartePage() {
     },
     {
       id: 2,
-      icon: MdWaterDrop  ,
+      icon: MdWaterDrop,
       titre: "Inondations",
       description: "Déclarez une accumulation d'eau anormale sur la chaussée, un débordement de cours d'eau ou une bouche d'égout obstruée. Votre signalement permet d'intervenir rapidement pour prévenir les risques d'aquaplaning ou de dégâts matériels.",
     },
@@ -166,7 +167,7 @@ export default function CartePage() {
           <h1 className="font-['Poppins'] font-semibold text-[36px] mb-8">
             Carte interactive des incidents
           </h1>
-          
+
           {/* Barre de recherche */}
           <div className="relative">
             <svg
@@ -197,8 +198,8 @@ export default function CartePage() {
           </h2>
           <div className="flex gap-4 items-center">
             <div className="relative">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="xs"
                 onClick={() => setShowDropdown(!showDropdown)}
               >
@@ -219,8 +220,8 @@ export default function CartePage() {
                 themes={types}
               />
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="xs"
               onClick={() => setSortBy(sortBy === 'recent' ? 'ancient' : 'recent')}
               className="px-5"
@@ -258,7 +259,7 @@ export default function CartePage() {
           ) : derniers4Signalements.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
               {derniers4Signalements.map((signalement) => {
-                const firstPhotoPath = (signalement as any).photos_signalement?.[0]?.url
+                const firstPhotoPath = (signalement as Signalement).photos_signalement?.[0]?.url
                 const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
 
                 return (
@@ -300,7 +301,7 @@ export default function CartePage() {
           <h2 className="font-['Poppins'] text-[30px] font-medium mb-8">
             Découvrez les différents types d&apos;incidents signalés
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 justify-items-center">
             {typesIncidents.map((type) => {
               const IconComponent = type.icon

@@ -6,12 +6,12 @@ type Props = {
     }
 }
 
-export async function GET(req: NextRequest, { params }: Props) {
+export async function GET(_req: NextRequest, { params }: Props) {
     try {
         const { id } = params;
         // Logique pour récupérer un agent spécifique
         return NextResponse.json({ message: `Détails de l'agent ${id}` });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: 'Erreur serveur' },
             { status: 500 }
@@ -22,10 +22,10 @@ export async function GET(req: NextRequest, { params }: Props) {
 export async function PUT(req: NextRequest, { params }: Props) {
     try {
         const { id } = params;
-        const body = await req.json();
+        const _body = await req.json();
         // Logique pour mettre à jour un agent
         return NextResponse.json({ message: `Agent ${id} mis à jour` });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: 'Erreur serveur' },
             { status: 500 }
@@ -33,12 +33,12 @@ export async function PUT(req: NextRequest, { params }: Props) {
     }
 }
 
-export async function DELETE(req: NextRequest, { params }: Props) {
+export async function DELETE(_req: NextRequest, { params }: Props) {
     try {
         const { id } = params;
         // Logique pour supprimer un agent
         return NextResponse.json({ message: `Agent ${id} supprimé` });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: 'Erreur serveur' },
             { status: 500 }

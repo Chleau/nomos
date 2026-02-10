@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import AlertBanner from '@/components/compte/AlertBanner';
-import Button from '@/components/ui/Button';
 
 type TabType = 'securite' | 'notifications' | 'langue' | 'confidentialite';
 
@@ -18,8 +16,7 @@ interface SessionDevice {
 }
 
 export default function ParametresPage() {
-  const router = useRouter();
-  const { user } = useSupabaseAuth();
+  useSupabaseAuth(); // Trigger auth check but don't use user yet
   const [activeTab, setActiveTab] = useState<TabType>('securite');
   
   // États pour les mots de passe

@@ -47,7 +47,7 @@ export default function CardIncident({
         {/* Badge and date row */}
         <div className="flex items-center gap-[12px]">
           <DotBadge label={label} color="red" />
-          <span className="text-[14px] font-['Montserrat'] font-normal text-[#64748b]">
+          <span className="text-[12px] font-['Montserrat'] font-normal text-[#64748b]" suppressHydrationWarning>
             Déclaré le {date}
           </span>
         </div>
