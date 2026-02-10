@@ -51,8 +51,9 @@ export function useUpdateArrete() {
       if (error) throw error
       return data
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['arretes'] })
+      queryClient.invalidateQueries({ queryKey: ['arrete', variables.id] })
     }
   })
 }

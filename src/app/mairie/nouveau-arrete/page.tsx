@@ -20,8 +20,6 @@ import {
   UnderlineIcon,
   ListBulletIcon,
   LinkIcon,
-  PhotoIcon,
-  // New icons for sidebar
   MagnifyingGlassIcon,
   ChevronRightIcon,
   ChevronLeftIcon,
@@ -101,7 +99,7 @@ Article 1 : ...
       if (editorRef.current) {
         // Normalisation des sauts de ligne pour l'affichage HTML
         if (contentToSet && !contentToSet.includes('<') && contentToSet.includes('\n')) {
-             editorRef.current.innerHTML = contentToSet.replace(/\n/g, '<br>')
+             editorRef.current.innerHTML = contentToSet.replaceAll('\n', '<br>')
         } else {
              editorRef.current.innerHTML = contentToSet
         }
@@ -115,7 +113,7 @@ Article 1 : ...
         console.log('Initialisation nouveau document')
         // On s'assure que le contenu par défaut du state est bien dans l'éditeur
         if (editorRef.current && content) {
-            editorRef.current.innerHTML = content.replace(/\n/g, '<br>')
+            editorRef.current.innerHTML = content.replaceAll('\n', '<br>')
         }
         setHasSyncedWithDb(true)
     }
@@ -125,7 +123,7 @@ Article 1 : ...
   useEffect(() => {
     if (!arreteId && editorRef.current && !editorRef.current.innerHTML) {
          // Convert the default state content newlines to breaks
-         editorRef.current.innerHTML = content.replace(/\n/g, '<br>')
+         editorRef.current.innerHTML = content.replaceAll('\n', '<br>')
     }
   }, []) // Run once on mount
 
@@ -137,7 +135,7 @@ Article 1 : ...
     element.download = `${title || 'nouveau-document'}.txt`;
     document.body.appendChild(element);
     element.click();
-    document.body.removeChild(element);
+    element.remove();
   }
 
   const handleShare = async () => {
@@ -146,19 +144,19 @@ Article 1 : ...
             await navigator.share({
                 title: title || 'Nouveau document',
                 text: content.substring(0, 100) + '...',
-                url: window.location.href
+                url: globalThis.location.href
             })
         } catch (err) {
             console.error(err)
         }
     } else {
-        await navigator.clipboard.writeText(window.location.href)
+        await navigator.clipboard.writeText(globalThis.location.href)
         alert('Lien copié dans le presse-papier !')
     }
   }
 
   const handleDelete = () => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce brouillon ? Toutes les données seront perdues.')) {
+    if (globalThis.confirm('Êtes-vous sûr de vouloir supprimer ce brouillon ? Toutes les données seront perdues.')) {
         setTitle('')
         setCategory('Sans catégorie')
         setTypeDocument('Arrêté')
@@ -200,7 +198,7 @@ Article 1 : ...
         console.log('Update payload:', updateData)
         
         // Ensure ID is passed as number if possible for strict DB consistency
-        const idToUpdate = !isNaN(Number(arreteId)) ? Number(arreteId) : arreteId
+        const idToUpdate = Number.isNaN(Number(arreteId)) ? arreteId : Number(arreteId)
 
         const result = await updateArrete.mutateAsync({
             id: idToUpdate,
@@ -248,7 +246,7 @@ Article 1 : ...
     // Simulation of AI generation
     setTimeout(() => {
       const newText = `\n\n[Texte généré pour : "${prompt}"]\nConsidérant que...`
-      const newHtml = newText.replace(/\n/g, '<br>')
+      const newHtml = newText.replaceAll('\n', '<br>')
       
       setContent(prev => prev + newHtml)
       if (editorRef.current) {
