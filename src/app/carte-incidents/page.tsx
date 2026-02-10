@@ -7,6 +7,7 @@ import SignalementCard from "@/components/signalements/SignalementCard"
 import FiltresModal from "@/components/signalements/FiltresModal"
 import { useAllSignalements } from "@/lib/hooks/useSignalements"
 import { getPublicUrlFromPath } from "@/lib/services/storage.service"
+import type { Signalement } from "@/types/signalements"
 
 export default function CartePage() {
   const router = useRouter()
@@ -50,7 +51,7 @@ export default function CartePage() {
   const markers = filteredSignalements
     .filter((s) => s.latitude != null && s.longitude != null)
     .map((s) => {
-      const firstPhotoPath = s.photos_signalement?.[0]?.url
+      const firstPhotoPath = (s as Signalement).photos_signalement?.[0]?.url
       const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : null
 
       return {
@@ -136,7 +137,7 @@ export default function CartePage() {
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
             Carte interactive des incidents
           </h1>
-          
+
           {/* Barre de recherche */}
           <div className="relative">
             <input
@@ -216,7 +217,7 @@ export default function CartePage() {
           ) : derniers4Signalements.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {derniers4Signalements.map((signalement) => {
-                const firstPhotoPath = signalement.photos_signalement?.[0]?.url
+                const firstPhotoPath = (signalement as Signalement).photos_signalement?.[0]?.url
                 const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
 
                 return (
@@ -264,7 +265,7 @@ export default function CartePage() {
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
             Découvrez les différents types d&apos;incidents signalés
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {typesIncidents.map((type) => (
               <div

@@ -6,12 +6,12 @@ type Props = {
     }
 }
 
-export async function GET(req: NextRequest, { params }: Props) {
+export async function GET(_req: NextRequest, { params }: Props) {
     try {
         const { habitantId } = params;
         // Logique pour récupérer les points et badges d'un habitant
         return NextResponse.json({ message: `Points et badges de l'habitant ${habitantId}` });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: 'Erreur serveur' },
             { status: 500 }

@@ -23,7 +23,7 @@ export default function SignalementForm() {
   const [longitude, setLongitude] = useState<number | ''>('');
   const [locationRetrieved, setLocationRetrieved] = useState(false);
   const [adresse, setAdresse] = useState('');
-  const [date, setDate] = useState('');
+  // const [date, setDate] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [nom, setNom] = useState('');
@@ -265,7 +265,7 @@ export default function SignalementForm() {
                     type="button"
                     onClick={() => geocodeAddress(adresse)}
                     disabled={isGeocoding || !adresse.trim()}
-                    aria-label="Rechercher l'adresse"
+                    aria-label="Rechercher l&apos;adresse"
                     className="bg-white rounded-full p-2 shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isGeocoding ? (

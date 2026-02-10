@@ -36,10 +36,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
+        const _body = await req.json();
         // Logique pour créer un habitant
         return NextResponse.json({ message: 'Habitant créé' }, { status: 201 });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: 'Erreur serveur' },
             { status: 500 }

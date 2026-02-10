@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useSignalement } from '@/lib/hooks/useSignalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import dynamic from 'next/dynamic'
@@ -205,8 +206,8 @@ export default function SignalementDetailPage() {
               photos.map((photo: { id: number; url: string }, index: number) => {
                 const photoUrl = getPublicUrlFromPath(photo.url)
                 return (
-                  <div key={photo.id || index} className="aspect-square bg-gray-200 rounded-xl overflow-hidden">
-                    <img src={photoUrl} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
+                  <div key={photo.id || index} className="aspect-square bg-gray-200 rounded-xl overflow-hidden relative">
+                    <Image src={photoUrl} alt={`Photo ${index + 1}`} className="object-cover" fill sizes="(max-width: 768px) 50vw, 25vw" />
                   </div>
                 )
               })

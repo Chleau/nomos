@@ -1,12 +1,29 @@
 'use client'
 
+import React, { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+
+import {
+  StarIcon,
+  EyeIcon,
+  PencilIcon,
+  AdjustmentsVerticalIcon,
+  BarsArrowDownIcon,
+  PlusIcon,
+  EllipsisVerticalIcon,
+  ArrowDownTrayIcon,
+  PaperAirplaneIcon,
+  ShareIcon,
+  TrashIcon,
+  ArchiveBoxIcon
+} from '@heroicons/react/24/outline'
+
 import Button from '@/components/ui/Button'
 import Checkbox from '@/components/ui/Checkbox'
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown'
 import CardIncident from '@/components/ui/CardIncident'
-import Avatar from '@/components/ui/Avatar'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
-import { useRouter } from 'next/navigation'
 import { useAllSignalements } from '@/lib/hooks/useSignalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
@@ -14,41 +31,34 @@ import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useRecentArretes, useDeleteArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
 import { ARRETE_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
 import { UserRole } from '@/types/auth'
-import { useState, useRef, useEffect } from 'react'
-import { Signalement } from '@/types/signalements'
+import type { Signalement } from '@/types/signalements'
+import { TableBadge, DataTable, type Column } from '@/components/ui/Table'
 
-import { DataTable, Column, TableBadge, TableUserInfo, TableStatus } from '@/components/ui/Table'
-import {
-  PencilIcon,
-  EyeIcon,
-  EllipsisVerticalIcon,
-  ArrowDownTrayIcon,
-  ShareIcon,
-  TrashIcon,
-  ArchiveBoxIcon,
-  PaperAirplaneIcon,
-  AdjustmentsVerticalIcon,
-  StarIcon,
-  BarsArrowDownIcon,
-  PlusIcon,
-} from '@heroicons/react/24/outline'
-
-// Définition du type pour une ligne de rédaction dans le tableau
-interface RedactionRow {
+interface Redaction {
   id: number;
-  numero: string;
-  type: string;
   title: string;
   date: Date;
   dateStr: string;
   category: string;
+}
+
+interface RedactionRow extends Redaction {
+  numero: string;
+  type: string;
   location: string;
   status: string;
   user: {
     initials: string;
     name: string;
-    id: number;
+    id: string;
   };
+}
+
+interface Loi {
+  id: number;
+  title: string;
+  date: Date;
+  category: string;
 }
 
 function ActionMenu({ row }: { row: RedactionRow }) {
@@ -69,24 +79,20 @@ function ActionMenu({ row }: { row: RedactionRow }) {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const handleEdit = () => {
-    router.push(`/mairie/nouveau-arrete?id=${row.id}`)
-  }
-
   const handleDelete = async () => {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce document ?")) {
-      await deleteArrete.mutateAsync(row.id)
+      await deleteArrete.mutateAsync(row.id as number)
     }
     setIsOpen(false)
   }
 
   const handlePublish = async () => {
-    await updateArrete.mutateAsync({ id: row.id, updates: { statut: 'Publié' } })
+    await updateArrete.mutateAsync({ id: row.id as number, updates: { statut: 'Publié' } })
     setIsOpen(false)
   }
 
   const handleArchive = async () => {
-    await updateArrete.mutateAsync({ id: row.id, updates: { archive: true, statut: 'Archivé' } })
+    await updateArrete.mutateAsync({ id: row.id as number, updates: { archive: true, statut: 'Archivé' } })
     setIsOpen(false)
   }
 
@@ -156,7 +162,7 @@ function MairieContent() {
   const { data: arretes = [], isLoading: loadingArretes } = useRecentArretes(habitant?.commune_id || null, 10)
 
   // États de tri
-  const [sortIncidents, setSortIncidents] = useState<'recent' | 'ancien'>('recent')
+  const [sortIncidents, _setSortIncidents] = useState<'recent' | 'ancien'>('recent')
   const [sortRedactions, setSortRedactions] = useState<'recent' | 'ancien'>('recent')
   const [sortLois, setSortLois] = useState<'recent' | 'ancien'>('recent')
 
@@ -166,12 +172,13 @@ function MairieContent() {
   const [filterLoisState, setFilterLoisState] = useState<FilterState | null>(null)
 
   // Modales de filtre
-  const [showFilterIncidents, setShowFilterIncidents] = useState(false)
   const [showFilterRedactions, setShowFilterRedactions] = useState(false)
-  const [showFilterLois, setShowFilterLois] = useState(false)
 
   // États pour les checkboxes de la table
   const [selectedRedactions, setSelectedRedactions] = useState<Set<string | number>>(new Set())
+  const [favorites, setFavorites] = useState<Set<string | number>>(new Set())
+
+  // --- Helpers ---
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Date inconnue'
@@ -186,37 +193,13 @@ function MairieContent() {
     return 'Signalé'
   }
 
-  const toggleRedactionSelection = (id: string | number) => {
-    const newSelected = new Set(selectedRedactions)
-    if (newSelected.has(id)) {
-      newSelected.delete(id)
-    } else {
-      newSelected.add(id)
-    }
-    setSelectedRedactions(newSelected)
+  const getBadgeColor = (category: string) => {
+    return CATEGORY_COLORS[category] || 'neutral'
   }
 
-  const toggleSelectAllRedactions = () => {
-    if (selectedRedactions.size === filteredRedactions.length) {
-      setSelectedRedactions(new Set())
-    } else {
-      setSelectedRedactions(new Set(filteredRedactions.map(r => r.id)))
-    }
-  }
+  // --- Data Transformation ---
 
-  const [favorites, setFavorites] = useState<Set<string | number>>(new Set())
-
-  const toggleFavorite = (id: string | number) => {
-    const newFavorites = new Set(favorites)
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id)
-    } else {
-      newFavorites.add(id)
-    }
-    setFavorites(newFavorites)
-  }
-
-  // Transformation des données API en format compatible pour le tableau
+  // 1. Prepare raw data
   const redactions: RedactionRow[] = (arretes || []).map((arrete) => {
     const date = new Date(arrete.date_creation)
     const habitant = arrete.auteur?.habitant
@@ -246,15 +229,15 @@ function MairieContent() {
   })
 
   // Mock lois
-  const lois = Array.from({ length: 2 }).map((_, i) => ({
+  const lois: Loi[] = Array.from({ length: 2 }).map((_, i) => ({
     id: i + 1,
     title: "LOI organique n° 2022-400 du 21 mars 2022 visant à renforcer le rôle du Défenseur des droits en matière de signalement d'alerte",
-    date: new Date(1735689600000 - i * 7 * 24 * 60 * 60 * 1000), // Fixed date (Jan 1 2025) to avoid hydration mismatch
+    date: new Date(1735689600000 - i * 7 * 24 * 60 * 60 * 1000), // Fixed date
     category: 'Droit'
   }))
 
-  // Fonctions de tri
-  const sortSignalements = (signalements: Signalement[] | null) => {
+  // 2. Sort & Filter Functions
+  const sortSignalementsList = (signalements: Signalement[] | null) => {
     if (!signalements) return []
     const sorted = [...signalements]
     if (sortIncidents === 'recent') {
@@ -275,13 +258,6 @@ function MairieContent() {
     return sorted
   }
 
-  interface Loi {
-    id: number;
-    date: Date;
-    title: string;
-    category: string;
-  }
-
   const sortLoisArray = (items: Loi[]) => {
     const sorted = [...items]
     if (sortLois === 'recent') {
@@ -292,21 +268,14 @@ function MairieContent() {
     return sorted
   }
 
-  const sortedSignalements = sortSignalements(derniersSignalements)
-  const sortedRedactions = sortRedactionsArray(redactions)
-  const sortedLois = sortLoisArray(lois)
-
-  // Fonctions de filtrage
-  const filterSignalements = (signalements: Signalement[]) => {
+  const filterSignalementsList = (signalements: Signalement[]) => {
     if (!filterIncidents) return signalements
-
     let filtered = signalements
 
     // Filtre par dates
     if (filterIncidents.startDate || filterIncidents.endDate) {
       filtered = filtered.filter(s => {
-        if (!s.date_signalement) return false
-        const signalDate = new Date(s.date_signalement)
+        const signalDate = new Date(s.date_signalement || 0)
         if (filterIncidents.startDate) {
           const startDate = new Date(filterIncidents.startDate)
           if (signalDate < startDate) return false
@@ -319,24 +288,20 @@ function MairieContent() {
         return true
       })
     }
-
     // Filtre par thèmes (statut)
     if (filterIncidents.themes && filterIncidents.themes.length > 0) {
       filtered = filtered.filter(s => {
-        const statut = getStatut(s.statut)
+        const statut = getStatut(s.statut || null)
         return filterIncidents.themes.includes(statut)
       })
     }
-
     return filtered
   }
 
   const filterRedactionsArray = (items: RedactionRow[]) => {
     if (!filterRedactionsState) return items
-
     let filtered = items
 
-    // Filtre par dates
     if (filterRedactionsState.startDate || filterRedactionsState.endDate) {
       filtered = filtered.filter(r => {
         const rDate = r.date
@@ -352,23 +317,18 @@ function MairieContent() {
         return true
       })
     }
-
-    // Filtre par thèmes (catégories)
     if (filterRedactionsState.themes && filterRedactionsState.themes.length > 0) {
       filtered = filtered.filter(r =>
         filterRedactionsState.themes.includes(r.category)
       )
     }
-
     return filtered
   }
 
   const filterLoisArray = (items: Loi[]) => {
     if (!filterLoisState) return items
-
     let filtered = items
 
-    // Filtre par dates
     if (filterLoisState.startDate || filterLoisState.endDate) {
       filtered = filtered.filter(l => {
         const lDate = l.date
@@ -384,24 +344,55 @@ function MairieContent() {
         return true
       })
     }
-
-    // Filtre par thèmes (catégories)
     if (filterLoisState.themes && filterLoisState.themes.length > 0) {
       filtered = filtered.filter(l =>
         filterLoisState.themes.includes(l.category)
       )
     }
-
     return filtered
   }
 
-  const filteredSignalements = filterSignalements(sortedSignalements)
+  // 3. Apply Transformations
+  const sortedSignalements = sortSignalementsList(derniersSignalements)
+  const sortedRedactions = sortRedactionsArray(redactions)
+  const sortedLois = sortLoisArray(lois)
+
+  const filteredSignalements = filterSignalementsList(sortedSignalements)
   const filteredRedactions = filterRedactionsArray(sortedRedactions)
   const filteredLois = filterLoisArray(sortedLois)
 
-  const getBadgeColor = (category: string) => {
-    return CATEGORY_COLORS[category] || 'neutral'
+
+  // --- Event Handlers that rely on filteredRedactions ---
+
+  const toggleRedactionSelection = (id: string | number) => {
+    const newSelected = new Set(selectedRedactions)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedRedactions(newSelected)
   }
+
+  const toggleSelectAllRedactions = () => {
+    if (selectedRedactions.size === filteredRedactions.length) {
+      setSelectedRedactions(new Set())
+    } else {
+      setSelectedRedactions(new Set(filteredRedactions.map(r => r.id)))
+    }
+  }
+
+  const toggleFavorite = (id: string | number) => {
+    const newFavorites = new Set(favorites)
+    if (newFavorites.has(id)) {
+      newFavorites.delete(id)
+    } else {
+      newFavorites.add(id)
+    }
+    setFavorites(newFavorites)
+  }
+
+  // --- Columns Configuration ---
 
   const columns: Column<RedactionRow>[] = [
     {
@@ -657,12 +648,12 @@ function MairieContent() {
                   </span>
                 </div>
 
-                <a
+                <Link
                   href="#"
                   className="inline-block text-[16px] font-['Montserrat'] font-medium text-[#787878] hover:text-[#f27f09] transition-colors"
                 >
                   lire plus
-                </a>
+                </Link>
               </div>
             ))}
           </div>
