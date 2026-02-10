@@ -14,16 +14,32 @@ import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { UserRole } from '@/types/auth'
 import { useState } from 'react'
 import { StarIcon } from '@heroicons/react/24/outline'
+import type { Signalement } from '@/types/signalements'
+
+interface Redaction {
+  id: number;
+  title: string;
+  date: Date;
+  dateStr: string;
+  category: string;
+}
+
+interface Loi {
+  id: number;
+  title: string;
+  date: Date;
+  category: string;
+}
 
 function MairieContent() {
   const router = useRouter()
   const { user } = useSupabaseAuth()
-  const { data: habitant } = useCurrentHabitant(user?.id || null)
+  // const { data: habitant } = useCurrentHabitant(user?.id || null)
 
   const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(2)
 
   // États de tri
-  const [sortIncidents, setSortIncidents] = useState<'recent' | 'ancien'>('recent')
+  const [sortIncidents, _setSortIncidents] = useState<'recent' | 'ancien'>('recent')
   const [sortRedactions, setSortRedactions] = useState<'recent' | 'ancien'>('recent')
   const [sortLois, setSortLois] = useState<'recent' | 'ancien'>('recent')
 
@@ -89,18 +105,18 @@ function MairieContent() {
   }))
 
   // Fonctions de tri
-  const sortSignalements = (signalements: any[] | null) => {
+  const sortSignalements = (signalements: Signalement[] | null) => {
     if (!signalements) return []
     const sorted = [...signalements]
     if (sortIncidents === 'recent') {
-      sorted.sort((a, b) => new Date(b.date_signalement).getTime() - new Date(a.date_signalement).getTime())
+      sorted.sort((a, b) => new Date(b.date_signalement || 0).getTime() - new Date(a.date_signalement || 0).getTime())
     } else {
-      sorted.sort((a, b) => new Date(a.date_signalement).getTime() - new Date(b.date_signalement).getTime())
+      sorted.sort((a, b) => new Date(a.date_signalement || 0).getTime() - new Date(b.date_signalement || 0).getTime())
     }
     return sorted
   }
 
-  const sortRedactionsArray = (items: any[]) => {
+  const sortRedactionsArray = (items: Redaction[]) => {
     const sorted = [...items]
     if (sortRedactions === 'recent') {
       sorted.sort((a, b) => b.date.getTime() - a.date.getTime())
@@ -110,7 +126,7 @@ function MairieContent() {
     return sorted
   }
 
-  const sortLoisArray = (items: any[]) => {
+  const sortLoisArray = (items: Loi[]) => {
     const sorted = [...items]
     if (sortLois === 'recent') {
       sorted.sort((a, b) => b.date.getTime() - a.date.getTime())
@@ -125,7 +141,7 @@ function MairieContent() {
   const sortedLois = sortLoisArray(lois)
 
   // Fonctions de filtrage
-  const filterSignalements = (signalements: any[]) => {
+  const filterSignalements = (signalements: Signalement[]) => {
     if (!filterIncidents) return signalements
     
     let filtered = signalements
@@ -133,7 +149,7 @@ function MairieContent() {
     // Filtre par dates
     if (filterIncidents.startDate || filterIncidents.endDate) {
       filtered = filtered.filter(s => {
-        const signalDate = new Date(s.date_signalement)
+        const signalDate = new Date(s.date_signalement || 0)
         if (filterIncidents.startDate) {
           const startDate = new Date(filterIncidents.startDate)
           if (signalDate < startDate) return false
@@ -150,7 +166,7 @@ function MairieContent() {
     // Filtre par thèmes (statut)
     if (filterIncidents.themes && filterIncidents.themes.length > 0) {
       filtered = filtered.filter(s => {
-        const statut = getStatut(s.statut)
+        const statut = getStatut(s.statut || null)
         return filterIncidents.themes.includes(statut)
       })
     }
@@ -158,7 +174,7 @@ function MairieContent() {
     return filtered
   }
 
-  const filterRedactionsArray = (items: any[]) => {
+  const filterRedactionsArray = (items: Redaction[]) => {
     if (!filterRedactionsState) return items
     
     let filtered = items
@@ -190,7 +206,7 @@ function MairieContent() {
     return filtered
   }
 
-  const filterLoisArray = (items: any[]) => {
+  const filterLoisArray = (items: Loi[]) => {
     if (!filterLoisState) return items
     
     let filtered = items
@@ -287,7 +303,7 @@ function MairieContent() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[58px]">
               {filteredSignalements.slice(0, 2).map((signalement) => {
-                const firstPhotoPath = (signalement as any).photos_signalement?.[0]?.url
+                const firstPhotoPath = signalement.photos_signalement?.[0]?.url
                 const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
                 const userName = signalement.prenom ? `${signalement.prenom} ${signalement.nom}` : 'Anonyme'
 

@@ -6,12 +6,12 @@ type Props = {
     }
 }
 
-export async function GET(req: NextRequest, { params }: Props) {
+export async function GET(_req: NextRequest, { params }: Props) {
     try {
         const { id } = params;
         // Logique pour récupérer une loi spécifique
         return NextResponse.json({ message: `Détails de la loi ${id}` });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: 'Erreur serveur' },
             { status: 500 }

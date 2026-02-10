@@ -50,7 +50,7 @@ export default function SignalementsPage() {
             Retour
           </button>
         </div>
-        <h1 className="text-2xl md:text-3xl lg:text-4xl mb-6 font-bold">Toutes les déclarations d'incident</h1>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl mb-6 font-bold">Toutes les déclarations d&apos;incident</h1>
 
 
         {/* Filtres */}

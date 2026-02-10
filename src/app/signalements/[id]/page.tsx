@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useSignalement } from '@/lib/hooks/useSignalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import dynamic from 'next/dynamic'
@@ -111,7 +112,7 @@ export default function SignalementDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Card Rappel de l'incident */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">Rappel de l'incident</h2>
+            <h2 className="text-lg font-semibold mb-3">Rappel de l&apos;incident</h2>
             <div className="bg-white rounded-2xl shadow-md p-5">
               <h3 className="text-lg italic font-medium mb-4">{signalement.titre || 'Sans titre'}</h3>
               
@@ -139,7 +140,7 @@ export default function SignalementDetailPage() {
           
           {/* Card Lieu de l'incident */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">Lieu de l'incident</h2>
+            <h2 className="text-lg font-semibold mb-3">Lieu de l&apos;incident</h2>
             <div className="bg-white rounded-2xl shadow-md p-5 h-[400px] relative">
               {/* Carte interactive */}
               {signalement.latitude && signalement.longitude ? (
@@ -199,14 +200,14 @@ export default function SignalementDetailPage() {
 
         {/* Photos de l'incident */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Photos de l'incident</h2>
+          <h2 className="text-lg font-semibold mb-3">Photos de l&apos;incident</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {photos.length > 0 ? (
-              photos.map((photo: any, index: number) => {
+              photos.map((photo: { id: number; url: string }, index: number) => {
                 const photoUrl = getPublicUrlFromPath(photo.url)
                 return (
-                  <div key={photo.id || index} className="aspect-square bg-gray-200 rounded-xl overflow-hidden">
-                    <img src={photoUrl} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
+                  <div key={photo.id || index} className="aspect-square bg-gray-200 rounded-xl overflow-hidden relative">
+                    <Image src={photoUrl} alt={`Photo ${index + 1}`} className="object-cover" fill sizes="(max-width: 768px) 50vw, 25vw" />
                   </div>
                 )
               })

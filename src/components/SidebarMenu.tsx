@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
-import { useHabitants } from '@/lib/hooks/useHabitants';
 import { UserRole } from '@/types/auth';
 import {
   HomeIcon,
@@ -16,7 +15,6 @@ import {
   UserGroupIcon,
   Cog6ToothIcon,
   UserIcon,
-  ArrowLeftOnRectangleIcon,
   BellIcon,
   BellSlashIcon,
   ExclamationTriangleIcon,
@@ -46,7 +44,7 @@ export default function SidebarMenu() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
-  const { user, loading, signOut } = useSupabaseAuth();
+  const { user, signOut } = useSupabaseAuth();
   const [habitantData, setHabitantData] = useState<any>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [notificationsMuted, setNotificationsMuted] = useState(false);
@@ -58,11 +56,6 @@ export default function SidebarMenu() {
     UserRole.ADMIN,
     UserRole.MAIRIE
   ].includes(userRole) : false;
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.push('/signin');
-  };
 
   // Charger les données de l'habitant depuis la table habitants
   useEffect(() => {
@@ -246,7 +239,7 @@ export default function SidebarMenu() {
             <li className="menu-item">
               <Link href="/signalements" className={`menu-item-link ${pathname === '/signalements' ? 'active' : ''}`}>
                 <PlusCircleIcon width="24" height="24" style={{ marginRight: '12px' }} />
-                Déclarations d'incidents
+                Déclarations d&apos;incidents
               </Link>
             </li>
           </ul>
