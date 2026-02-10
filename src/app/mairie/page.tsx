@@ -8,6 +8,7 @@ import Avatar from '@/components/ui/Avatar'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { useRouter } from 'next/navigation'
 import { useAllSignalements } from '@/lib/hooks/useSignalements'
+import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
@@ -19,8 +20,9 @@ function MairieContent() {
   const router = useRouter()
   const { user } = useSupabaseAuth()
   const { data: habitant } = useCurrentHabitant(user?.id || null)
+  const { types } = useTypesSignalement()
 
-  const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(2)
+  const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(1000)
 
   // États de tri
   const [sortIncidents, setSortIncidents] = useState<'recent' | 'ancien'>('recent')
@@ -147,11 +149,12 @@ function MairieContent() {
       })
     }
     
-    // Filtre par thèmes (statut)
+    // Filtre par thématiques (types de signalement)
     if (filterIncidents.themes && filterIncidents.themes.length > 0) {
       filtered = filtered.filter(s => {
-        const statut = getStatut(s.statut)
-        return filterIncidents.themes.includes(statut)
+        const typeId = s.type_id
+        const typeLibelle = types.find((t) => t.id === typeId)?.libelle
+        return typeLibelle && filterIncidents.themes.includes(typeLibelle)
       })
     }
     
@@ -277,6 +280,7 @@ function MairieContent() {
                 setFilterIncidents(null)
                 setShowFilterIncidents(false)
               }}
+              themes={types}
             />
           </div>
         </div>
@@ -341,6 +345,7 @@ function MairieContent() {
                   setFilterRedactionsState(null)
                   setShowFilterRedactions(false)
                 }}
+                themes={types}
               />
             </div>
             
@@ -494,6 +499,7 @@ function MairieContent() {
                   setFilterLoisState(null)
                   setShowFilterLois(false)
                 }}
+                themes={types}
               />
             </div>
             

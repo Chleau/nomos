@@ -24,7 +24,8 @@ export default function SignalementForm() {
   const [locationRetrieved, setLocationRetrieved] = useState(false);
   const [adresse, setAdresse] = useState('');
   const [date, setDate] = useState('');
-  const [photo, setPhoto] = useState<File | null>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [nom, setNom] = useState('');
   const [prenom, setPrenom] = useState('');
@@ -44,6 +45,34 @@ export default function SignalementForm() {
     }
   }, [habitant])
   const [isGeocoding, setIsGeocoding] = useState(false);
+
+  // Fonction pour ajouter des photos (utilisée par input et drag-drop)
+  const handleAddPhotos = (newFiles: FileList | null) => {
+    if (newFiles) {
+      const newPhotos = Array.from(newFiles);
+      setPhotos(prev => [...prev, ...newPhotos]);
+    }
+  };
+
+  // Gestion du drag and drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    handleAddPhotos(e.dataTransfer.files);
+  };
 
   // Fonction pour géocoder une adresse
   const geocodeAddress = async (address: string) => {
@@ -119,15 +148,18 @@ export default function SignalementForm() {
       setIsSubmitting(false);
       return;
     }
-    // Si une photo est sélectionnée, upload puis création de l'entrée photo_signalement et update url dans signalement
-    if (photo) {
+    // Si des photos sont sélectionnées, upload puis création des entrées photo_signalement
+    if (photos.length > 0) {
       try {
-        const path = await uploadSignalementPhoto(photo, signalement.id);
-        await createPhotoSignalement(signalement.id, path);
-        // Met à jour l'URL dans le signalement
-        await updateSignalementUrl.mutateAsync({ id: signalement.id, url: path });
+        for (const photo of photos) {
+          const path = await uploadSignalementPhoto(photo, signalement.id);
+          await createPhotoSignalement(signalement.id, path);
+        }
+        // Met à jour l'URL avec la première photo dans le signalement
+        const firstPhotoPath = await uploadSignalementPhoto(photos[0], signalement.id);
+        await updateSignalementUrl.mutateAsync({ id: signalement.id, url: firstPhotoPath });
       } catch (err) {
-        setMessage("Signalement créé, mais erreur lors de l'upload de la photo");
+        setMessage("Signalement créé, mais erreur lors de l'upload des photos");
         setIsSubmitting(false);
         return;
       }
@@ -140,7 +172,7 @@ export default function SignalementForm() {
     setLongitude('');
     setAdresse('');
     if (fileInputRef.current) fileInputRef.current.value = '';
-    setPhoto(null);
+    setPhotos([]);
     setTelephone('');
     setStep(1);
     setIsSubmitting(false);
@@ -315,23 +347,62 @@ export default function SignalementForm() {
             </div>
           </div>
           <div className="mb-4">
-            <label className="block mb-1 font-medium text-gray-700">Ajouter une photo</label>
-            <div className="relative">
+            <label className="block mb-1 font-medium text-gray-700">Ajouter des photos</label>
+            <div 
+              className="relative"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 ref={fileInputRef}
                 id="photo-upload"
-                onChange={e => setPhoto(e.target.files ? e.target.files[0] : null)}
+                onChange={e => handleAddPhotos(e.target.files)}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className="flex flex-col items-center justify-center cursor-pointer bg-white rounded-2xl shadow px-6 py-8 w-full transition hover:shadow-lg">
+              <div className={`flex flex-col items-center justify-center cursor-pointer bg-white rounded-2xl shadow px-6 py-8 w-full transition ${
+                isDragging ? 'shadow-lg border-2 border-blue-400 bg-blue-50' : 'hover:shadow-lg'
+              }`}>
                 <svg width="48" height="48" fill="none" viewBox="0 0 24 24" className="mb-2 text-gray-400">
                   <path d="M12 16v-4m0 0V8m0 4h4m-4 0H8m12 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2m16 0V8a2 2 0 0 0-2-2h-3.17a2 2 0 0 1-1.41-.59l-1.83-1.83a2 2 0 0 0-1.41-.59H6a2 2 0 0 0-2 2v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span className="text-gray-400 text-lg">{photo ? photo.name : "Importez une image"}</span>
+                <span className="text-gray-400 text-lg">
+                  {photos.length > 0 ? `${photos.length} photo(s) sélectionnée(s)` : "Importez une ou plusieurs images"}
+                </span>
+                <span className="text-gray-300 text-sm mt-2">ou glissez des images ici</span>
               </div>
             </div>
+            {/* Affichage des miniatures */}
+            {photos.length > 0 && (
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                {photos.map((photo, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={URL.createObjectURL(photo)}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg shadow"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center rounded-lg transition opacity-0 group-hover:opacity-100">
+                      <button
+                        type="button"
+                        onClick={() => setPhotos(photos.filter((_, i) => i !== index))}
+                        className="bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                        title="Supprimer cette photo"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1 truncate">{photo.name}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}
@@ -427,7 +498,7 @@ export default function SignalementForm() {
                 {/* Type et localisation */}
                 <div className="text-sm text-gray-500 space-y-1 mb-4">
                   <div><span className="font-medium">Type :</span> {types?.find(t => t.id === typeId)?.libelle || ''}</div>
-                  {photo && <div><span className="font-medium">Photo :</span> {photo.name}</div>}
+                  {photos.length > 0 && <div><span className="font-medium">Photos :</span> {photos.length} photo(s)</div>}
                 </div>
 
                 {/* Icône d'édition en bas à droite */}

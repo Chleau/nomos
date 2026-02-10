@@ -10,6 +10,15 @@ export const signalementsService = {
       .single()
     return { data, error }
   },
+  async update(signalementId: number, updates: Partial<Signalement>) {
+    const { data, error } = await supabase
+      .from('signalements')
+      .update(updates)
+      .eq('id', signalementId)
+      .select()
+      .single();
+    return { data, error };
+  },
   async updateUrl(signalementId: number, url: string) {
     const { data, error } = await supabase
       .from('signalements')
@@ -79,6 +88,10 @@ export const signalementsService = {
         photos_signalement (
           id,
           url
+        ),
+        types_signalement (
+          id,
+          libelle
         )
       `)
       .eq('id', id)
