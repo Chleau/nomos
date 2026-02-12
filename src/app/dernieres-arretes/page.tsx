@@ -4,11 +4,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import AlertBanner from '@/components/compte/AlertBanner';
 import { ArrowTopRightOnSquareIcon, AdjustmentsVerticalIcon } from '@heroicons/react/24/outline';
-import { useSearchLois } from '@/lib/hooks/useLois';
+import { useSearchArretes } from '@/lib/hooks/useArretes';
 import Button from '@/components/ui/Button';
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown';
 
-export default function LoisPage() {
+export default function DerniereArreteesPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,45 +20,45 @@ export default function LoisPage() {
     periodType: null,
     themes: []
   });
-  const { data: allLois, isLoading, error } = useSearchLois(searchQuery);
+  const { data: allArretes, isLoading, error } = useSearchArretes(searchQuery);
 
   // Récupérer les thématiques uniques
   const thematiques = useMemo(() => {
-    if (!allLois) return [];
-    const uniqueThemes = [...new Set(allLois.map(loi => loi.thematique).filter(Boolean))];
+    if (!allArretes) return [];
+    const uniqueThemes = [...new Set(allArretes.map((arrete: any) => arrete.thematique).filter(Boolean))];
     return uniqueThemes.sort();
-  }, [allLois]);
+  }, [allArretes]);
 
-  // Filtrer les lois par thématique et les filtres appliqués
-  const lois = useMemo(() => {
-    if (!allLois) return [];
+  // Filtrer les arrêtés par thématique et les filtres appliqués
+  const arretes = useMemo(() => {
+    if (!allArretes) return [];
 
-    let filtered = allLois;
+    let filtered = allArretes;
 
     // Filtrer par thématique sélectionnée (boutons à gauche)
     if (selectedThematique) {
-      filtered = filtered.filter(loi => loi.thematique === selectedThematique);
+      filtered = filtered.filter((arrete: any) => arrete.thematique === selectedThematique);
     }
 
     // Filtrer par thématique depuis le dropdown
     if (filters.themes && filters.themes.length > 0) {
-      filtered = filtered.filter(loi => filters.themes.includes(loi.thematique));
+      filtered = filtered.filter((arrete: any) => filters.themes.includes(arrete.thematique));
     }
 
     // Filtrer par période
     if (filters.startDate || filters.endDate) {
-      filtered = filtered.filter(loi => {
-        const loiDate = new Date(loi.date_mise_a_jour);
+      filtered = filtered.filter((arrete: any) => {
+        const arretDate = new Date(arrete.date_creation);
 
         if (filters.startDate) {
           const startDate = new Date(filters.startDate);
-          if (loiDate < startDate) return false;
+          if (arretDate < startDate) return false;
         }
 
         if (filters.endDate) {
           const endDate = new Date(filters.endDate);
           endDate.setHours(23, 59, 59, 999);
-          if (loiDate > endDate) return false;
+          if (arretDate > endDate) return false;
         }
 
         return true;
@@ -66,7 +66,7 @@ export default function LoisPage() {
     }
 
     return filtered;
-  }, [allLois, selectedThematique, filters]);
+  }, [allArretes, selectedThematique, filters]);
 
   const ITEMS_PER_PAGE = 12;
 
@@ -76,10 +76,10 @@ export default function LoisPage() {
   }, [searchQuery, selectedThematique, filters]);
 
   // Calcul de la pagination
-  const totalPages = lois ? Math.ceil(lois.length / ITEMS_PER_PAGE) : 0;
+  const totalPages = arretes ? Math.ceil(arretes.length / ITEMS_PER_PAGE) : 0;
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentLois = lois ? lois.slice(startIndex, endIndex) : [];
+  const currentArretes = arretes ? arretes.slice(startIndex, endIndex) : [];
 
   // Générer les numéros de pages à afficher
   const getPageNumbers = () => {
@@ -129,9 +129,9 @@ export default function LoisPage() {
         <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
       </div>
 
-      <div className="container px-2.5 md:px-12 mb-8">
-        <h1 className="font-['Poppins'] font-semibold text-xl md:text-[36px] mb-6 text-center md:text-left">
-          Dernières lois en vigueur
+      <div className="container px-12 mb-8">
+        <h1 className="font-['Poppins'] font-semibold text-[36px] mb-6">
+          Derniers arrêtés
         </h1>
         {/* Barre de recherche */}
         <div className="relative mb-6">
@@ -154,21 +154,19 @@ export default function LoisPage() {
         </div>
 
         {/* Boutons de thématiques et filtres */}
-        <div className="flex items-center gap-2 md:gap-3 mb-6 flex-wrap">
-          <div className="hidden md:flex gap-3 flex-wrap">
-            {thematiques.map((thematique) => (
-              <button
-                key={thematique}
-                onClick={() => setSelectedThematique(selectedThematique === thematique ? null : thematique)}
-                className={`px-2 h-[32px] flex items-center rounded-lg font-['Montserrat'] text-sm md:text-[16px] font-no transition-colors ${selectedThematique === thematique
-                  ? 'bg-[#F27F09] text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                  }`}
-              >
-                {thematique}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-3 mb-6 flex-wrap">
+          {thematiques.map((thematique) => (
+            <button
+              key={thematique}
+              onClick={() => setSelectedThematique(selectedThematique === thematique ? null : thematique)}
+              className={`px-2 h-[32px] flex items-center rounded-lg font-['Montserrat'] text-[16px] font-no transition-colors ${selectedThematique === thematique
+                ? 'bg-[#F27F09] text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+            >
+              {thematique}
+            </button>
+          ))}
           <div className="ml-auto relative z-50">
             <Button
               variant="outline"
@@ -176,7 +174,7 @@ export default function LoisPage() {
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
             >
               <AdjustmentsVerticalIcon className="w-5 h-5" />
-              <span className="font-['Montserrat'] text-sm md:text-[16px]">Filtres</span>
+              <span className="font-['Montserrat'] text-[16px]">Filtres</span>
             </Button>
             <FilterDropdown
               isOpen={showFilterDropdown}
@@ -201,40 +199,40 @@ export default function LoisPage() {
 
         {isLoading && (
           <div className="text-center py-8">
-            <p className="text-gray-500">Chargement des lois...</p>
+            <p className="text-gray-500">Chargement des arrêtés...</p>
           </div>
         )}
 
         {error && (
           <div className="text-center py-8">
-            <p className="text-red-500">Erreur lors du chargement des lois</p>
+            <p className="text-red-500">Erreur lors du chargement des arrêtés</p>
           </div>
         )}
 
-        {!isLoading && !error && lois && lois.length === 0 && (
+        {!isLoading && !error && arretes && arretes.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500">Aucune loi trouvée</p>
+            <p className="text-gray-500">Aucun arrêté trouvé</p>
           </div>
         )}
 
-        {!isLoading && !error && lois && lois.length > 0 && (
+        {!isLoading && !error && arretes && arretes.length > 0 && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-12">
-              {currentLois.map((loi) => (
-                <div key={loi.id} className="bg-white rounded-3xl border border-[#E7EAED] p-4 md:p-6 h-[172px] w-full flex flex-col justify-between">
-                  <div className="flex flex-col gap-3 md:gap-[20px]">
-                    <h2 className="font-['Montserrat'] text-normal text-sm md:text-[14px] line-clamp-2">{loi.titre}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12">
+              {currentArretes.map((arrete: any) => (
+                <div key={arrete.id} className="bg-white rounded-3xl border border-[#E7EAED] p-6 h-[172px] w-full flex flex-col justify-between">
+                  <div className="flex flex-col gap-[20px]">
+                    <h2 className="font-['Montserrat'] text-normal text-[14px]">{arrete.titre}</h2>
                     <div className="flex items-center gap-[8px]">
-                      <span className="w-[37px] h-[24px] border border-[#475569] bg-[#E7EAED] text-[#64748B] px-[4px] py-[2px] rounded-sm font-['Montserrat'] font-normal text-xs md:text-[13px]">
+                      <span className="w-[37px] h-[24px] border border-[#475569] bg-[#E7EAED] text-[#64748B] px-[4px] py-[2px] rounded-sm font-['Montserrat'] font-normal text-[13px]">
                         Text
                       </span>
                     </div>
                   </div>
-                  <div className='flex justify-between items-center gap-2'>
-                    <div className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors cursor-pointer" onClick={() => window.open(`/lois/${loi.id}`, '_blank')}>
+                  <div className='flex justify-between'>
+                    <div className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors cursor-pointer" onClick={() => window.open(`/dernieres-arretes/${arrete.id}`, '_blank')}>
                       <ArrowTopRightOnSquareIcon className="w-[20px] h-[20px] text-[#475569]" />
                     </div>
-                    <span className="font-[Montserrat] text-sm md:text-[14px] font-normal text-[#F27F09] cursor-pointer hover:text-[#d66d07] transition-colors flex-1 text-right" onClick={() => router.push(`/lois/${loi.id}`)}> Lire plus</span>
+                    <span className="font-[Montserrat] text-[14px] font-normal text-[#F27F09] cursor-pointer hover:text-[#d66d07] transition-colors" onClick={() => router.push(`/dernieres-arretes/${arrete.id}`)}> Lire plus</span>
                   </div>
                 </div>
               ))}
@@ -242,11 +240,11 @@ export default function LoisPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-1 md:gap-2 mt-6 flex-wrap">
+              <div className="flex justify-center items-center gap-2 mt-6">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-10 h-10 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Page précédente"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +257,7 @@ export default function LoisPage() {
                     <button
                       key={index}
                       onClick={() => handlePageChange(page)}
-                      className={`w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded font-['Montserrat'] font-normal text-sm md:text-[16px] transition-colors ${currentPage === page
+                      className={`w-8 h-8 flex items-center justify-center rounded font-['Montserrat'] font-normal text-[16px] transition-colors ${currentPage === page
                         ? 'bg-[#F27F09] text-white'
                         : 'text-gray-600 hover:bg-gray-100'
                         }`}
@@ -267,7 +265,7 @@ export default function LoisPage() {
                       {page}
                     </button>
                   ) : (
-                    <span key={index} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-gray-400 text-xs md:text-base">
+                    <span key={index} className="w-8 h-8 flex items-center justify-center text-gray-400">
                       {page}
                     </span>
                   )
@@ -276,7 +274,7 @@ export default function LoisPage() {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-8 h-8 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Page suivante"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,8 +283,7 @@ export default function LoisPage() {
                 </button>
               </div>
             )}
-          </>
-        )}
+          </>)}
       </div>
     </div>
   );

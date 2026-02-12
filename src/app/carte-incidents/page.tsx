@@ -184,7 +184,7 @@ export default function CartePage() {
               placeholder="Rechercher..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+              className="w-full pl-12 pr-4 py-3 rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
             />
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function CartePage() {
               className="px-5"
             >
               <BarsArrowDownIcon className="w-5 h-5" />
-              <span className="font-['Montserrat'] text-[13px] whitespace-nowrap">Trier par : {sortBy === 'recent' ? 'le plus récent' : 'le plus ancien'}</span>
+              <span className="font-['Montserrat'] font-normal text-[16px] whitespace-nowrap">Trier par : {sortBy === 'recent' ? 'le plus récent' : 'le plus ancien'}</span>
             </Button>
           </div>
         </div>
@@ -309,7 +309,7 @@ export default function CartePage() {
               return (
                 <div
                   key={type.id}
-                  className={`bg-white rounded-2xl p-9 overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow w-[363px] h-[311px] ${isLast ? 'md:col-start-2 lg:col-start-2' : ''}`}
+                  className={`bg-white rounded-2xl p-9 overflow-hidden shadow-sm hover:shadow-md transition-shadow w-[363px] h-[311px] ${isLast ? 'md:col-start-2 lg:col-start-2' : ''}`}
                 >
                   <div className="flex items-center gap-4 mb-6">
                     <IconComponent size={32} width="32" height="32" className="flex-shrink-0 w-8 h-8" style={{ color: '#053F5C' }} />

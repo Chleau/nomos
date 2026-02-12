@@ -8,13 +8,13 @@
 
 
 
-
 /* Reset CSS */
 * {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -69,8 +69,14 @@ body {
   box-shadow: var(--shadow-1);
   border-radius: var(--radius-md);
 }
-.btn-kaki:hover { background-color: var(--color-primary-600); }
-.btn-kaki:active { background-color: var(--color-kaki-400); }
+
+.btn-kaki:hover {
+  background-color: var(--color-primary-600);
+}
+
+.btn-kaki:active {
+  background-color: var(--color-kaki-400);
+}
 
 /* Outline variant */
 .btn-outline {
@@ -79,6 +85,7 @@ body {
   border: 1px solid var(--color-slate-300);
   border-radius: var(--radius-md);
 }
+
 .btn-outline:hover {
   background: var(--color-slate-50);
   border-color: var(--color-slate-300);
@@ -90,10 +97,15 @@ body {
   color: var(--color-primary);
   border-radius: var(--radius-md);
 }
-.btn-ghost:hover { background: rgba(242,127,9,0.06); }
+
+.btn-ghost:hover {
+  background: rgba(242, 127, 9, 0.06);
+}
 
 /* Pill */
-.btn-pill { border-radius: var(--radius-full); }
+.btn-pill {
+  border-radius: var(--radius-full);
+}
 
 .btn-disabled {
   background: #F3F4F6;
@@ -103,19 +115,45 @@ body {
 }
 
 /* Size helpers (kept in sync with Button.tsx size mapping) */
-.btn--lg { padding: 8px 32px; min-height: 40px; font-size: var(--font-size-md); border-radius: 12px; }
-.btn--md { padding: 8px 24px; min-height: 36px; font-size: var(--font-size-sm); border-radius: 10px; }
-.btn--sm { padding: 6px 16px; min-height: 32px; font-size: var(--font-size-sm); border-radius: 8px; }
-.btn--xs { padding: 4px 8px; min-height: 28px; font-size: var(--font-size-xs); border-radius: 6px; }
+.btn--lg {
+  padding: 8px 32px;
+  min-height: 40px;
+  font-size: var(--font-size-md);
+  border-radius: 12px;
+}
+
+.btn--md {
+  padding: 8px 24px;
+  min-height: 36px;
+  font-size: var(--font-size-sm);
+  border-radius: 10px;
+}
+
+.btn--sm {
+  padding: 6px 16px;
+  min-height: 32px;
+  font-size: var(--font-size-sm);
+  border-radius: 8px;
+}
+
+.btn--xs {
+  padding: 4px 8px;
+  min-height: 32px;
+  font-size: var(--font-size-xs);
+  border-radius: 6px;
+}
 
 /* Masquer la scrollbar pour les carousels */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none;
+  /* Chrome, Safari and Opera */
 }
 
 /* Reusable input component styles (container + inner field) */
@@ -126,7 +164,7 @@ body {
   align-items: center;
   gap: var(--Spacing-Margin-2, 8px);
 
-  
+
 
   border-radius: var(--Radius-lg, 8px);
   border: 1px solid var(--Components-Input-border-default, #E5E5E5);
@@ -163,10 +201,16 @@ body {
 .btn-kaki {
   background-color: var(--color-kaki-500);
   color: black;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
-.btn-kaki:hover { background-color: var(--color-kaki-600); }
-.btn-kaki:active { background-color: var(--color-kaki-400); }
+
+.btn-kaki:hover {
+  background-color: var(--color-kaki-600);
+}
+
+.btn-kaki:active {
+  background-color: var(--color-kaki-400);
+}
 
 /* Explicit button size utilities to ensure consistent padding/radius */
 .btn--lg {
@@ -175,12 +219,14 @@ body {
   justify-content: center;
   gap: var(--Spacing-Margin-2_5, 10px);
   /* Reduced vertical padding to avoid oversized buttons while keeping roomy horizontal padding */
-  padding: 8px 32px; /* vertical 8, horizontal 32 */
+  padding: 8px 32px;
+  /* vertical 8, horizontal 32 */
   border-radius: 12px;
   min-height: 40px;
   max-width: 176px;
   line-height: 1;
 }
+
 .btn--md {
   display: inline-flex;
   align-items: center;
@@ -192,6 +238,7 @@ body {
   max-width: 153px;
   line-height: 1;
 }
+
 .btn--sm {
   display: inline-flex;
   align-items: center;
@@ -203,6 +250,7 @@ body {
   max-width: 131px;
   line-height: 1;
 }
+
 .btn--xs {
   display: inline-flex;
   align-items: center;
@@ -210,7 +258,7 @@ body {
   gap: 6px;
   padding: 4px 8px;
   border-radius: 6px;
-  min-height: 28px;
+  min-height: 32px;
   max-width: 300px;
   line-height: 1;
 }
@@ -226,7 +274,7 @@ body {
   min-width: 280px;
   background-color: #053F5C;
   color: white;
-  padding: 24px 16px;
+  padding: 62px 16px 24px 16px;
   position: sticky;
   top: 0;
   flex-shrink: 0;
@@ -239,12 +287,12 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .profile-avatar {
-  width: 76px;
-  height: 76px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   background-color: #FEF0E3;
   display: flex;
@@ -273,6 +321,7 @@ body {
 
 .profile-role {
   font-size: 18px;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -286,6 +335,7 @@ body {
   align-items: center;
   font-size: 18px;
   transition: color 0.3s ease;
+  align-self: flex-start;
 }
 
 .bell-button:hover {
@@ -295,13 +345,19 @@ body {
 /* Commune Section */
 .commune-section {
   margin-bottom: 32px;
+  margin-left: -16px;
+  margin-right: -16px;
+  padding-left: 16px;
+  padding-right: 16px;
   padding-bottom: 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 1);
 }
+
 
 .commune-label {
   font-size: 18px;
-  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 1);
   margin-bottom: 4px;
 }
 
@@ -325,11 +381,12 @@ body {
   margin: 0;
   padding: 0;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
-.menu-item {
-  margin-bottom: 4px;
-}
+.menu-item {}
 
 /* Menu Item Links */
 .menu-item-link {
@@ -337,10 +394,12 @@ body {
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  border-radius: 8px;
+  height: 34px;
+  padding: 4px 8px;
+  border-radius: 5px;
   text-decoration: none;
   font-size: 16px;
+  font-weight: 500;
   color: white;
 }
 
@@ -377,9 +436,22 @@ body {
 }
 
 .menu-item-link.active {
-  background-color: #F27F09;
-  color: black;
+  background-color: #FEF0E3;
+  color: #242A35;
   font-weight: 500;
+  position: relative;
+}
+
+.menu-item-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5.46px;
+  height: 23px;
+  background-color: #F27F09;
+  border-radius: 20px;
 }
 
 /* Action Buttons */
@@ -389,10 +461,10 @@ body {
   justify-content: center;
   gap: 8px;
   background-color: #F27F09;
-  color: black;
-  font-size: 15px;
+  color: #242A35;
+  font-size: 18px;
   padding: 12px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   text-decoration: none;
   transition: background-color 0.2s;
   box-shadow: 0 2px 8px rgba(234, 88, 12, 0.3);
@@ -402,11 +474,11 @@ body {
 }
 
 .action-button:hover {
-  background-color: #E67E08;
+  background-color: #F59839;
 }
 
 .action-button.habitant {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .action-button.mairie {
