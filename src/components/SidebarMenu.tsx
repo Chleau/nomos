@@ -28,7 +28,8 @@ import {
   InboxIcon,
   FolderIcon,
   MapPinIcon,
-  BuildingLibraryIcon
+  BuildingLibraryIcon,
+  DocumentChartBarIcon
 } from '@heroicons/react/24/outline';
 
 const mobileMenuItems = [
@@ -240,6 +241,12 @@ export default function SidebarMenu() {
               <Link href="/lois" className={`menu-item-link ${pathname === '/lois' ? 'active' : ''}`}>
                 <NewspaperIcon width="24" height="24" style={{ marginRight: '12px' }} />
                 Lois en vigueur
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link href="/dernieres-arretes" className={`menu-item-link ${pathname === '/dernieres-arretes' ? 'active' : ''}`}>
+                <DocumentChartBarIcon width="24" height="24" style={{ marginRight: '12px' }} />
+                Derniers arrêtés
               </Link>
             </li>
             <li className="menu-item">
