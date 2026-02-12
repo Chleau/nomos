@@ -32,7 +32,7 @@ export default function LoisPage() {
   // Filtrer les lois par thématique et les filtres appliqués
   const lois = useMemo(() => {
     if (!allLois) return [];
-    
+
     let filtered = allLois;
 
     // Filtrer par thématique sélectionnée (boutons à gauche)
@@ -49,18 +49,18 @@ export default function LoisPage() {
     if (filters.startDate || filters.endDate) {
       filtered = filtered.filter(loi => {
         const loiDate = new Date(loi.date_mise_a_jour);
-        
+
         if (filters.startDate) {
           const startDate = new Date(filters.startDate);
           if (loiDate < startDate) return false;
         }
-        
+
         if (filters.endDate) {
           const endDate = new Date(filters.endDate);
           endDate.setHours(23, 59, 59, 999);
           if (loiDate > endDate) return false;
         }
-        
+
         return true;
       });
     }
@@ -69,7 +69,7 @@ export default function LoisPage() {
   }, [allLois, selectedThematique, filters]);
 
   const ITEMS_PER_PAGE = 12;
-  
+
   // Réinitialiser la page quand la recherche ou le filtre change
   useEffect(() => {
     setCurrentPage(1);
@@ -85,7 +85,7 @@ export default function LoisPage() {
   const getPageNumbers = () => {
     const pages = [];
     const maxPagesToShow = 5;
-    
+
     if (totalPages <= maxPagesToShow) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -159,11 +159,10 @@ export default function LoisPage() {
             <button
               key={thematique}
               onClick={() => setSelectedThematique(selectedThematique === thematique ? null : thematique)}
-              className={`px-2 h-[32px] flex items-center rounded-lg font-['Montserrat'] text-[16px] font-no transition-colors ${
-                selectedThematique === thematique
-                  ? 'bg-[#F27F09] text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
+              className={`px-2 h-[32px] flex items-center rounded-lg font-['Montserrat'] text-[16px] font-no transition-colors ${selectedThematique === thematique
+                ? 'bg-[#F27F09] text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
             >
               {thematique}
             </button>
@@ -230,7 +229,7 @@ export default function LoisPage() {
                     </div>
                   </div>
                   <div className='flex justify-between'>
-                    <div className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors cursor-pointer" onClick={() => router.push(`/lois/${loi.id}`)}>
+                    <div className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors cursor-pointer" onClick={() => window.open(`/lois/${loi.id}`, '_blank')}>
                       <ArrowTopRightOnSquareIcon className="w-[20px] h-[20px] text-[#475569]" />
                     </div>
                     <span className="font-[Montserrat] text-[14px] font-normal text-[#F27F09] cursor-pointer hover:text-[#d66d07] transition-colors" onClick={() => router.push(`/lois/${loi.id}`)}> Lire plus</span>
@@ -239,53 +238,52 @@ export default function LoisPage() {
               ))}
             </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-6">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="w-10 h-10 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Page précédente"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-6">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="w-10 h-10 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Page précédente"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
 
-              {getPageNumbers().map((page, index) => (
-                typeof page === 'number' ? (
-                  <button
-                    key={index}
-                    onClick={() => handlePageChange(page)}
-                    className={`w-8 h-8 flex items-center justify-center rounded font-['Montserrat'] font-normal text-[16px] transition-colors ${
-                      currentPage === page
+                {getPageNumbers().map((page, index) => (
+                  typeof page === 'number' ? (
+                    <button
+                      key={index}
+                      onClick={() => handlePageChange(page)}
+                      className={`w-8 h-8 flex items-center justify-center rounded font-['Montserrat'] font-normal text-[16px] transition-colors ${currentPage === page
                         ? 'bg-[#F27F09] text-white'
                         : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ) : (
-                  <span key={index} className="w-8 h-8 flex items-center justify-center text-gray-400">
-                    {page}
-                  </span>
-                )
-              ))}
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  ) : (
+                    <span key={index} className="w-8 h-8 flex items-center justify-center text-gray-400">
+                      {page}
+                    </span>
+                  )
+                ))}
 
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="w-8 h-8 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Page suivante"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          )}
-        </>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="w-8 h-8 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Page suivante"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
