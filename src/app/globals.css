@@ -14,7 +14,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -69,8 +70,14 @@ body {
   box-shadow: var(--shadow-1);
   border-radius: var(--radius-md);
 }
-.btn-kaki:hover { background-color: var(--color-primary-600); }
-.btn-kaki:active { background-color: var(--color-kaki-400); }
+
+.btn-kaki:hover {
+  background-color: var(--color-primary-600);
+}
+
+.btn-kaki:active {
+  background-color: var(--color-kaki-400);
+}
 
 /* Outline variant */
 .btn-outline {
@@ -79,6 +86,7 @@ body {
   border: 1px solid var(--color-slate-300);
   border-radius: var(--radius-md);
 }
+
 .btn-outline:hover {
   background: var(--color-slate-50);
   border-color: var(--color-slate-300);
@@ -90,10 +98,15 @@ body {
   color: var(--color-primary);
   border-radius: var(--radius-md);
 }
-.btn-ghost:hover { background: rgba(242,127,9,0.06); }
+
+.btn-ghost:hover {
+  background: rgba(242, 127, 9, 0.06);
+}
 
 /* Pill */
-.btn-pill { border-radius: var(--radius-full); }
+.btn-pill {
+  border-radius: var(--radius-full);
+}
 
 .btn-disabled {
   background: #F3F4F6;
@@ -103,19 +116,45 @@ body {
 }
 
 /* Size helpers (kept in sync with Button.tsx size mapping) */
-.btn--lg { padding: 8px 32px; min-height: 40px; font-size: var(--font-size-md); border-radius: 12px; }
-.btn--md { padding: 8px 24px; min-height: 36px; font-size: var(--font-size-sm); border-radius: 10px; }
-.btn--sm { padding: 6px 16px; min-height: 32px; font-size: var(--font-size-sm); border-radius: 8px; }
-.btn--xs { padding: 4px 8px; min-height: 28px; font-size: var(--font-size-xs); border-radius: 6px; }
+.btn--lg {
+  padding: 8px 32px;
+  min-height: 40px;
+  font-size: var(--font-size-md);
+  border-radius: 12px;
+}
+
+.btn--md {
+  padding: 8px 24px;
+  min-height: 36px;
+  font-size: var(--font-size-sm);
+  border-radius: 10px;
+}
+
+.btn--sm {
+  padding: 6px 16px;
+  min-height: 32px;
+  font-size: var(--font-size-sm);
+  border-radius: 8px;
+}
+
+.btn--xs {
+  padding: 4px 8px;
+  min-height: 32px;
+  font-size: var(--font-size-xs);
+  border-radius: 6px;
+}
 
 /* Masquer la scrollbar pour les carousels */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none;
+  /* Chrome, Safari and Opera */
 }
 
 /* Reusable input component styles (container + inner field) */
@@ -126,7 +165,7 @@ body {
   align-items: center;
   gap: var(--Spacing-Margin-2, 8px);
 
-  
+
 
   border-radius: var(--Radius-lg, 8px);
   border: 1px solid var(--Components-Input-border-default, #E5E5E5);
@@ -163,10 +202,16 @@ body {
 .btn-kaki {
   background-color: var(--color-kaki-500);
   color: black;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
-.btn-kaki:hover { background-color: var(--color-kaki-600); }
-.btn-kaki:active { background-color: var(--color-kaki-400); }
+
+.btn-kaki:hover {
+  background-color: var(--color-kaki-600);
+}
+
+.btn-kaki:active {
+  background-color: var(--color-kaki-400);
+}
 
 /* Explicit button size utilities to ensure consistent padding/radius */
 .btn--lg {
@@ -175,12 +220,14 @@ body {
   justify-content: center;
   gap: var(--Spacing-Margin-2_5, 10px);
   /* Reduced vertical padding to avoid oversized buttons while keeping roomy horizontal padding */
-  padding: 8px 32px; /* vertical 8, horizontal 32 */
+  padding: 8px 32px;
+  /* vertical 8, horizontal 32 */
   border-radius: 12px;
   min-height: 40px;
   max-width: 176px;
   line-height: 1;
 }
+
 .btn--md {
   display: inline-flex;
   align-items: center;
@@ -192,6 +239,7 @@ body {
   max-width: 153px;
   line-height: 1;
 }
+
 .btn--sm {
   display: inline-flex;
   align-items: center;
@@ -203,6 +251,7 @@ body {
   max-width: 131px;
   line-height: 1;
 }
+
 .btn--xs {
   display: inline-flex;
   align-items: center;
@@ -210,7 +259,7 @@ body {
   gap: 6px;
   padding: 4px 8px;
   border-radius: 6px;
-  min-height: 28px;
+  min-height: 32px;
   max-width: 300px;
   line-height: 1;
 }

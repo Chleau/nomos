@@ -6,6 +6,10 @@ import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { UserRole } from '@/types/auth';
 import type { Habitant } from '@/types/habitants';
+
+interface HabitantFull extends Habitant {
+  communes?: { nom: string };
+}
 import {
   HomeIcon,
   MapIcon,
@@ -46,9 +50,10 @@ export default function SidebarMenu() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const { user, signOut } = useSupabaseAuth();
-  const [habitantData, setHabitantData] = useState<Habitant | null>(null);
+  const [habitantData, setHabitantData] = useState<HabitantFull | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [notificationsMuted, setNotificationsMuted] = useState(false);
+
 
   // Déterminer le rôle de l'utilisateur - attendre que habitantData soit chargé
   const userRole = habitantData?.role as UserRole;
@@ -174,7 +179,7 @@ export default function SidebarMenu() {
           Commune
         </div>
         <div className="commune-name">
-          {user?.user_metadata?.commune || 'Non spécifiée'}
+          {habitantData?.communes?.nom || 'Non spécifiée'}
         </div>
       </div>
 

@@ -24,7 +24,7 @@ export default function CardIncident({
   return (
     <div
       onClick={onClick}
-      className="flex w-full h-[177px] bg-white rounded-[24px] overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+      className="flex w-full h-[177px] bg-white rounded-[24px] overflow-hidden border border-[#e7eaed] cursor-pointer hover:bg-[#f1f5f9] transition-colors"
     >
       {/* Image section */}
       {image && (
