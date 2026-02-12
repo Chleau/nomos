@@ -231,7 +231,7 @@ export default function ArchivesPage() {
             <span className="text-sm text-[#16a34a] bg-green-50 px-3 py-1 rounded-full border border-green-200">
               Dernière mise à jour le {new Date().toLocaleDateString()}
             </span>
-            <Button variant="outline" className="flex items-center gap-2 text-slate-600 border-slate-300">
+            <Button className="flex items-center gap-2 text-slate-600 border-slate-800 font-size-xs hover:bg-gray-50" variant="outline" size="xs">
               <FiClock />
               Historique des imports
             </Button>
@@ -249,7 +249,7 @@ export default function ArchivesPage() {
               placeholder="Rechercher"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f27f09] focus:border-transparent w-full max-w-[200px]"
+              className="pl-9 pr-4 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-[#f27f09] focus:border-transparent w-full max-w-[200px]"
             />
           </div>
 
@@ -257,7 +257,7 @@ export default function ArchivesPage() {
           <div className="relative">
             <Button
               variant="outline"
-              size="sm"
+              size="xs"
               className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
             >
@@ -281,7 +281,7 @@ export default function ArchivesPage() {
 
           <Button
             variant="outline"
-            size="sm"
+            size="xs"
             className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
             onClick={() => setSortOrder(sortOrder === 'recent' ? 'ancien' : 'recent')}
           >
@@ -290,7 +290,8 @@ export default function ArchivesPage() {
           </Button>
 
           <Button
-            className="items-center gap-2 bg-[#e67e22] hover:bg-[#d35400] text-white border-none shadow-sm"
+            size="xs" variant='primary'
+            className="items-center text-medium gap-2"
             onClick={() => router.push('/mairie/archives/importer')}
           >
             <BiImport className="text-lg" />
@@ -306,8 +307,8 @@ export default function ArchivesPage() {
               className={`
                 whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
                 ${activeCategory === 'Mes favoris'
-                  ? 'bg-[#e67e22] text-[#242a35] border-[#e67e22] hover:bg-[#d35400] hover:text-white font-medium'
-                  : 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d] hover:bg-[#fff9c4]'}
+                  ? 'bg-[#e67e22] text-[#242a35] border-[#e67e22] font-medium'
+                  : 'bg-[#fffbeb] text-[#d97706] '}
               `}
             >
               {activeCategory === 'Mes favoris' ? <XMarkIcon className="w-4 h-4" /> : <StarIcon className="w-4 h-4" />}
@@ -321,7 +322,7 @@ export default function ArchivesPage() {
                 className={`
                   whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
                   ${activeCategory === cat
-                    ? 'bg-[#e67e22] text-[#242a35] border-[#e67e22] hover:bg-[#d35400] hover:text-white font-medium'
+                    ? 'bg-[#e67e22] text-[#242a35] border-[#e67e22] font-medium'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
                 `}
               >
