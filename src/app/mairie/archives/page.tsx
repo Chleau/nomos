@@ -1,28 +1,18 @@
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
 import Button from '@/components/ui/Button'
 import Checkbox from '@/components/ui/Checkbox'
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown'
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
+  DataTable,
+  Column,
   TableBadge
 } from '@/components/ui/Table'
 import {
-  FiSearch,
-  FiFilter,
   FiClock,
-  FiStar,
-  FiMoreVertical,
-  FiEye,
-  FiEdit2,
   FiMapPin
 } from 'react-icons/fi'
 
@@ -34,11 +24,9 @@ import {
   ShareIcon,
   TrashIcon,
   ArchiveBoxIcon,
-  PaperAirplaneIcon,
   StarIcon,
   AdjustmentsVerticalIcon,
   BarsArrowDownIcon,
-  PlusIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
   XMarkIcon
@@ -48,8 +36,8 @@ import { BiImport } from 'react-icons/bi'
 import { useRouter } from 'next/navigation'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
-import { useArretes } from '@/lib/hooks/useArretes'
-import { ARRETE_CATEGORIES } from '@/lib/constants'
+import { useArretes, useDeleteArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
+import { ARRETE_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
 
 interface ArchiveRow {
   id: number | string
@@ -63,22 +51,112 @@ interface ArchiveRow {
   agent?: { nom: string }
 }
 
-const CATEGORY_COLORS_MAP: Record<string, 'warning' | 'purple' | 'success' | 'orange' | 'error' | 'info' | 'neutral'> = {
-  'Sécurité publique': 'warning',
-  'Environnement': 'purple',
-  'Santé publique': 'success',
-  'Commerce': 'orange',
-  'Transport': 'error',
-  'Fonction publique': 'info',
-  'Sans catégorie': 'neutral',
-  'Panneau cassé': 'orange'
+// Helper pour mapper les couleurs de badge
+const getCategoryColor = (categorie: string): 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' => {
+  return (CATEGORY_COLORS[categorie] as 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal') || 'neutral'
 }
+function ActionMenu({ row }: { row: ArchiveRow }) {
+  const router = useRouter()
+  const deleteArrete = useDeleteArrete()
+  const updateArrete = useUpdateArrete()
 
+  const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleDelete = async () => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette archive ?")) {
+      await deleteArrete.mutateAsync(row.id as number)
+    }
+    setIsOpen(false)
+  }
+
+  const handleUnarchive = async () => {
+    if (confirm("Êtes-vous sûr de vouloir désarchiver ce document ? Il redeviendra un brouillon.")) {
+      await updateArrete.mutateAsync({ id: row.id as number, updates: { archive: false, statut: 'Brouillon' } })
+    }
+    setIsOpen(false)
+  }
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/mairie/archives/${row.id}`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: row.titre, url })
+      } catch (err) { console.error(err) }
+    } else {
+      await navigator.clipboard.writeText(url)
+      alert("Lien copié !")
+    }
+    setIsOpen(false)
+  }
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors ${isOpen ? 'bg-gray-100 text-gray-600' : ''}`}
+      >
+        <EllipsisVerticalIcon className="w-5 h-5" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-100 shadow-xl rounded-xl z-50 flex flex-col py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+          <div className="px-4 py-2 text-xs font-bold text-gray-500 text-left border-b border-gray-50 mb-1">
+            Actions
+          </div>
+
+          <button
+            onClick={() => router.push(`/mairie/archives/${row.id}?mode=view`)}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#242a35] transition-colors text-left w-full"
+          >
+            <EyeIcon className="w-4 h-4" />
+            Consulter
+          </button>
+
+          <button
+            onClick={() => router.push(`/mairie/archives/${row.id}?mode=edit`)}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#242a35] transition-colors text-left w-full"
+          >
+            <PencilIcon className="w-4 h-4" />
+            Modifier
+          </button>
+
+          <button onClick={handleShare} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#242a35] transition-colors text-left w-full">
+            <ShareIcon className="w-4 h-4" />
+            Partager
+          </button>
+
+          <button onClick={handleUnarchive} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors text-left w-full">
+            <ArchiveBoxIcon className="w-4 h-4" />
+            Désarchiver
+          </button>
+
+          <button onClick={handleDelete} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors text-left w-full">
+            <TrashIcon className="w-4 h-4" />
+            Supprimer
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
 export default function ArchivesPage() {
   const router = useRouter()
   const { user } = useSupabaseAuth()
   const { data: habitant } = useCurrentHabitant(user?.id || null)
   const { data: arretes, isLoading } = useArretes(habitant?.commune_id || null)
+  const deleteArrete = useDeleteArrete()
+  const updateArrete = useUpdateArrete()
 
   // States
   const [selectedArchives, setSelectedArchives] = useState<Set<string | number>>(new Set())
@@ -88,6 +166,10 @@ export default function ArchivesPage() {
   const [sortOrder, setSortOrder] = useState<'recent' | 'ancien'>('recent')
   const [searchTerm, setSearchTerm] = useState('')
   const [favorites, setFavorites] = useState<Set<number>>(new Set())
+
+  // State pour le menu d'actions groupées
+  const [isGroupActionsOpen, setIsGroupActionsOpen] = useState(false)
+  const groupActionsRef = useRef<HTMLDivElement>(null)
 
   // Chargement des favoris au démarrage
   useEffect(() => {
@@ -102,6 +184,17 @@ export default function ArchivesPage() {
       }
     }
   }, [user?.id])
+
+  // Gestion du clic extérieur pour le menu d'actions groupées
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (groupActionsRef.current && !groupActionsRef.current.contains(event.target as Node)) {
+        setIsGroupActionsOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   const toggleFavorite = (id: number) => {
     const newFavorites = new Set(favorites)
@@ -219,6 +312,187 @@ export default function ArchivesPage() {
     setSelectedArchives(newSelected)
   }
 
+  // Handlers pour actions groupées
+  const handleGroupView = () => {
+    const ids = Array.from(selectedArchives)
+    let blockedCount = 0
+
+    ids.forEach((id) => {
+      const w = window.open(`/mairie/archives/${id}?mode=view`, '_blank')
+      if (!w) blockedCount++
+    })
+
+    if (blockedCount > 0) {
+      alert(`Attention : ${blockedCount} onglet(s) bloqué(s) par le navigateur.\n\nVeuillez autoriser les "pop-ups" pour ce site (icône dans la barre d'adresse) afin d'ouvrir plusieurs documents simultanément.`)
+    }
+    setIsGroupActionsOpen(false)
+  }
+
+  const handleGroupEdit = () => {
+    const ids = Array.from(selectedArchives)
+    let blockedCount = 0
+
+    ids.forEach((id) => {
+      const w = window.open(`/mairie/archives/${id}?mode=edit`, '_blank')
+      if (!w) blockedCount++
+    })
+
+    if (blockedCount > 0) {
+      alert(`Attention : ${blockedCount} onglet(s) bloqué(s) par le navigateur.\n\nVeuillez autoriser les "pop-ups" pour ce site (icône dans la barre d'adresse) afin d'ouvrir plusieurs documents simultanément.`)
+    }
+    setIsGroupActionsOpen(false)
+  }
+
+  const handleGroupDownload = () => {
+    selectedArchives.forEach(id => {
+      const arrete = (arretes || []).find(a => a.id === id)
+      if (arrete) {
+        const element = document.createElement("a");
+        const file = new Blob([arrete.contenu || ''], { type: 'text/plain' });
+        element.href = URL.createObjectURL(file);
+        element.download = `${arrete.titre || 'document'}.txt`;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
+    })
+    setIsGroupActionsOpen(false)
+  }
+
+  const handleGroupShare = async () => {
+    const links: string[] = []
+    for (const id of selectedArchives) {
+      links.push(`${window.location.origin}/mairie/archives/${id}`)
+    }
+
+    if (links.length === 1 && navigator.share) {
+      const arrete = (arretes || []).find(a => a.id === Array.from(selectedArchives)[0])
+      navigator.share({ title: arrete?.titre, url: links[0] }).catch(console.error)
+    } else {
+      await navigator.clipboard.writeText(links.join('\n'))
+      alert(`${links.length} liens copiés dans le presse-papier !`)
+    }
+    setIsGroupActionsOpen(false)
+  }
+
+  const handleGroupDelete = async () => {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer ${selectedArchives.size} archives ?`)) {
+      const promises = Array.from(selectedArchives).map(id => deleteArrete.mutateAsync(id as number))
+      await Promise.all(promises)
+      setSelectedArchives(new Set())
+    }
+    setIsGroupActionsOpen(false)
+  }
+
+  const handleGroupUnarchive = async () => {
+    if (confirm(`Êtes-vous sûr de vouloir désarchiver ${selectedArchives.size} documents ?`)) {
+      const promises = Array.from(selectedArchives).map(id =>
+        updateArrete.mutateAsync({ id: id as number, updates: { archive: false, statut: 'Brouillon' } })
+      )
+      await Promise.all(promises)
+      setSelectedArchives(new Set())
+    }
+    setIsGroupActionsOpen(false)
+  }
+
+  const columns: Column<ArchiveRow>[] = [
+    {
+      header: '',
+      width: '5%',
+      align: 'center',
+      render: (row) => (
+        <Checkbox
+          checked={selectedArchives.has(row.id)}
+          onChange={() => handleSelectRow(row.id)}
+        />
+      )
+    },
+    {
+      header: 'Favoris',
+      width: '6%',
+      align: 'center',
+      render: (row) => (
+        <button
+          className="text-yellow-400 hover:text-yellow-500"
+          onClick={(e) => { e.stopPropagation(); toggleFavorite(row.id as number) }}
+        >
+          {row.favori ? (
+            <StarIcon className="w-5 h-5 fill-current" />
+          ) : (
+            <StarIcon className="w-5 h-5" />
+          )}
+        </button>
+      )
+    },
+    {
+      header: 'Nom',
+      width: '22%',
+      render: (row) => (
+        <span className="text-sm font-medium text-[#242a35] line-clamp-1" title={row.titre}>
+          {row.titre || 'Sans titre'}
+        </span>
+      )
+    },
+    {
+      header: 'Date',
+      width: '10%',
+      accessorKey: 'date',
+      render: (row) => <span className="text-slate-500">{row.date}</span>
+    },
+    {
+      header: 'Catégorie',
+      width: '13%',
+      render: (row) => (
+        <TableBadge
+          label={row.categorie || 'Sans catégorie'}
+          color={getCategoryColor(row.categorie)}
+        />
+      )
+    },
+    {
+      header: 'Collectivité',
+      width: '12%',
+      render: (row) => (
+        <div className="flex items-center gap-1 text-slate-600">
+          <FiMapPin />
+          <span>{habitant?.commune?.nom || 'Commune'}</span>
+        </div>
+      )
+    },
+    {
+      header: 'Action',
+      align: 'center',
+      width: '10%',
+      render: (row) => (
+        <div className="flex items-center justify-center gap-2">
+          <ActionMenu row={row} />
+          <button
+            className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 transition-colors"
+            title="Consulter"
+            onClick={() => router.push(`/mairie/archives/${row.id}?mode=view`)}
+          >
+            <EyeIcon className="w-5 h-5" />
+          </button>
+          <button
+            className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 transition-colors"
+            title="Modifier"
+            onClick={() => router.push(`/mairie/archives/${row.id}?mode=edit`)}
+          >
+            <PencilIcon className="w-5 h-5" />
+          </button>
+        </div>
+      )
+    }
+  ]
+
+  const headerCheckbox = (
+    <Checkbox
+      checked={filteredArchives.length > 0 && selectedArchives.size === filteredArchives.length}
+      state={selectedArchives.size > 0 && selectedArchives.size < filteredArchives.length ? 'indeterminate' : undefined}
+      onChange={handleSelectAll}
+    />
+  )
+
   return (
     <RoleProtectedPage allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MAIRIE]}>
       <div className="p-8 w-full max-w-[1600px] mx-auto space-y-6">
@@ -301,15 +575,15 @@ export default function ArchivesPage() {
 
         {/* Categories / Tags */}
         <div className="flex items-center gap-2 w-full">
-          <div className="flex gap-2 overflow-x-auto items-center flex-1 no-scrollbar pb-2">
+          <div className="flex gap-2 overflow-x-auto items-center flex-1 no-scrollbar">
             <button
               onClick={() => setActiveCategory(activeCategory === 'Mes favoris' ? null : 'Mes favoris')}
               className={`
-                whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
-                ${activeCategory === 'Mes favoris'
-                  ? 'bg-[#e67e22] text-[#242a35] border-[#e67e22] font-medium'
-                  : 'bg-[#fffbeb] text-[#d97706] '}
-              `}
+                            whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
+                            ${activeCategory === 'Mes favoris'
+                  ? 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d]'
+                  : 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d] hover:bg-[#fff9c4]'}
+                        `}
             >
               {activeCategory === 'Mes favoris' ? <XMarkIcon className="w-4 h-4" /> : <StarIcon className="w-4 h-4" />}
               Mes favoris
@@ -331,106 +605,84 @@ export default function ArchivesPage() {
               </button>
             ))}
           </div>
+
+          <div className="shrink-0 ml-2 relative" ref={groupActionsRef}>
+            <button
+              onClick={() => setIsGroupActionsOpen(!isGroupActionsOpen)}
+              className={`whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2 
+                        ${selectedArchives.size > 0
+                  ? 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 shadow-sm'
+                  : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'}
+                    `}
+            >
+              Actions groupées {selectedArchives.size > 0 && `(${selectedArchives.size})`}
+              <ChevronDownIcon className="w-4 h-4" />
+            </button>
+
+            {isGroupActionsOpen && (
+              <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-100 shadow-xl rounded-xl z-50 flex flex-col py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                <div className="px-4 py-2 text-xs font-bold text-gray-500 text-left border-b border-gray-50 mb-1">
+                  {selectedArchives.size === 0 ? 'Aucun élément sélectionné' : `Actions pour ${selectedArchives.size} éléments`}
+                </div>
+
+                {selectedArchives.size > 0 ? (
+                  <>
+                    <button onClick={handleGroupView} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#242a35] transition-colors text-left w-full">
+                      <EyeIcon className="w-4 h-4" />
+                      Consulter
+                    </button>
+                    <button onClick={handleGroupEdit} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#242a35] transition-colors text-left w-full">
+                      <PencilIcon className="w-4 h-4" />
+                      Modifier
+                    </button>
+                    <button onClick={handleGroupDownload} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#242a35] transition-colors text-left w-full">
+                      <ArrowDownTrayIcon className="w-4 h-4" />
+                      Télécharger
+                    </button>
+                    <button onClick={handleGroupShare} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#242a35] transition-colors text-left w-full">
+                      <ShareIcon className="w-4 h-4" />
+                      Partager
+                    </button>
+                    <div className="h-px bg-gray-100 my-1"></div>
+                    <button onClick={handleGroupUnarchive} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors text-left w-full">
+                      <ArchiveBoxIcon className="w-4 h-4" />
+                      Désarchiver
+                    </button>
+                    <button onClick={handleGroupDelete} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors text-left w-full">
+                      <TrashIcon className="w-4 h-4" />
+                      Supprimer
+                    </button>
+                  </>
+                ) : (
+                  <div className="px-4 py-3 text-sm text-gray-400 text-center italic">
+                    Cochez des cases dans le tableau pour activer les actions.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-md shadow-sm">
+        <div className="p-4">
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500">Chargement des archives...</div>
-          ) : filteredArchives.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">Aucune archive trouvée pour ces critères</div>
+            <div className="text-center py-10 text-gray-500">Chargement des archives...</div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-[#f1f5f9] hover:bg-[#f1f5f9]">
-                  <TableHead className="w-[50px]">
-                    <div className="flex justify-center">
-                      <Checkbox
-                        checked={selectedArchives.size === filteredArchives.length && filteredArchives.length > 0}
-                        onChange={handleSelectAll}
-                      />
-                    </div>
-                  </TableHead>
-                  <TableHead className="w-[80px]">Favoris</TableHead>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Numéro officiel</TableHead>
-                  <TableHead>Auteur</TableHead>
-                  <TableHead>Catégorie</TableHead>
-                  <TableHead>Collectivité</TableHead>
-                  <TableHead className="text-center">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredArchives.map((arrete) => (
-                  <TableRow key={arrete.id}>
-                    <TableCell>
-                      <div className="flex justify-center">
-                        <Checkbox
-                          checked={selectedArchives.has(arrete.id)}
-                          onChange={() => handleSelectRow(arrete.id)}
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center" onClick={() => toggleFavorite(arrete.id as number)}>
-                        {arrete.favori ? (
-                          <FiStar className="text-[#fbbf24] fill-[#fbbf24] text-lg cursor-pointer transition-transform hover:scale-110" />
-                        ) : (
-                          <FiStar className="text-slate-300 text-lg cursor-pointer hover:text-[#fbbf24] transition-colors" />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium text-[#334155]">
-                      {arrete.titre || 'Sans titre'}
-                    </TableCell>
-                    <TableCell className="text-slate-500 whitespace-nowrap">
-                      {arrete.date}
-                    </TableCell>
-                    <TableCell className="text-slate-500 text-center">
-                      {arrete.reference || '-'}
-                    </TableCell>
-                    <TableCell className="font-medium text-slate-700">
-                      {arrete.agent?.nom || 'Maire'}
-                    </TableCell>
-                    <TableCell>
-                      <TableBadge
-                        label={arrete.categorie || 'Sans catégorie'}
-                        color={CATEGORY_COLORS_MAP[arrete.categorie || 'Sans catégorie'] || 'neutral'}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-slate-600">
-                        <FiMapPin />
-                        <span>{habitant?.commune?.nom || 'Commune'}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-3">
-                        <button className="text-slate-400 hover:text-slate-600 transition-colors">
-                          <FiMoreVertical size={18} />
-                        </button>
-                        <button
-                          onClick={() => router.push(`/mairie/archives/${arrete.id}?mode=view`)}
-                          className="text-slate-400 hover:text-blue-500 transition-colors"
-                          title="Consulter"
-                        >
-                          <FiEye size={18} />
-                        </button>
-                        <button
-                          onClick={() => router.push(`/mairie/archives/${arrete.id}?mode=edit`)}
-                          className="text-slate-400 hover:text-orange-500 transition-colors"
-                          title="Modifier"
-                        >
-                          <FiEdit2 size={18} />
-                        </button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <DataTable
+              columns={columns}
+              data={filteredArchives}
+              headerCheckbox={headerCheckbox}
+            />
           )}
+        </div>
+
+        {/* Pagination simulée */}
+        <div className="p-4 border-t border-slate-100 flex justify-between items-center text-sm text-slate-500">
+          <span>Affichage de {filteredArchives.length > 0 ? 1 : 0} à {filteredArchives.length} sur {filteredArchives.length} résultats</span>
+          <div className="flex gap-2">
+            <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Précédent</button>
+            <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Suivant</button>
+          </div>
         </div>
 
       </div>
