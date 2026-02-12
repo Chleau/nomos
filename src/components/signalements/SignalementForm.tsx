@@ -151,13 +151,19 @@ export default function SignalementForm() {
     // Si des photos sont sélectionnées, upload puis création des entrées photo_signalement
     if (photos.length > 0) {
       try {
-        for (const photo of photos) {
-          const path = await uploadSignalementPhoto(photo, signalement.id);
+        let firstPhotoPath: string | undefined;
+        for (let i = 0; i < photos.length; i++) {
+          const path = await uploadSignalementPhoto(photos[i], signalement.id);
           await createPhotoSignalement(signalement.id, path);
+          // Mémoriser le chemin de la première photo
+          if (i === 0) {
+            firstPhotoPath = path;
+          }
         }
         // Met à jour l'URL avec la première photo dans le signalement
-        const firstPhotoPath = await uploadSignalementPhoto(photos[0], signalement.id);
-        await updateSignalementUrl.mutateAsync({ id: signalement.id, url: firstPhotoPath });
+        if (firstPhotoPath) {
+          await updateSignalementUrl.mutateAsync({ id: signalement.id, url: firstPhotoPath });
+        }
       } catch (err) {
         setMessage("Signalement créé, mais erreur lors de l'upload des photos");
         setIsSubmitting(false);

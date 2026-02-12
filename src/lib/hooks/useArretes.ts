@@ -15,20 +15,20 @@ export function useArretes(communeId: number | null) {
 }
 
 export function useRecentArretes(communeId: number | null, limit: number = 5) {
-    return useQuery({
-        queryKey: ['arretes', 'recent', communeId, limit],
-        queryFn: async () => {
-        const { data, error } = await arretesService.getRecent(communeId, limit)
-        if (error) throw error
-        return data
-        },
-        enabled: !!communeId
-    })
+  return useQuery({
+    queryKey: ['arretes', 'recent', communeId, limit],
+    queryFn: async () => {
+      const { data, error } = await arretesService.getRecent(communeId, limit)
+      if (error) throw error
+      return data
+    },
+    enabled: !!communeId
+  })
 }
 
 export function useCreateArrete() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: async (arrete: Partial<ArreteMunicipal>) => {
       const { data, error } = await arretesService.create(arrete)
@@ -81,6 +81,17 @@ export function useArrete(id: string | number | null) {
       return data
     },
     enabled: !!id
+  })
+}
+
+export function useSearchArretes(query: string, communeId?: number | null) {
+  return useQuery({
+    queryKey: ['arretes', 'search', query, communeId],
+    queryFn: async () => {
+      const { data, error } = await arretesService.search(query, communeId)
+      if (error) throw error
+      return data
+    }
   })
 }
 

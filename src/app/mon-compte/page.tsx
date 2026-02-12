@@ -34,13 +34,13 @@ export default function MonComptePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages] = useState(12);
   const [loadingLois, setLoadingLois] = useState(false);
-  
+
   // États pour les incidents
   const [incidentsData, setIncidentsData] = useState<Signalement[]>([]);
   const [currentPageIncidents, setCurrentPageIncidents] = useState(1);
   const [totalPagesIncidents, setTotalPagesIncidents] = useState(1);
   const [loadingIncidents, setLoadingIncidents] = useState(false);
-  
+
   // États pour l'édition du profil
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -113,23 +113,23 @@ export default function MonComptePage() {
         try {
           const response = await fetch('/api/signalements');
           const { data, error } = await response.json();
-          
+
           if (!error && data) {
             // Filtrer les incidents "en cours" uniquement
-            const incidentsEnCours = data.filter((s: Signalement) => 
-              s.statut?.toLowerCase() === 'en cours' || 
+            const incidentsEnCours = data.filter((s: Signalement) =>
+              s.statut?.toLowerCase() === 'en cours' ||
               s.statut?.toLowerCase() === 'nouveau'
             );
-            
+
             // Pagination côté client
             const itemsPerPage = 4;
             const totalPages = Math.ceil(incidentsEnCours.length / itemsPerPage);
             setTotalPagesIncidents(totalPages);
-            
+
             const startIndex = (currentPageIncidents - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const paginatedIncidents = incidentsEnCours.slice(startIndex, endIndex);
-            
+
             setIncidentsData(paginatedIncidents);
           }
         } catch (error) {
@@ -164,7 +164,7 @@ export default function MonComptePage() {
         email: profileData.email,
         phone_number: profileData.phone_number,
       });
-      
+
       if (error) throw error;
 
       if (data) {
@@ -204,23 +204,23 @@ export default function MonComptePage() {
                 <div className="flex flex-col gap-3">
                   {/* Avatar */}
                   <div className="bg-[#fef0e3] border-2 border-[#f27f09] rounded-full w-24 h-24 flex items-center justify-center">
-                    <span 
+                    <span
                       className="text-[#f27f09] text-[30px] leading-[40px]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       {initials}
                     </span>
                   </div>
-                  
+
                   {/* Name and Role */}
                   <div className="flex flex-col text-[#242a35]">
-                    <h1 
+                    <h1
                       className="text-[48px] font-bold leading-[64px] overflow-hidden text-ellipsis"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       {fullName}
                     </h1>
-                    <p 
+                    <p
                       className="text-[36px] font-medium leading-[48px] overflow-hidden text-ellipsis"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
@@ -231,7 +231,7 @@ export default function MonComptePage() {
               </div>
 
               {/* Commune Info */}
-              <div 
+              <div
                 className="flex flex-col text-[#242a35] font-medium w-[368px]"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
@@ -242,11 +242,11 @@ export default function MonComptePage() {
 
             {/* Disconnect Button */}
             <Button variant="primary" size="sm" onClick={async () => {
-                if (signOut) {
-                  await signOut();
-                  router.push('/signin');
-                }
-              }}> 
+              if (signOut) {
+                await signOut();
+                router.push('/signin');
+              }
+            }}>
               Déconnexion
             </Button>
 
@@ -254,9 +254,9 @@ export default function MonComptePage() {
 
           {/* Right: Geometric Design Image */}
           <div className="w-[600px] h-[400px] rounded-[24px] overflow-hidden shrink-0">
-            <Image 
-              src={geometricImagePlaceholder} 
-              alt="Design géométrique" 
+            <Image
+              src={geometricImagePlaceholder}
+              alt="Design géométrique"
               className="w-full h-full object-cover"
               width={683}
               height={451}
@@ -269,29 +269,26 @@ export default function MonComptePage() {
           {/* Tabs */}
           <div className="flex flex-col gap-6 w-full">
             <div className="flex gap-12 items-center w-full">
-              <button 
+              <button
                 onClick={() => setActiveTab('lois')}
-                className={`font-medium text-[20px] ${
-                  activeTab === 'lois' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
-                }`}
+                className={`font-medium text-[20px] ${activeTab === 'lois' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
+                  }`}
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
                 Lois consultés
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('incidents')}
-                className={`font-medium text-[20px] ${
-                  activeTab === 'incidents' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
-                }`}
+                className={`font-medium text-[20px] ${activeTab === 'incidents' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
+                  }`}
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
                 Incidents consultés
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('profil')}
-                className={`font-medium text-[20px] ${
-                  activeTab === 'profil' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
-                }`}
+                className={`font-medium text-[20px] ${activeTab === 'profil' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
+                  }`}
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
                 Profil
@@ -435,7 +432,7 @@ export default function MonComptePage() {
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     />
                   ) : (
-                    <span 
+                    <span
                       className="text-[#053f5c] text-[16px]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
@@ -460,7 +457,7 @@ export default function MonComptePage() {
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     />
                   ) : (
-                    <span 
+                    <span
                       className="text-[#053f5c] text-[16px]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
@@ -487,7 +484,7 @@ export default function MonComptePage() {
                       placeholder="Aucune adresse renseignée"
                     />
                   ) : (
-                    <span 
+                    <span
                       className="text-[#053f5c] text-[16px]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
@@ -532,7 +529,7 @@ export default function MonComptePage() {
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
-                  <span 
+                  <span
                     className="text-[#053f5c] text-[16px] capitalize"
                     style={{ fontFamily: 'Montserrat, sans-serif' }}
                   >
