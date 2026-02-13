@@ -68,10 +68,11 @@ export interface ArreteMunicipal extends BaseEntity {
     date_creation: Timestamp;
     date_modification: Timestamp | null;
     fichier_url: string | null;
-    statut?: StatutArrete | string; 
+    statut?: StatutArrete | string;
     archive: boolean;
     numero?: string;
     type?: string;
+    import_name?: string;
     // Relations (optionnelles)
     agents_mairie?: AgentMairie;
     auteur?: { habitant: Habitant }; // Legacy/Alias support
