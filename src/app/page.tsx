@@ -124,7 +124,7 @@ function HomeContent() {
           {/* Stats & Shortcuts Section */}
           <div className="flex flex-col gap-6 md:gap-12">
             {/* Top Row: Acteur & Niveau */}
-            <div className="flex flex-col lg:flex-row gap-12">
+            <div className="flex flex-col lg:flex-row gap-6 md:gap-12">
               {/* Acteur Card */}
               <Acteur
                 className="bg-white h-[184px] md:h-[340px] flex flex-row lg:flex-col items-center justify-center rounded-[24px] shadow-sm flex-shrink-0 lg:w-[450px]"
