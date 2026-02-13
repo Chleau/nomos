@@ -9,9 +9,9 @@ type CardRaccourciProps = {
 export default function CardRaccourci({ className, label = "Accédez aux lois mises en vigueur." }: CardRaccourciProps) {
   return (
     <div className={className}>
-      <div className="bg-white border-2 border-transparent hover:bg-[#f1f5f9] transition-colors flex-1 relative rounded-[24px] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.06)] w-full h-full min-h-[272px]">
-        <div className="absolute inset-0 flex items-center justify-center px-[57px]">
-          <p className="font-['Poppins'] font-medium text-[#053f5c] text-[30px] text-center w-full">
+      <div className="bg-white border-2 border-transparent hover:bg-[#f1f5f9] transition-colors flex-1 relative rounded-[24px] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.06)] w-full h-full min-h-[188px] md:min-h-[272px]">
+        <div className="absolute inset-0 flex items-center justify-center md:px-[57px]">
+          <p className="font-['Poppins'] font-medium text-[#053f5c] text-[18px] md:text-[30px] text-center w-full">
             {label}
           </p>
         </div>
