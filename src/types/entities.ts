@@ -75,6 +75,7 @@ export interface ArreteMunicipal extends BaseEntity {
     import_name?: string;
     // Relations (optionnelles)
     agents_mairie?: AgentMairie;
+    communes?: { id: number; nom: string };
     auteur?: { habitant: Habitant }; // Legacy/Alias support
 }
 

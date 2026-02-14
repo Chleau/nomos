@@ -97,7 +97,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--muted, #6B7280);
+  color: var(--muted, hsl(220, 9%, 46%));
 }
 
 
@@ -128,7 +128,7 @@ body {
 }
 
 .btn-kaki:hover {
-  background-color: var(--color-primary-500);
+  background-color: var(--color-kaki-400);
 }
 
 .btn-kaki:active {
@@ -198,6 +198,8 @@ body {
   min-height: 28px;
   font-size: var(--font-size-xs);
   border-radius: 6px;
+  height: 32px;
+
 }
 
 

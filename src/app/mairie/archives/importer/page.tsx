@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
 import Button from '@/components/ui/Button'
-import { FiArrowLeft, FiFileText } from 'react-icons/fi'
-import { ArrowDownOnSquareIcon, DocumentCheckIcon } from '@heroicons/react/24/outline'
+import { FiArrowLeft } from 'react-icons/fi'
+import { ArrowDownOnSquareIcon, DocumentCheckIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 import { ArchiveFileCard, ArchiveFileData } from '@/components/archives/ArchiveFileCard'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
@@ -23,6 +23,7 @@ export default function ImportArchivesPage() {
   const [files, setFiles] = useState<ArchiveFileData[]>([])
   const [importName, setImportName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Auth & user data
@@ -135,8 +136,8 @@ export default function ImportArchivesPage() {
         })
       }
 
-      // 3. Success - redirect to archives
-      router.push('/mairie/archives')
+      // 3. Success - show modal
+      setIsSuccess(true)
     } catch (err) {
       console.error('Erreur lors de l\'import:', err)
       setError(err instanceof Error ? err.message : "Une erreur est survenue lors de l'import.")
@@ -145,8 +146,52 @@ export default function ImportArchivesPage() {
     }
   }
 
+  const resetForm = () => {
+    setFiles([])
+    setImportName('')
+    setError(null)
+    setIsSuccess(false)
+  }
+
   return (
     <RoleProtectedPage allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MAIRIE]}>
+      {isSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl p-12 flex flex-col items-center text-center space-y-8 animate-in zoom-in-95 duration-200">
+            <div className="space-y-2 mb-10">
+              <h2 className="text-[30px] font-['Poppins']  font-semibold text-gray-800">
+                Vos documents ont été correctement importés
+              </h2>
+              <p className="text-lg text-gray-500">
+                Vous pouvez les retrouver dans votre espace
+              </p>
+            </div>
+            <div className="rounded-full bg-green-500 p-6 shadow-sm">
+              <CheckCircleIcon className="w-20 h-20 text-white stroke-[2.5]" />
+            </div>
+
+            <div className="flex items-center gap-4 w-full justify-center pt-4">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => router.push('/mairie/archives')}
+                className="min-w-[140px] border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Retour
+              </Button>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={resetForm}
+                className="bg-[#e67e22] hover:bg-[#d35400] text-white min-w-[200px]"
+              >
+                Importer de nouveaux documents
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="p-12 w-full max-w-[1600px] mx-auto space-y-6">
 
         {/* Back Button */}
@@ -184,7 +229,7 @@ export default function ImportArchivesPage() {
               </p>
 
               <p className="text-[#64748b] text-sm max-w-[500px] mb-6">
-                Téléchargez jusqu'à 6 fichiers (JPG, PNG, PDF, DOCX, XLSX, ZIP) d'une taille maximale de 10 Mo chacun.
+                Téléchargez jusqu&apos;à 6 fichiers (JPG, PNG, PDF, DOCX, XLSX, ZIP) d&apos;une taille maximale de 10 Mo chacun.
               </p>
 
               <Button
@@ -220,7 +265,7 @@ export default function ImportArchivesPage() {
               {/* Import Name */}
               <div className="space-y-2">
 
-                <label className="text-[18px] font-medium font-['Poppins'] text-[#0f1535] mb-4">Nom de l'import</label>
+                <label className="text-[18px] font-medium font-['Poppins'] text-[#0f1535] mb-4">Nom de l&apos;import</label>
                 <div className="flex gap-4">
                   <input
                     type="text"
@@ -231,7 +276,7 @@ export default function ImportArchivesPage() {
                     disabled={isSubmitting}
                   />
                   <Button
-                    variant="orange"
+                    variant="primary"
                     className="flex items-center gap-2 px-6 text-black font-medium"
                     onClick={handleSubmitImport}
                     disabled={isSubmitting}

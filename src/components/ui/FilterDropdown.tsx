@@ -210,24 +210,26 @@ export default function FilterDropdown({ isOpen, onClose, onApply, onClear, them
         </div>
 
         {/* Thématique Section */}
-        <div className="p-1 border-t border-gray-200">
-          <div className="px-2 py-1">
-            <p className="text-sm font-['Montserrat'] font-normal text-gray-600">Thématique</p>
+        {availableThemes.length > 0 && (
+          <div className="p-1 border-t border-gray-200">
+            <div className="px-2 py-1">
+              <p className="text-sm font-['Montserrat'] font-normal text-gray-600">Thématique</p>
+            </div>
+            <div className="space-y-0">
+              {availableThemes.map((theme) => (
+                <label key={theme} className="flex items-center gap-2 cursor-pointer px-[6px] py-[6px] hover:bg-gray-50 rounded-lg">
+                  <input
+                    type="checkbox"
+                    checked={themes.includes(theme)}
+                    onChange={() => handleThemeToggle(theme)}
+                    className="w-5 h-5"
+                  />
+                  <span className="text-sm font-['Montserrat'] font-medium text-gray-600 flex-1">{theme}</span>
+                </label>
+              ))}
+            </div>
           </div>
-          <div className="space-y-0">
-            {availableThemes.map((theme) => (
-              <label key={theme} className="flex items-center gap-2 cursor-pointer px-[6px] py-[6px] hover:bg-gray-50 rounded-lg">
-                <input
-                  type="checkbox"
-                  checked={themes.includes(theme)}
-                  onChange={() => handleThemeToggle(theme)}
-                  className="w-5 h-5"
-                />
-                <span className="text-sm font-['Montserrat'] font-medium text-gray-600 flex-1">{theme}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Actions */}

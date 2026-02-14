@@ -31,7 +31,6 @@ import {
   ChevronDownIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
-import { HiSortDescending } from 'react-icons/hi'
 import { BiImport } from 'react-icons/bi'
 import { useRouter } from 'next/navigation'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
@@ -49,11 +48,12 @@ interface ArchiveRow {
   favori: boolean
   rawDate: Date
   agent?: { nom: string }
+  collectivite?: string
 }
 
 // Helper pour mapper les couleurs de badge
-const getCategoryColor = (categorie: string): 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' => {
-  return (CATEGORY_COLORS[categorie] as 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal') || 'neutral'
+const getCategoryColor = (categorie: string): 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' | 'rose' | 'cyan' => {
+  return (CATEGORY_COLORS[categorie] as 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' | 'rose' | 'cyan') || 'neutral'
 }
 function ActionMenu({ row }: { row: ArchiveRow }) {
   const router = useRouter()
@@ -166,6 +166,8 @@ export default function ArchivesPage() {
   const [sortOrder, setSortOrder] = useState<'recent' | 'ancien'>('recent')
   const [searchTerm, setSearchTerm] = useState('')
   const [favorites, setFavorites] = useState<Set<number>>(new Set())
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 15
 
   // State pour le menu d'actions groupées
   const [isGroupActionsOpen, setIsGroupActionsOpen] = useState(false)
@@ -227,7 +229,8 @@ export default function ArchivesPage() {
           rawDate: date,
           statut: arrete.statut || 'Archivé',
           favori: favorites.has(arrete.id),
-          agent: arrete.agent
+          agent: arrete.agent,
+          collectivite: (arrete as any).communes?.nom
         }
       })
   }, [arretes, favorites])
@@ -293,6 +296,16 @@ export default function ArchivesPage() {
 
     return filtered
   }, [sortedArchives, searchTerm, activeCategory, filterState])
+
+  // Reset page on filter change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, activeCategory, filterState, sortOrder])
+
+  const paginatedArchives = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredArchives.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredArchives, currentPage])
 
   const handleSelectAll = () => {
     if (selectedArchives.size === filteredArchives.length) {
@@ -455,7 +468,7 @@ export default function ArchivesPage() {
       render: (row) => (
         <div className="flex items-center gap-1 text-slate-600">
           <FiMapPin />
-          <span>{habitant?.commune?.nom || 'Commune'}</span>
+          <span>{row.collectivite || 'Commune'}</span>
         </div>
       )
     },
@@ -502,10 +515,15 @@ export default function ArchivesPage() {
           <h1 className="text-[32px] font-bold text-[#242a35]">Toutes les archives</h1>
 
           <div className="flex items-center gap-4">
-            <span className="text-sm text-[#16a34a] bg-green-50 px-3 py-1 rounded-full border border-green-200">
+            <span className="text-sm text-[#16a34a] bg-green-50 px-3 py-1 rounded-md border border-green-200">
               Dernière mise à jour le {new Date().toLocaleDateString()}
             </span>
-            <Button className="flex items-center gap-2 text-slate-600 border-slate-800 font-size-xs hover:bg-gray-50" variant="outline" size="xs">
+            <Button
+              className="flex items-center gap-2 text-slate-600 border-slate-800 font-size-xs hover:bg-gray-50"
+              variant="outline"
+              size="xs"
+              onClick={() => router.push('/mairie/archives/historique')}
+            >
               <FiClock />
               Historique des imports
             </Button>
@@ -523,7 +541,7 @@ export default function ArchivesPage() {
               placeholder="Rechercher"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-[#f27f09] focus:border-transparent w-full max-w-[200px]"
+              className="pl-9 pr-4 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-[#f27f09] focus:border-transparent w-full  w-[150px] h-[32px]"
             />
           </div>
 
@@ -670,19 +688,16 @@ export default function ArchivesPage() {
           ) : (
             <DataTable
               columns={columns}
-              data={filteredArchives}
+              data={paginatedArchives}
               headerCheckbox={headerCheckbox}
+              pagination={{
+                currentPage,
+                totalPages: Math.ceil(filteredArchives.length / ITEMS_PER_PAGE),
+                totalItems: filteredArchives.length,
+                onPageChange: setCurrentPage
+              }}
             />
           )}
-        </div>
-
-        {/* Pagination simulée */}
-        <div className="p-4 border-t border-slate-100 flex justify-between items-center text-sm text-slate-500">
-          <span>Affichage de {filteredArchives.length > 0 ? 1 : 0} à {filteredArchives.length} sur {filteredArchives.length} résultats</span>
-          <div className="flex gap-2">
-            <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Précédent</button>
-            <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Suivant</button>
-          </div>
         </div>
 
       </div>
