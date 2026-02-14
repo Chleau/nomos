@@ -6,6 +6,7 @@ import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
+import { useCommune } from '@/lib/hooks/useCommunes'
 import { useQuery } from '@tanstack/react-query'
 import { arretesService } from '@/lib/services/arretes.service'
 import { useDeleteArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
@@ -72,6 +73,7 @@ export default function ImportDetailsPage() {
 
     const { user } = useSupabaseAuth()
     const { data: habitant } = useCurrentHabitant(user?.id || null)
+    const { data: commune } = useCommune(habitant?.commune_id || null)
 
     // Mutations
     const deleteArrete = useDeleteArrete()
@@ -147,7 +149,7 @@ export default function ImportDetailsPage() {
                 favori: favorites.has(a.id),
                 agent: a.agents_mairie,
                 auteur: 'Maire', // Mock/Default since DB might not have explicit author string
-                collectivite: a.communes?.nom || habitant?.commune?.nom || 'Ma Ville'
+                collectivite: a.communes?.nom || commune?.nom || 'Ma Ville'
             }
         })
 
