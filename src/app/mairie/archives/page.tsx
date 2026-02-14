@@ -104,6 +104,7 @@ function ActionMenu({ row }: { row: ArchiveRow }) {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Actions"
         className={`p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors ${isOpen ? 'bg-gray-100 text-gray-600' : ''}`}
       >
         <EllipsisVerticalIcon className="w-5 h-5" />
