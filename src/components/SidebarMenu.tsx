@@ -48,9 +48,8 @@ const mobileMenuItems = [
 
 export default function SidebarMenu() {
   const pathname = usePathname();
-  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
-  const { user, signOut } = useSupabaseAuth();
+  const { user } = useSupabaseAuth();
   const [habitantData, setHabitantData] = useState<HabitantFull | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [notificationsMuted, setNotificationsMuted] = useState(false);

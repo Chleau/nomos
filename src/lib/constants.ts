@@ -15,17 +15,17 @@ export const ARRETE_CATEGORIES = [
 
 export type ArreteCategory = typeof ARRETE_CATEGORIES[number];
 
-export const CATEGORY_COLORS: Record<string, 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal'> = {
-  'Sécurité publique': 'warning',
+export const CATEGORY_COLORS: Record<string, 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' | 'rose' | 'cyan'> = {
+  'Sécurité publique': 'blue',
   'Environnement': 'success',
   'Commerce': 'orange',
-  'Transport': 'indigo',
+  'Transport': 'rose',
   'Fonction publique / RH': 'pink',
   'Urbanisme': 'purple',
-  'Voirie': 'neutral',
-  'État civil': 'teal',
-  'Finance': 'warning',
-  'Éducation': 'info',
+  'Voirie': 'cyan',
+  'État civil': 'info',
+  'Finance': 'teal',
+  'Éducation': 'warning',
   'Autre': 'neutral',
   'Sans catégorie': 'neutral'
 };

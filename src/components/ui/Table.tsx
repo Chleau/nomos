@@ -65,22 +65,24 @@ export function TableCell({ className = '', ...props }: TableCellProps) {
 
 // 1. Badge (ex: Catégorie)
 interface BadgeProps {
-  color?: 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal'
+  color?: 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' | 'rose' | 'cyan'
   label: string
 }
 
 const badgeColorMap: Record<string, string> = {
-  neutral: 'bg-[#f1f5f9] text-[#64748b] border-[#cbd5e1]',
-  warning: 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d]',
-  error: 'bg-[#fef2f2] text-[#ef4444] border-[#fca5a5]',
-  success: 'bg-[#f0fdf4] text-[#16a34a] border-[#86efac]',
-  info: 'bg-[#f0f9ff] text-[#0284c7] border-[#7dd3fc]',
-  purple: 'bg-[#faf5ff] text-[#9333ea] border-[#d8b4fe]',
-  orange: 'bg-[#fff7ed] text-[#ea580c] border-[#fdba74]',
+  neutral: 'bg-slate-50 text-slate-700 border-slate-200',
+  warning: 'bg-amber-50 text-amber-700 border-amber-200',
+  error: 'bg-red-50 text-red-700 border-red-200',
+  success: 'bg-green-50 text-green-700 border-green-200',
+  info: 'bg-sky-50 text-sky-700 border-sky-200',
+  purple: 'bg-purple-50 text-purple-700 border-purple-200',
+  orange: 'bg-orange-50 text-orange-700 border-orange-200',
   blue: 'bg-blue-50 text-blue-700 border-blue-200',
   pink: 'bg-pink-50 text-pink-700 border-pink-200',
   indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   teal: 'bg-teal-50 text-teal-700 border-teal-200',
+  rose: 'bg-rose-50 text-rose-700 border-rose-200',
+  cyan: 'bg-cyan-50 text-cyan-700 border-cyan-200',
 }
 
 export function TableBadge({ color = 'neutral', label }: BadgeProps) {
@@ -124,10 +126,10 @@ interface StatusProps {
 export function TableStatus({ status }: StatusProps) {
   return (
     <div className="inline-flex items-center justify-between min-w-[135px] px-2 py-[2px] bg-white border border-[#e7eaed] rounded-lg">
-       <span className="text-[#475569] text-sm">{status}</span>
-       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-500">
-          <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-       </svg>
+      <span className="text-[#475569] text-sm">{status}</span>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-500">
+        <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     </div>
   )
 }
@@ -144,53 +146,74 @@ export interface Column<T> {
   align?: 'left' | 'center' | 'right'
 }
 
+import Pagination from '@/components/ui/Pagination'
+
 interface DataTableProps<T> {
   columns: Column<T>[]
   data: T[]
   emptyMessage?: string
   headerCheckbox?: React.ReactNode
+  pagination?: {
+    currentPage: number
+    totalPages: number
+    totalItems?: number
+    onPageChange: (page: number) => void
+  }
 }
 
-export function DataTable<T extends { id?: string | number }>({ columns, data, emptyMessage = "Aucune donnée disponible", headerCheckbox }: DataTableProps<T>) {
+export function DataTable<T extends { id?: string | number }>({ columns, data, emptyMessage = "Aucune donnée disponible", headerCheckbox, pagination }: DataTableProps<T>) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {columns.map((col, idx) => (
-            <TableHead key={idx} style={{ width: col.width }} className={col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}>
-              {idx === 0 && headerCheckbox ? (
-                <div className="flex items-center justify-center">
-                  {headerCheckbox}
-                </div>
-              ) : col.header}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.length === 0 ? (
+    <div className="space-y-4">
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
-              {emptyMessage}
-            </TableCell>
+            {columns.map((col, idx) => (
+              <TableHead key={idx} style={{ width: col.width }} className={col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}>
+                {idx === 0 && headerCheckbox ? (
+                  <div className="flex items-center justify-center">
+                    {headerCheckbox}
+                  </div>
+                ) : col.header}
+              </TableHead>
+            ))}
           </TableRow>
-        ) : (
-          data.map((item, rowIdx) => (
-            <TableRow key={item.id ?? rowIdx}>
-              {columns.map((col, colIdx) => (
-                <TableCell key={colIdx} className={col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}>
-                  {col.render 
-                    ? <div className={`flex w-full ${col.align === 'center' ? 'justify-center' : col.align === 'right' ? 'justify-end' : 'justify-start'}`}>{col.render(item)}</div> 
-                    : col.accessorKey 
-                      ? (item[col.accessorKey] as React.ReactNode) 
-                      : null
-                  }
-                </TableCell>
-              ))}
+        </TableHeader>
+        <TableBody>
+          {data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                {emptyMessage}
+              </TableCell>
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+          ) : (
+            data.map((item, rowIdx) => (
+              <TableRow key={item.id ?? rowIdx}>
+                {columns.map((col, colIdx) => (
+                  <TableCell key={colIdx} className={col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}>
+                    {col.render
+                      ? <div className={`flex w-full ${col.align === 'center' ? 'justify-center' : col.align === 'right' ? 'justify-end' : 'justify-start'}`}>{col.render(item)}</div>
+                      : col.accessorKey
+                        ? (item[col.accessorKey] as React.ReactNode)
+                        : null
+                    }
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+      {pagination && (
+        <div className="py-4">
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={pagination.onPageChange}
+            itemCount={data.length}
+            totalItems={pagination.totalItems}
+          />
+        </div>
+      )}
+    </div>
   )
 }

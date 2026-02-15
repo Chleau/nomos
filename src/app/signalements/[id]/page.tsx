@@ -252,7 +252,7 @@ export default function SignalementDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-[44px]">
           {/* Card Rappel de l'incident */}
           <div>
-            <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Rappel de l'incident</h2>
+            <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Rappel de l&apos;incident</h2>
             <div className="bg-white rounded-2xl shadow-md p-5 w-full h-[295px] relative">
               <h3 className="font-['Poppins'] font-medium text-[20px] text-[#475569] mb-4">{signalement.titre || 'Sans titre'}</h3>
 
@@ -292,7 +292,7 @@ export default function SignalementDetailPage() {
 
           {/* Card Lieu de l'incident */}
           <div>
-            <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Lieu de l'incident</h2>
+            <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Lieu de l&apos;incident</h2>
             <div className="rounded-2xl shadow-md w-full h-[295px] relative overflow-hidden">
               {/* Carte interactive */}
               {signalement.latitude && signalement.longitude ? (
@@ -354,7 +354,7 @@ export default function SignalementDetailPage() {
 
         {/* Photos de l'incident */}
         <div>
-          <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Photos de l'incident</h2>
+          <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Photos de l&apos;incident</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {photos.length > 0 ? (
               photos.map((photo: { id: number; url: string }, index: number) => {

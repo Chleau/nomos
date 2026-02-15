@@ -11,6 +11,10 @@ export const arretesService = {
           id,
           nom,
           prenom
+        ),
+        communes (
+          id,
+          nom
         )
       `)
       .order('date_creation', { ascending: false })
@@ -115,5 +119,86 @@ export const arretesService = {
     })
 
     return { data: filtered || [], error: null }
+  },
+
+  async getImportHistory(communeId: number | null) {
+    let query = supabase
+      .from('arretes_municipaux')
+      .select(`
+        id,
+        import_name,
+        date_creation,
+        agents_mairie (
+          id,
+          nom,
+          prenom
+        ),
+        communes (
+            id,
+            nom
+        )
+      `)
+      .not('import_name', 'is', null)
+      .order('date_creation', { ascending: false })
+
+    if (communeId) {
+      query = query.eq('commune_id', communeId)
+    }
+
+    const { data, error } = await query
+
+    if (error) return { data: null, error }
+
+    // Group by import_name to create "Import Events"
+    // Since import_name is unique per batch for a given time (user input), we can group by it.
+    // We take the first occurrence's date and agent.
+    const uniqueImports = new Map()
+
+    data?.forEach((item) => {
+      if (item.import_name && !uniqueImports.has(item.import_name)) {
+        uniqueImports.set(item.import_name, {
+          id: item.id, // ID of one of the files, serving as key
+          titre: item.import_name,
+          date_creation: item.date_creation,
+          agent: item.agents_mairie,
+          commune: item.communes,
+          count: 1
+        })
+      } else if (item.import_name) {
+        // Optionally count files in this import
+        const existing = uniqueImports.get(item.import_name)
+        existing.count++
+      }
+    })
+
+    return { data: Array.from(uniqueImports.values()), error: null }
+  },
+
+  async getByImportName(importName: string, communeId: number | null) {
+    let query = supabase
+      .from('arretes_municipaux')
+      .select(`
+        *,
+        agents_mairie (
+          id,
+          nom,
+          prenom
+        ),
+        communes (
+          id,
+          nom
+        )
+      `)
+      .eq('import_name', importName)
+      .order('date_creation', { ascending: false })
+
+    if (communeId) {
+      query = query.eq('commune_id', communeId)
+    }
+
+    const { data, error } = await query
+    return { data, error }
   }
 }
+
+
