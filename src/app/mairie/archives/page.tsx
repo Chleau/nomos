@@ -429,6 +429,7 @@ export default function ArchivesPage() {
         <button
           className="text-yellow-400 hover:text-yellow-500"
           onClick={(e) => { e.stopPropagation(); toggleFavorite(row.id as number) }}
+          data-testid="favorite-star"
         >
           {row.favori ? (
             <StarIcon className="w-5 h-5 fill-current" />

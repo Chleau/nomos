@@ -6,7 +6,7 @@ import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
 import Button from '@/components/ui/Button'
 import { FiArrowLeft } from 'react-icons/fi'
-import { ArrowDownOnSquareIcon, DocumentCheckIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import { ArrowDownOnSquareIcon, DocumentCheckIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { ArchiveFileCard, ArchiveFileData } from '@/components/archives/ArchiveFileCard'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
@@ -167,7 +167,7 @@ export default function ImportArchivesPage() {
               </p>
             </div>
             <div className="rounded-full bg-green-500 p-6 shadow-sm">
-              <CheckCircleIcon className="w-20 h-20 text-white stroke-[2.5]" />
+              <CheckIcon className="w-20 h-20 text-white stroke-[2.5]" />
             </div>
 
             <div className="flex items-center gap-4 w-full justify-center pt-4">
