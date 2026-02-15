@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import IncidentMap from "@/components/map/IncidentMap"
 import SignalementCard from "@/components/signalements/SignalementCard"
@@ -28,6 +28,7 @@ export default function CartePage() {
   const [isMobile, setIsMobile] = useState(false)
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
   const [touchStart, setTouchStart] = useState<number | null>(null)
+  const filterButtonRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -245,7 +246,7 @@ export default function CartePage() {
             Carte interactive des incidents signalés
           </h2>
           <div className="flex justify-between items-center w-full md:justify-start md:w-auto md:gap-4">
-            <div className="relative">
+            <div className="relative" ref={filterButtonRef}>
               <Button
                 variant="outline"
                 size="xs"
@@ -266,6 +267,7 @@ export default function CartePage() {
                   setShowDropdown(false)
                 }}
                 themes={types}
+                parentRef={filterButtonRef}
               />
             </div>
             <Button
@@ -412,7 +414,7 @@ export default function CartePage() {
                   <button
                     key={index}
                     onClick={() => setCurrentCarouselIndex(index)}
-                    className={`w-3 h-3 rounded-full transition ${index === currentCarouselIndex ? 'bg-[#053F5C]' : 'bg-gray-400'
+                    className={`w-3 h-3 rounded-full transition ${index === currentCarouselIndex ? 'bg-[#F27F09]' : 'bg-gray-400'
                       }`}
                   />
                 ))}

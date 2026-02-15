@@ -176,7 +176,7 @@ export default function LoisPage() {
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
             >
               <AdjustmentsVerticalIcon className="w-5 h-5" />
-              <span className="font-['Montserrat'] text-sm md:text-[16px]">Filtres</span>
+              <span className="font-['Montserrat'] text-[16px]">Filtres</span>
             </Button>
             <FilterDropdown
               isOpen={showFilterDropdown}

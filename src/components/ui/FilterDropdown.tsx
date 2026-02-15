@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { TrashIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline'
 
 interface FilterDropdownProps {
@@ -10,6 +10,7 @@ interface FilterDropdownProps {
   onClear: () => void
   themes?: { libelle: string; id?: number }[]
   categories?: string[]
+  parentRef?: React.RefObject<HTMLDivElement>
 }
 
 export interface FilterState {
@@ -19,13 +20,27 @@ export interface FilterState {
   themes: string[]
 }
 
-export default function FilterDropdown({ isOpen, onClose, onApply, onClear, themes: themesFromProps = [], categories }: FilterDropdownProps) {
+export default function FilterDropdown({ isOpen, onClose, onApply, onClear, themes: themesFromProps = [], categories, parentRef: externalParentRef }: FilterDropdownProps) {
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
   const [periodType, setPeriodType] = useState<'custom' | '7days' | '30days' | 'thisyear' | null>(null)
   const [themes, setThemes] = useState<string[]>([])
+  const localParentRef = useRef<HTMLDivElement | null>(null)
+  const parentRef = externalParentRef || localParentRef
 
   const availableThemes = categories || themesFromProps.map(t => t.libelle)
+
+  // Calculer l'alignement optimal du dropdown - calculé au rendu avant le paint
+  const align = useMemo(() => {
+    if (!isOpen || !parentRef.current) return 'right'
+
+    const rect = parentRef.current.getBoundingClientRect()
+    const windowWidth = window.innerWidth
+
+    // Si le bouton est dans la moitié gauche de l'écran, aligner à gauche
+    // Si dans la moitié droite, aligner à droite
+    return rect.left < windowWidth / 2 ? 'left' : 'right'
+  }, [isOpen, parentRef])
 
   const handleThemeToggle = (theme: string) => {
     setThemes(prev =>
@@ -96,7 +111,11 @@ export default function FilterDropdown({ isOpen, onClose, onApply, onClear, them
   }
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-96 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+    <div
+      className={`absolute top-full mt-2 w-96 bg-white border border-gray-300 rounded-lg shadow-lg z-50 ${align === 'left' ? 'left-0 md:left-auto' : 'right-0'
+        }`}
+      style={align === 'left' ? { maxWidth: 'calc(100vw - 20px)', left: '10px' } : {}}
+    >
       {/* Header */}
       <div className="flex items-center justify-between gap-2 px-2 py-1">
         <p className="font-['Montserrat'] font-semibold text-base text-gray-600">Filtres</p>
