@@ -16,4 +16,4 @@ services:
       - "/app/node_modules"
       - "/app/.next"
     working_dir: /app
-    command: yarn dev
+    command: npm run dev

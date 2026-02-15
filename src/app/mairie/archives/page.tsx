@@ -596,38 +596,39 @@ export default function ArchivesPage() {
         {/* Categories / Tags */}
         <div className="flex items-center gap-2 w-full">
           <div className="flex gap-2 overflow-x-auto items-center flex-1 no-scrollbar">
-            <button
-              onClick={() => setActiveCategory(activeCategory === 'Mes favoris' ? null : 'Mes favoris')}
-              className={`
-                            whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
-                            ${activeCategory === 'Mes favoris'
-                  ? 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d]'
-                  : 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d] hover:bg-[#fff9c4]'}
-                        `}
+            <Button
+              variant="favoris"
+              size="xs"
+              onClick={() => setActiveCategory(activeCategory === 'favoris' ? null : 'favoris')}
+              className={`whitespace-nowrap gap-2 ${activeCategory === 'favoris' ? 'active' : ''}`}
             >
-              {activeCategory === 'Mes favoris' ? <XMarkIcon className="w-4 h-4" /> : <StarIcon className="w-4 h-4" />}
+              {activeCategory === 'favoris' ? (
+                <XMarkIcon className="w-4 h-4" />
+              ) : null}
+              <StarIcon className="w-5 h-5" />
               Mes favoris
-            </button>
+            </Button>
 
             {ARRETE_CATEGORIES.map((cat) => (
-              <button
+              <Button
+                variant="outline"
+                size="xs"
                 key={cat}
                 onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-                className={`
-                  whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
-                  ${activeCategory === cat
-                    ? 'bg-[#e67e22] text-[#242a35] border-[#e67e22] font-medium'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
-                `}
+                className={`whitespace-nowrap gap-2 ${activeCategory === cat ? 'active' : ''}`}
               >
-                {activeCategory === cat && <XMarkIcon className="w-4 h-4" />}
+                {activeCategory === cat ? (
+                  <XMarkIcon className="w-4 h-4" />
+                ) : null}
                 {cat}
-              </button>
+              </Button>
             ))}
           </div>
 
           <div className="shrink-0 ml-2 relative" ref={groupActionsRef}>
-            <button
+            <Button
+              size='xs'
+              variant='outline'
               onClick={() => setIsGroupActionsOpen(!isGroupActionsOpen)}
               className={`whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2 
                         ${selectedArchives.size > 0
@@ -637,7 +638,7 @@ export default function ArchivesPage() {
             >
               Actions groupées {selectedArchives.size > 0 && `(${selectedArchives.size})`}
               <ChevronDownIcon className="w-4 h-4" />
-            </button>
+            </Button>
 
             {isGroupActionsOpen && (
               <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-100 shadow-xl rounded-xl z-50 flex flex-col py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
