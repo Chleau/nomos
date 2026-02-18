@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { useSignalements } from '@/lib/hooks/useSignalements'
+import type { Signalement } from '@/types/signalements'
 
 interface EditSignalementModalProps {
-  signalement: any
+  signalement: Signalement
   onClose: () => void
 }
 
@@ -36,22 +37,23 @@ export default function EditSignalementModal({ signalement, onClose }: EditSigna
         telephone: formData.telephone || null,
         email: formData.email || null
       }
-      
+
       const result = await updateSignalement.mutateAsync({
         id: signalement.id,
         updates
       })
-      
+
       if (result.error) {
         setError(result.error.message || 'Erreur lors de la sauvegarde')
         console.error('Erreur:', result.error)
       } else {
         onClose()
       }
-    } catch (err: any) {
-      const errorMessage = err?.message || 'Une erreur est survenue lors de la sauvegarde'
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Une erreur est survenue lors de la sauvegarde'
       setError(errorMessage)
-      console.error('Erreur:', err)
+      console.error('Erreur:', errorMessage)
     } finally {
       setIsSaving(false)
     }
@@ -61,13 +63,13 @@ export default function EditSignalementModal({ signalement, onClose }: EditSigna
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-6">
         <h2 className="font-['Poppins'] font-semibold text-[24px] mb-6">Modifier le signalement</h2>
-        
+
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-600 text-sm font-['Poppins']">{error}</p>
           </div>
         )}
-        
+
         <div className="space-y-4">
           <div>
             <label className="block font-['Poppins'] font-medium text-[14px] text-[#475569] mb-2">

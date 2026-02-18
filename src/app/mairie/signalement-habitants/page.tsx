@@ -7,7 +7,7 @@ import { UserRole } from '@/types/auth'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useAllSignalements, useSignalements } from '@/lib/hooks/useSignalements'
 import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement'
-import { DataTable, Column, TableUserInfo, TableBadge, TableStatus } from '@/components/ui/Table'
+import { DataTable, Column, TableUserInfo, TableBadge } from '@/components/ui/Table'
 import {
   EyeIcon,
   PencilIcon,
@@ -25,8 +25,7 @@ import {
   ShareIcon,
   TrashIcon,
   UserPlusIcon,
-  ChevronRightIcon,
-  ExclamationCircleIcon
+  ChevronRightIcon
 } from '@heroicons/react/24/outline'
 import type { Signalement } from '@/types/signalements'
 import Button from '@/components/ui/Button'
@@ -105,7 +104,7 @@ const StatusSelect = ({ signalement }: { signalement: Signalement }) => {
 
     setIsUpdating(true)
     try {
-      const updates: any = { statut: newStatus }
+      const updates: Partial<Signalement> = { statut: newStatus }
       // Si on change le statut d'un signalement non validé, on le valide automatiquement
       if (!signalement.valide) {
         updates.valide = true
@@ -218,7 +217,7 @@ function ActionMenu({ signalement, onValidate }: { signalement: Signalement, onV
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
           >
             <PhoneIcon className="w-4 h-4 text-gray-400" />
-            Contacter l'habitant
+            Contacter l&apos;habitant
           </button>
 
           <button

@@ -3,6 +3,7 @@ import ImportArchivesPage from '../page'
 import { createTestWrapper } from '@/lib/test-utils'
 import { agentsService } from '@/lib/services/agents.service'
 import { uploadArreteFile } from '@/lib/services/storage.service'
+import * as NextNavigation from 'next/navigation'
 import '@testing-library/jest-dom'
 
 // Mocks
@@ -316,7 +317,7 @@ describe('ImportArchivesPage', () => {
 
     it('navigates back to archives from success modal', async () => {
         const mockPush = jest.fn()
-        jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue({
+        jest.spyOn(NextNavigation, 'useRouter').mockReturnValue({
             push: mockPush,
             back: jest.fn()
         })

@@ -92,6 +92,25 @@ export const signalementsService = {
         types_signalement (
           id,
           libelle
+        ),
+        habitants (
+          id,
+          nom,
+          prenom,
+          email,
+          telephone
+        ),
+        agents_mairie!signalements_agent_id_fkey (
+          id,
+          nom,
+          prenom,
+          email
+        ),
+        validateur:agents_mairie!signalements_valide_par_fkey (
+          id,
+          nom,
+          prenom,
+          email
         )
       `)
       .eq('id', id)
