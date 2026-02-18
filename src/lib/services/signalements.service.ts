@@ -48,11 +48,11 @@ export const signalementsService = {
         )
       `)
       .order('date_signalement', { ascending: false })
-    
+
     if (limit) {
       query = query.limit(limit)
     }
-    
+
     const { data, error } = await query
     return { data, error }
   },
@@ -72,11 +72,11 @@ export const signalementsService = {
       `)
       .eq('habitant_id', habitantId)
       .order('date_signalement', { ascending: false })
-    
+
     if (limit) {
       query = query.limit(limit)
     }
-    
+
     const { data, error } = await query
     return { data, error }
   },
@@ -92,25 +92,6 @@ export const signalementsService = {
         types_signalement (
           id,
           libelle
-        ),
-        habitants (
-          id,
-          nom,
-          prenom,
-          email,
-          telephone
-        ),
-        agents_mairie!signalements_agent_id_fkey (
-          id,
-          nom,
-          prenom,
-          email
-        ),
-        validateur:agents_mairie!signalements_valide_par_fkey (
-          id,
-          nom,
-          prenom,
-          email
         )
       `)
       .eq('id', id)
@@ -123,7 +104,7 @@ export const signalementsService = {
       .from('signalements')
       .select('*', { count: 'exact', head: true })
       .eq('commune_id', communeId)
-    
+
     return { data: count || 0, error }
   }
 }
