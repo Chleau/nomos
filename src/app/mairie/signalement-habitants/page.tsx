@@ -1,13 +1,33 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
-import { useAllSignalements } from '@/lib/hooks/useSignalements'
+import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
+import { useAllSignalements, useSignalements } from '@/lib/hooks/useSignalements'
+import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement'
 import { DataTable, Column, TableUserInfo, TableBadge, TableStatus } from '@/components/ui/Table'
-import { EyeIcon, PencilIcon, MapPinIcon, StarIcon, ChevronDownIcon, MagnifyingGlassIcon, AdjustmentsVerticalIcon, BarsArrowDownIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
+import {
+  EyeIcon,
+  PencilIcon,
+  MapPinIcon,
+  StarIcon,
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  AdjustmentsVerticalIcon,
+  BarsArrowDownIcon,
+  XMarkIcon,
+  EllipsisVerticalIcon,
+  CheckIcon,
+  PhoneIcon,
+  ArrowDownTrayIcon,
+  ShareIcon,
+  TrashIcon,
+  UserPlusIcon,
+  ChevronRightIcon,
+  ExclamationCircleIcon
+} from '@heroicons/react/24/outline'
 import type { Signalement } from '@/types/signalements'
 import Button from '@/components/ui/Button'
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown'
@@ -55,20 +75,208 @@ const EclairagePublicIcon = () => (
   </svg>
 )
 
-// Définir les catégories de filtres avec leurs icônes
-const filterCategories = [
-  { id: 'favoris', label: 'Mes favoris', icon: <StarIcon className="w-5 h-5" /> },
-  { id: 'Route barrée', label: 'Route barrée', icon: <RouteBarreeIcon /> },
-  { id: 'Inondations', label: 'Inondations', icon: <InondationIcon /> },
-  { id: 'Chaussée abîmée', label: 'Chaussée abîmée', icon: <ChausseeAbimeeIcon /> },
-  { id: 'Détritus', label: 'Détritus', icon: <DetritusIcon /> },
-  { id: 'Panneau cassé', label: 'Panneau cassé', icon: <PanneauCasseIcon /> },
-  { id: 'Mobilier abîmé', label: 'Mobilier abîmé', icon: <MobilierAbimeIcon /> },
-  { id: 'Éclairage public', label: 'Éclairage public', icon: <EclairagePublicIcon /> }
-]
+// Définir les icônes par libellé
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  'Route barrée': <RouteBarreeIcon />,
+  'Inondations': <InondationIcon />,
+  'Chaussée abîmée': <ChausseeAbimeeIcon />,
+  'Détritus': <DetritusIcon />,
+  'Panneau cassé': <PanneauCasseIcon />,
+  'Mobilier abîmé': <MobilierAbimeIcon />,
+  'Éclairage public': <EclairagePublicIcon />,
+}
+
+const StatusSelect = ({ signalement }: { signalement: Signalement }) => {
+  const { updateSignalement } = useSignalements()
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const statusOptions = [
+    { label: 'En attente', value: 'En attente', styles: 'border-[#475569]/30 text-[#475569] bg-white' },
+    { label: 'En cours', value: 'En cours', styles: 'border-[#f27f09]/30 text-[#f27f09] bg-[#fef0e3]' },
+    { label: 'Urgent', value: 'Urgent', styles: 'border-red-500/30 text-red-600 bg-red-50' },
+    { label: 'Résolu', value: 'Résolu', styles: 'border-green-500/30 text-green-600 bg-green-50' },
+  ]
+
+  const currentStatus = signalement.statut || 'En attente'
+  const currentOption = statusOptions.find(o => o.value === currentStatus) || statusOptions[0]
+
+  const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value
+
+    setIsUpdating(true)
+    try {
+      const updates: any = { statut: newStatus }
+      // Si on change le statut d'un signalement non validé, on le valide automatiquement
+      if (!signalement.valide) {
+        updates.valide = true
+        updates.date_validation = new Date().toISOString()
+      }
+
+      await updateSignalement.mutateAsync({
+        id: signalement.id,
+        updates
+      })
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  return (
+    <div className="relative inline-block w-[135px]">
+      <select
+        value={currentStatus}
+        onChange={handleChange}
+        disabled={isUpdating}
+        className={`appearance-none w-full h-[24px] px-2 pr-7 text-[12px] font-medium border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-300 cursor-pointer disabled:opacity-50 transition-all flex items-center ${currentOption.styles}`}
+      >
+
+        {statusOptions.map(option => (
+          <option key={option.value} value={option.value} className="bg-white text-gray-900">
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+        <ChevronDownIcon className="w-3 h-3" />
+      </div>
+    </div>
+  )
+}
+
+function ActionMenu({ signalement, onValidate }: { signalement: Signalement, onValidate: () => void }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+  const { deleteSignalement } = useSignalements()
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleDelete = async () => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce signalement ?")) {
+      await deleteSignalement.mutateAsync(signalement.id)
+    }
+    setIsOpen(false)
+  }
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors border border-[#e7eaed] bg-[#f8fafc]"
+      >
+        <EllipsisVerticalIcon className="w-5 h-5 text-gray-400" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-[#e7eaed] z-50 py-1 overflow-hidden">
+          <div className="px-4 py-2 border-b border-[#f1f5f9]">
+            <p className="text-sm font-semibold text-[#1e293b]">Actions</p>
+          </div>
+
+          {!signalement.valide && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onValidate()
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+            >
+              <CheckIcon className="w-4 h-4 text-gray-400" />
+              Valider le signalement
+            </button>
+          )}
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              router.push(`/signalements/${signalement.id}`)
+              setIsOpen(false)
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+          >
+            <PencilIcon className="w-4 h-4 text-gray-400" />
+            Modifier
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsOpen(false)
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+          >
+            <PhoneIcon className="w-4 h-4 text-gray-400" />
+            Contacter l'habitant
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsOpen(false)
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+          >
+            <ArrowDownTrayIcon className="w-4 h-4 text-gray-400" />
+            Télécharger
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsOpen(false)
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+          >
+            <ShareIcon className="w-4 h-4 text-gray-400" />
+            Partager
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleDelete()
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <TrashIcon className="w-4 h-4 text-red-400" />
+            Supprimer
+          </button>
+
+          <div className="border-t border-[#f1f5f9] mt-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+              className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <UserPlusIcon className="w-4 h-4 text-gray-400" />
+                Assigner un agent
+              </div>
+              <ChevronRightIcon className="w-3 h-3 text-gray-400" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function SignalementHabitantsPage() {
   const router = useRouter()
+  const { user } = useSupabaseAuth()
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
@@ -79,7 +287,63 @@ export default function SignalementHabitantsPage() {
   const [sortOrder, setSortOrder] = useState<'recent' | 'ancien'>('recent')
   const itemsPerPage = 10
 
+  // Chargement des favoris au démarrage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user?.id) {
+      const stored = localStorage.getItem(`favorites_signalements_${user.id}`)
+      if (stored) {
+        try {
+          setFavoriteIds(new Set(JSON.parse(stored)))
+        } catch (e) {
+          console.error("Erreur lecture favoris", e)
+        }
+      }
+    }
+  }, [user?.id])
+
+  const toggleFavorite = (id: number) => {
+    const newFavorites = new Set(favoriteIds)
+    if (newFavorites.has(id)) {
+      newFavorites.delete(id)
+    } else {
+      newFavorites.add(id)
+    }
+    setFavoriteIds(newFavorites)
+
+    // Sauvegarde
+    if (typeof window !== 'undefined' && user?.id) {
+      localStorage.setItem(`favorites_signalements_${user.id}`, JSON.stringify(Array.from(newFavorites)))
+    }
+  }
+
   const { data: allSignalements = [], isLoading } = useAllSignalements()
+  const { types: dbTypes } = useTypesSignalement()
+  const { updateSignalement } = useSignalements()
+
+  const handleValidate = async (id: number) => {
+    try {
+      await updateSignalement.mutateAsync({
+        id,
+        updates: {
+          valide: true,
+          date_validation: new Date().toISOString(),
+          statut: 'En attente'
+        }
+      })
+    } catch (e) {
+      console.error("Erreur validation", e)
+    }
+  }
+
+  // Fusionner les types de la DB avec les icônes locales
+  const categories = [
+    { id: 'favoris', label: 'Mes favoris', icon: <StarIcon className="w-5 h-5" /> },
+    ...dbTypes.map(t => ({
+      id: t.libelle,
+      label: t.libelle,
+      icon: CATEGORY_ICONS[t.libelle] || <MapPinIcon className="w-5 h-5" />
+    }))
+  ]
 
   // Reset pagination on filter change
   useEffect(() => {
@@ -212,6 +476,27 @@ export default function SignalementHabitantsPage() {
       )
     },
     {
+      header: 'Favoris',
+      width: '7%',
+      align: 'center',
+      render: (item) => (
+        <button
+          className="text-yellow-400 hover:text-yellow-500"
+          onClick={(e) => {
+            e.stopPropagation()
+            toggleFavorite(item.id)
+          }}
+          title={favoriteIds.has(item.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+        >
+          {favoriteIds.has(item.id) ? (
+            <StarIcon className="w-5 h-5 fill-current" />
+          ) : (
+            <StarIcon className="w-5 h-5" />
+          )}
+        </button>
+      )
+    },
+    {
       header: 'Habitant',
       width: '200px',
       render: (item) => (
@@ -235,6 +520,7 @@ export default function SignalementHabitantsPage() {
       render: (item) => (
         <div className="flex items-center gap-2">
           <MapPinIcon className="w-4 h-4 text-gray-400" />
+          {/* TODO Afficher le lieu ou une valeur par défaut *\/ */}
           <span className="text-[#242a35] text-sm truncate">{item.titre || 'Non spécifié'}</span>
         </div>
       )
@@ -255,7 +541,7 @@ export default function SignalementHabitantsPage() {
       width: '150px',
       align: 'center',
       render: (item) => (
-        <TableStatus status={item.statut || 'En attente'} />
+        <StatusSelect signalement={item} />
       )
     },
     {
@@ -271,26 +557,10 @@ export default function SignalementHabitantsPage() {
       align: 'center',
       render: (item) => (
         <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              const newSet = new Set(favoriteIds)
-              if (newSet.has(item.id)) {
-                newSet.delete(item.id)
-              } else {
-                newSet.add(item.id)
-              }
-              setFavoriteIds(newSet)
-            }}
-            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-            title={favoriteIds.has(item.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
-          >
-            {favoriteIds.has(item.id) ? (
-              <StarIconSolid className="w-5 h-5 text-[#f27f09]" />
-            ) : (
-              <StarIcon className="w-5 h-5 text-gray-400" />
-            )}
-          </button>
+          <ActionMenu
+            signalement={item}
+            onValidate={() => handleValidate(item.id)}
+          />
           <button
             onClick={() => router.push(`/signalements/${item.id}`)}
             className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
@@ -314,210 +584,212 @@ export default function SignalementHabitantsPage() {
   const stats = {
     total: (allSignalements || []).length,
     enCours: (allSignalements || []).filter(s => s.statut?.toLowerCase().includes('cours')).length,
-    urgent: (allSignalements || []).filter(s => s.priorite?.toLowerCase().includes('urgent')).length,
+    enAttente: (allSignalements || []).filter(s => {
+      const statut = s.statut?.toLowerCase()
+      // Est en attente si : non validé OU statut vide OU statut 'en attente'
+      return !s.valide || !statut || statut.includes('en attente')
+    }).length,
+    urgent: (allSignalements || []).filter(s => (s.statut?.toLowerCase().includes('urgent') || s.priorite?.toLowerCase().includes('urgent'))).length,
     resolus: (allSignalements || []).filter(s => s.statut?.toLowerCase().includes('résolu') || s.statut?.toLowerCase().includes('resolu')).length
   }
 
   return (
     <RoleProtectedPage allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MAIRIE]}>
-      <div className="min-h-screen bg-[#f5fcfe] p-6">
-        <div className="max-w-[1400px] mx-auto">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#242a35] mb-2">Tout les signalements</h1>
-          </div>
+      <div className="p-8 w-full max-w-[1600px] mx-auto space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-[36px] font-semibold text-[#242a35] font-['Poppins']">Tous les signalements</h1>
+        </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-xl p-4 border border-[#e7eaed]">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Signalements en attente</p>
-                  <p className="text-2xl font-bold text-[#242a35]">{stats.total - stats.resolus}</p>
-                </div>
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <MapPinIcon className="w-6 h-6 text-[#f27f09]" />
-                </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl p-4 border border-[#e7eaed]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Signalements en attente</p>
+                <p className="text-2xl font-bold text-[#242a35]">{stats.enAttente}</p>
               </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-4 border border-[#e7eaed]">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Incidents en cours</p>
-                  <p className="text-2xl font-bold text-[#242a35]">{stats.enCours}</p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">⚡</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-4 border border-[#e7eaed]">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Incident urgent</p>
-                  <p className="text-2xl font-bold text-[#242a35]">{stats.urgent}</p>
-                </div>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">⚠️</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-4 border border-[#e7eaed]">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Nombre d&apos;incidents résolus</p>
-                  <p className="text-2xl font-bold text-[#242a35]">{stats.resolus}</p>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">✓</span>
-                </div>
+              <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
+                <MapPinIcon className="w-6 h-6 text-orange-600" />
               </div>
             </div>
           </div>
 
-          {/* Filters and Actions */}
-          <div className="flex justify-end gap-3 items-center mb-6">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+          <div className="bg-white rounded-xl p-4 border border-[#e7eaed]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Incidents en cours</p>
+                <p className="text-2xl font-bold text-[#242a35]">{stats.enCours}</p>
               </div>
-              <input
-                type="text"
-                placeholder="Rechercher"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f27f09] focus:border-transparent w-full max-w-[200px]"
-              />
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">⚡</span>
+              </div>
             </div>
+          </div>
 
-            <div className="relative">
-              <Button
-                variant="outline"
-                size="xs"
-                className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              >
-                <AdjustmentsVerticalIcon className="w-5 h-5" />
-                Filtres
-              </Button>
-              <FilterDropdown
-                isOpen={showFilterDropdown}
-                onClose={() => setShowFilterDropdown(false)}
-                categories={[...new Set((allSignalements || []).map(s => s.types_signalement?.libelle).filter(Boolean) as string[])]}
-                onApply={(filters) => {
-                  setFilterState(filters)
-                  setShowFilterDropdown(false)
-                }}
-                onClear={() => {
-                  setFilterState(null)
-                  setShowFilterDropdown(false)
-                }}
-              />
+          <div className="bg-white rounded-xl p-4 border border-[#e7eaed]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Incident urgent</p>
+                <p className="text-2xl font-bold text-[#242a35]">{stats.urgent}</p>
+              </div>
+              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">⚠️</span>
+              </div>
             </div>
+          </div>
 
+          <div className="bg-white rounded-xl p-4 border border-[#e7eaed]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Nombre d&apos;incidents résolus</p>
+                <p className="text-2xl font-bold text-[#242a35]">{stats.resolus}</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters and Actions */}
+        <div className="flex justify-end gap-3 items-center">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Rechercher"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 pr-4 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-[#f27f09] focus:border-transparent w-full w-[150px] h-[32px]"
+            />
+          </div>
+
+          <div className="relative">
             <Button
               variant="outline"
               size="xs"
               className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-              onClick={() => setSortOrder(sortOrder === 'recent' ? 'ancien' : 'recent')}
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
             >
-              <BarsArrowDownIcon className={`w-5 h-5 transition-transform ${sortOrder === 'ancien' ? 'rotate-180' : ''}`} />
-              {sortOrder === 'recent' ? 'Trier par : le plus récent' : 'Trier par : le plus ancien'}
+              <AdjustmentsVerticalIcon className="w-5 h-5" />
+              Filtres
+            </Button>
+            <FilterDropdown
+              isOpen={showFilterDropdown}
+              onClose={() => setShowFilterDropdown(false)}
+              categories={[...new Set((allSignalements || []).map(s => s.types_signalement?.libelle).filter(Boolean) as string[])]}
+              onApply={(filters) => {
+                setFilterState(filters)
+                setShowFilterDropdown(false)
+              }}
+              onClear={() => {
+                setFilterState(null)
+                setShowFilterDropdown(false)
+              }}
+            />
+          </div>
+
+          <Button
+            variant="outline"
+            size="xs"
+            className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+            onClick={() => setSortOrder(sortOrder === 'recent' ? 'ancien' : 'recent')}
+          >
+            <BarsArrowDownIcon className={`w-5 h-5 transition-transform ${sortOrder === 'ancien' ? 'rotate-180' : ''}`} />
+            {sortOrder === 'recent' ? 'Trier par : le plus récent' : 'Trier par : le plus ancien'}
+          </Button>
+        </div>
+
+        {/* Filtres par catégorie */}
+        <div className="flex items-center gap-2 w-full">
+          <div className="flex gap-2 overflow-x-auto items-center flex-1 no-scrollbar">
+            {/* Mes favoris - style différent */}
+            <Button
+              variant="favoris"
+              size="xs"
+              onClick={() => setActiveFilter(activeFilter === 'favoris' ? null : 'favoris')}
+              className={`whitespace-nowrap gap-2 ${activeFilter === 'favoris' ? 'active' : ''}`}
+            >
+              {activeFilter === 'favoris' ? (
+                <XMarkIcon className="w-4 h-4" />
+              ) : null}
+              <StarIcon className="w-5 h-5" />
+              Mes favoris
+              {favoriteIds.size > 0 && (
+                <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-white/30">
+                  {favoriteIds.size}
+                </span>
+              )}
+            </Button>
+
+            {/* Autres catégories */}
+            {categories.slice(1).map((category) => {
+              const isActive = activeFilter === category.id
+              const count = (allSignalements || []).filter(s => s.types_signalement?.libelle === category.id).length
+
+              return (
+                <Button
+                  size="xs"
+                  variant='outline'
+                  key={category.id}
+                  onClick={() => setActiveFilter(isActive ? null : category.id)}
+                  className={`whitespace-nowrap gap-2 ${isActive ? 'active' : ''}`}
+                >
+                  {isActive ? (
+                    <XMarkIcon className="w-4 h-4" />
+                  ) : (
+                    category.icon
+                  )}
+                  {category.label}
+                  {count > 0 && (
+                    <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-gray-400 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                      {count}
+                    </span>
+                  )}
+                </Button>
+              )
+            })}
+          </div>
+
+          {/* Bouton Action groupées */}
+          <div className="shrink-0 ml-2 relative">
+            <Button
+              size="xs"
+              variant="outline"
+              className={`whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
+                  ${selectedIds.size > 0
+                  ? 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 shadow-sm'
+                  : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'}
+                `}
+            >
+              Action groupées {selectedIds.size > 0 && `(${selectedIds.size})`}
+              <ChevronDownIcon className="w-4 h-4" />
             </Button>
           </div>
-
-          {/* Filtres par catégorie */}
-          <div className="mb-6 flex items-center gap-2 w-full">
-            <div className="flex gap-2 overflow-x-auto items-center flex-1 no-scrollbar">
-              {/* Mes favoris - style différent */}
-              <Button
-                variant="favoris"
-                size="xs"
-                onClick={() => setActiveFilter(activeFilter === 'favoris' ? null : 'favoris')}
-                className={`whitespace-nowrap gap-2 ${activeFilter === 'favoris' ? 'active' : ''}`}
-              >
-                {activeFilter === 'favoris' ? (
-                  <XMarkIcon className="w-4 h-4" />
-                ) : null}
-                <StarIcon className="w-5 h-5" />
-                Mes favoris
-                {favoriteIds.size > 0 && (
-                  <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-white/30">
-                    {favoriteIds.size}
-                  </span>
-                )}
-              </Button>
-
-              {/* Autres catégories */}
-              {filterCategories.slice(1).map((category) => {
-                const isActive = activeFilter === category.id
-                const count = (allSignalements || []).filter(s => s.types_signalement?.libelle === category.id).length
-
-                return (
-                  <Button
-                    size="xs"
-                    variant='outline'
-                    key={category.id}
-                    onClick={() => setActiveFilter(isActive ? null : category.id)}
-                    className={`whitespace-nowrap gap-2 ${isActive ? 'active' : ''}`}
-                  >
-                    {isActive ? (
-                      <XMarkIcon className="w-4 h-4" />
-                    ) : (
-                      category.icon
-                    )}
-                    {category.label}
-                    {count > 0 && (
-                      <span className={`ml-1 text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-gray-400 text-white' : 'bg-gray-100 text-gray-600'}`}>
-                        {count}
-                      </span>
-                    )}
-                  </Button>
-                )
-              })}
-            </div>
-
-            {/* Bouton Action groupées */}
-            <div className="shrink-0 ml-2 relative">
-              <Button
-                size="xs"
-                variant="outline"
-                className={`whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
-                  ${selectedIds.size > 0
-                    ? 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 shadow-sm'
-                    : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'}
-                `}
-              >
-                Action groupées {selectedIds.size > 0 && `(${selectedIds.size})`}
-                <ChevronDownIcon className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="bg-white rounded-xl border border-[#e7eaed] overflow-hidden">
-            {isLoading ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">Chargement...</p>
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={paginatedData}
-                emptyMessage="Aucun signalement pour le moment"
-                pagination={{
-                  currentPage,
-                  totalPages,
-                  totalItems,
-                  onPageChange: setCurrentPage
-                }}
-              />
-            )}
-          </div>
         </div>
+
+        {/* Table */}
+        <div className="p-4">
+          {isLoading ? (
+            <div className="text-center py-10 text-gray-500">Chargement des signalements...</div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={paginatedData}
+              emptyMessage="Aucun signalement pour le moment"
+              pagination={{
+                currentPage,
+                totalPages,
+                totalItems,
+                onPageChange: setCurrentPage
+              }}
+            />
+          )}
+        </div>
+
       </div>
     </RoleProtectedPage>
   )

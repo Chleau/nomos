@@ -514,7 +514,7 @@ export default function ArchivesPage() {
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h1 className="text-[32px] font-bold text-[#242a35]">Toutes les archives</h1>
+          <h1 className="text-[36px] font-semibold text-[#242a35] font-['Poppins']">Toutes les archives</h1>
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-[#16a34a] bg-green-50 px-3 py-1 rounded-md border border-green-200">

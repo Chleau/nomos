@@ -504,7 +504,7 @@ export default function DerniereRedactionsPage() {
     <RoleProtectedPage allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MAIRIE]}>
       <div className="p-8 space-y-6">
         <div className="flex flex-col gap-6">
-          <h1 className="text-[32px] font-bold text-[#242a35] font-['Montserrat']">Mes dernières rédactions</h1>
+          <h1 className="text-[36px] font-semibold text-[#242a35] font-['Poppins']">Mes dernières rédactions</h1>
 
           <div className="flex justify-end gap-3 items-center">
             <div className="relative">
