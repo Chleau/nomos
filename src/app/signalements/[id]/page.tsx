@@ -6,20 +6,10 @@ import { useParams, useRouter } from 'next/navigation'
 import { useSignalement, useSignalements } from '@/lib/hooks/useSignalements'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
-import type { Signalement } from '@/types/signalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import dynamic from 'next/dynamic'
-import { BellIcon, BellSlashIcon, PencilIcon, ShareIcon, UserCircleIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { BellIcon, BellSlashIcon, PencilIcon } from '@heroicons/react/24/outline'
 import EditSignalementModal from '@/components/signalements/EditSignalementModal'
-
-// Types pour le suivi (annotations)
-interface Annotation {
-  id: number
-  auteur_nom: string
-  date: string
-  sujet: string
-  message: string
-}
 
 // Charger la carte dynamiquement côté client uniquement
 const IncidentMap = dynamic(() => import('@/components/map/IncidentMap'), {
@@ -37,7 +27,6 @@ export default function SignalementDetailPage() {
   const id = params.id as string
 
   const { data: signalement, isLoading, error } = useSignalement(parseInt(id))
-  const { updateSignalement } = useSignalements()
   const { user } = useSupabaseAuth()
   const { data: currentHabitant } = useCurrentHabitant(user?.id ?? null)
 
@@ -46,66 +35,6 @@ export default function SignalementDetailPage() {
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false)
   const [notificationsMuted, setNotificationsMuted] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [annotationText, setAnnotationText] = useState('')
-  const [isSendingAnnotation, setIsSendingAnnotation] = useState(false)
-
-  const isMairie = currentHabitant && (currentHabitant.role === 'mairie' || currentHabitant.role === 'admin' || currentHabitant.role === 'super_admin')
-
-  // Mock annotations pour le suivi (en attendant la table en base)
-  const mockAnnotations: Annotation[] = [
-    {
-      id: 1,
-      auteur_nom: 'Justin Duproux',
-      date: '25/11/2024',
-      sujet: "Problème d'accès",
-      message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce fringilla lacus neque, vitae venenatis justo condimentum eu. Nam eu blandit mauris. Donec ."
-    },
-    {
-      id: 2,
-      auteur_nom: 'Justin Duproux',
-      date: '25/11/2024',
-      sujet: "Problème d'accès",
-      message: "Lorem ipsuce fringilla lacus neque, vit"
-    },
-    {
-      id: 3,
-      auteur_nom: 'Justin Duproux',
-      date: '25/11/2024',
-      sujet: "Problème d'accès",
-      message: "Lorem ipsum d fringilla lacus neque, vitae venenatis justo condimentum eu. Nam eu blandit mauris. Donec ipsum dolor sit amet, consectetur adipiscing elit. Fusce fringilla lacus neque, vitae venenatis justo condimentum eu. Nam eu blandit mauris. Donec"
-    }
-  ]
-
-  const handleSendAnnotation = async () => {
-    if (!annotationText.trim()) return
-    setIsSendingAnnotation(true)
-    // Simulation d'envoi
-    setTimeout(() => {
-      setAnnotationText('')
-      setIsSendingAnnotation(false)
-    }, 1000)
-  }
-
-  const handleStatusChange = async (newStatus: string) => {
-    if (!signalement) return
-
-    try {
-      const updates: Partial<Signalement> = { statut: newStatus }
-      // Si on change le statut d'un signalement non validé, on le valide automatiquement
-      if (!signalement.valide) {
-        updates.valide = true
-        updates.date_validation = new Date().toISOString()
-      }
-
-      await updateSignalement.mutateAsync({
-        id: signalement.id,
-        updates
-      })
-      setIsStatusDropdownOpen(false)
-    } catch (error) {
-      console.error('Failed to update status:', error)
-    }
-  }
 
   // Vérifier si l'utilisateur actuel est le créateur du signalement
   const isCreator = signalement && currentHabitant && signalement.habitant_id === currentHabitant.id
@@ -243,30 +172,24 @@ export default function SignalementDetailPage() {
             </svg>
             retour
           </button>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setNotificationsMuted(!notificationsMuted)}
-              className="p-2 text-[#053F5C]"
-              title={notificationsMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
-            >
-              {notificationsMuted ? (
-                <BellSlashIcon width="24" height="24" />
-              ) : (
-                <BellIcon width="24" height="24" />
-              )}
-            </button>
-            <button className="p-2 text-[#053F5C]" title="Partager">
-              <ShareIcon width="24" height="24" />
-            </button>
-          </div>
+          <button
+            onClick={() => setNotificationsMuted(!notificationsMuted)}
+            className="p-2 text-[#053F5C]"
+            title={notificationsMuted ? 'Activer les notifications' : 'Désactiver les notifications'}
+          >
+            {notificationsMuted ? (
+              <BellSlashIcon width="24" height="24" />
+            ) : (
+              <BellIcon width="24" height="24" />
+            )}
+          </button>
         </div>
 
         {/* Titre et statut */}
         <div className="mb-[44px]">
           <div className="flex items-center justify-between mb-4">
             <h1 className="font-['Poppins'] font-semibold text-[36px]">
-              Incident #{signalement.id} {signalement.habitants?.prenom || signalement.prenom} {signalement.habitants?.nom || signalement.nom}
-              {isMairie && <span className="ml-2 text-[#94A3B8] font-light">+2</span>}
+              Incident #{signalement.id} {signalement.prenom} {signalement.nom}
             </h1>
             {/* Dropdown Statut */}
             <div className="relative">
@@ -301,17 +224,16 @@ export default function SignalementDetailPage() {
                     const statusStyle = statutsConfig[statut as keyof typeof statutsConfig] || statutsConfig['En attente']
 
                     return (
-                      <button
+                      <div
                         key={statut}
-                        onClick={() => handleStatusChange(statut)}
-                        className="w-full text-left px-4 py-2 font-['Montserrat'] text-[14px] flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                        className="w-full text-left px-4 py-2 font-['Montserrat'] text-[14px] flex items-center gap-2"
                       >
                         <div
                           className="w-2 h-2 rounded-full flex-shrink-0"
                           style={{ backgroundColor: statusStyle.dotColor }}
                         ></div>
                         {statut}
-                      </button>
+                      </div>
                     )
                   })}
                 </div>
