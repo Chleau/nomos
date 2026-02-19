@@ -544,7 +544,8 @@ function MairieContent() {
                       date={formatDate(signalement.date_signalement || null)}
                       username={userName}
                       description={signalement.description || 'Aucune description'}
-                      onClick={() => router.push(`/signalements/${signalement.id}`)}
+                      backgroundColor={!signalement.valide ? 'bg-[#F1F5F9]' : 'bg-white'}
+                      onClick={() => router.push(`/mairie/signalement-habitants/${signalement.id}`)}
                     />
                   )
                 })}

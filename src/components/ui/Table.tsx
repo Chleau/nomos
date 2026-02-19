@@ -153,6 +153,7 @@ interface DataTableProps<T> {
   data: T[]
   emptyMessage?: string
   headerCheckbox?: React.ReactNode
+  getRowClassName?: (item: T) => string
   pagination?: {
     currentPage: number
     totalPages: number
@@ -161,7 +162,7 @@ interface DataTableProps<T> {
   }
 }
 
-export function DataTable<T extends { id?: string | number }>({ columns, data, emptyMessage = "Aucune donnée disponible", headerCheckbox, pagination }: DataTableProps<T>) {
+export function DataTable<T extends { id?: string | number }>({ columns, data, emptyMessage = "Aucune donnée disponible", headerCheckbox, pagination, getRowClassName }: DataTableProps<T>) {
   return (
     <div className="space-y-4">
       <Table>
@@ -187,7 +188,7 @@ export function DataTable<T extends { id?: string | number }>({ columns, data, e
             </TableRow>
           ) : (
             data.map((item, rowIdx) => (
-              <TableRow key={item.id ?? rowIdx}>
+              <TableRow key={item.id ?? rowIdx} className={getRowClassName ? getRowClassName(item) : ''}>
                 {columns.map((col, colIdx) => (
                   <TableCell key={colIdx} className={col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}>
                     {col.render

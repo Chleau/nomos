@@ -8,7 +8,6 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useCreateArrete, useRecentArretes, useArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
 
-import { agentsService } from '@/lib/services/agents.service'
 import { ARRETE_CATEGORIES, type ArreteCategory } from '@/lib/constants'
 import Button from '@/components/ui/Button'
 import RichTextEditor from '@/components/ui/RichTextEditor'
@@ -165,17 +164,6 @@ Article 1 : ...
         setSaveStatus('saving')
 
         try {
-            // 0. Vérifier que l'agent existe pour l'utilisateur courant (important pour les règles RLS)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant as any)
-
-            if (agentError || !agent) {
-                console.error('Erreur récupération agent:', agentError)
-                alert("Impossible de récupérer le profil agent pour cet utilisateur. Vérifiez vos droits.")
-                setSaveStatus('error')
-                return
-            }
-
             if (arreteId) {
                 console.log('Updating arrete:', arreteId)
                 console.log('📝 Contenu HTML à enregistrer:', content)
@@ -204,14 +192,13 @@ Article 1 : ...
                 setSaveStatus('success')
                 setTimeout(() => setSaveStatus('idle'), 3000)
             } else {
-                console.log('Agent found/created:', agent)
                 console.log('📝 Contenu HTML à enregistrer (création):', content)
 
                 console.log('Sending arrete data...', {
                     titre: title,
                     contenu: content,
                     commune_id: habitant.commune_id,
-                    agent_id: agent.id,
+                    agent_id: habitant.id,
                     statut: 'Brouillon',
                     categorie: category,
                     type: typeDocument
@@ -222,7 +209,7 @@ Article 1 : ...
                     numero: numero,
                     contenu: content,
                     commune_id: habitant.commune_id,
-                    agent_id: agent.id,
+                    agent_id: habitant.id,
                     statut: 'Brouillon', // Décommenter si la colonne existe
                     categorie: category as ArreteCategory,
                     type: typeDocument,

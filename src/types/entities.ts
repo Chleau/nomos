@@ -25,7 +25,8 @@ export interface Habitant extends BaseEntity {
     prenom: string;
     email: string;
     commune_id: number;
-    role: UserRole.HABITANT;
+    role: UserRole;
+    phone_number?: string;
 }
 
 // Types pour les signalements
@@ -74,7 +75,7 @@ export interface ArreteMunicipal extends BaseEntity {
     type?: string;
     import_name?: string;
     // Relations (optionnelles)
-    agents_mairie?: AgentMairie;
+    habitants?: Habitant;
     communes?: { id: number; nom: string };
     auteur?: { habitant: Habitant }; // Legacy/Alias support
 }
@@ -105,6 +106,16 @@ export interface Badge extends BaseEntity {
 export interface PhotoSignalement extends BaseEntity {
     signalement_id: number;
     url: string;
+}
+
+// Types pour le suivi des signalements (annotations/conversations)
+export interface SuiviSignalement extends BaseEntity {
+    signalement_id: number;
+    auteur_id: string | null;
+    auteur_nom: string;
+    titre: string | null;
+    contenu: string;
+    is_internal: boolean;
 }
 
 // Types pour les réponses API

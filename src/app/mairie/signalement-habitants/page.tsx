@@ -25,11 +25,13 @@ import {
   ShareIcon,
   TrashIcon,
   UserPlusIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  UserIcon
 } from '@heroicons/react/24/outline'
 import type { Signalement } from '@/types/signalements'
 import Button from '@/components/ui/Button'
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown'
+import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 
 // Icônes SVG pour les catégories
 const RouteBarreeIcon = () => (
@@ -87,6 +89,8 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 
 const StatusSelect = ({ signalement }: { signalement: Signalement }) => {
   const { updateSignalement } = useSignalements()
+  const { user } = useSupabaseAuth()
+  const { data: me } = useCurrentHabitant(user?.id || null)
   const [isUpdating, setIsUpdating] = useState(false)
 
   const statusOptions = [
@@ -106,8 +110,9 @@ const StatusSelect = ({ signalement }: { signalement: Signalement }) => {
     try {
       const updates: Partial<Signalement> = { statut: newStatus }
       // Si on change le statut d'un signalement non validé, on le valide automatiquement
-      if (!signalement.valide) {
+      if (!signalement.valide && me) {
         updates.valide = true
+        updates.valide_par = me.id
         updates.date_validation = new Date().toISOString()
       }
 
@@ -142,7 +147,7 @@ const StatusSelect = ({ signalement }: { signalement: Signalement }) => {
   )
 }
 
-function ActionMenu({ signalement, onValidate }: { signalement: Signalement, onValidate: () => void }) {
+function ActionMenu({ signalement, onValidate, canValidate }: { signalement: Signalement, onValidate: () => void, canValidate: boolean }) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -178,68 +183,71 @@ function ActionMenu({ signalement, onValidate }: { signalement: Signalement, onV
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-[#e7eaed] z-50 py-1 overflow-hidden">
-          <div className="px-4 py-2 border-b border-[#f1f5f9]">
-            <p className="text-sm font-semibold text-[#1e293b]">Actions</p>
+        <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 py-1 overflow-hidden animate-in fade-in slide-in-from-top-2">
+          <div className="px-4 py-3 text-center border-b border-gray-50">
+            <span className="font-semibold text-[#053F5C] font-['Poppins']">Actions</span>
           </div>
 
-          {!signalement.valide && (
+          {!signalement.valide && canValidate && (
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 onValidate()
                 setIsOpen(false)
               }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-green-600 hover:bg-green-50 transition-colors font-['Montserrat']"
             >
-              <CheckIcon className="w-4 h-4 text-gray-400" />
-              Valider le signalement
+              <CheckIcon className="w-5 h-5" />
+              <span>Valider le signalement</span>
             </button>
           )}
 
           <button
             onClick={(e) => {
               e.stopPropagation()
-              router.push(`/signalements/${signalement.id}`)
+              router.push(`/mairie/signalement-habitants/${signalement.id}`)
               setIsOpen(false)
             }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#053F5C] hover:bg-gray-50 transition-colors font-['Montserrat'] hover:text-[#053F5C]"
           >
-            <PencilIcon className="w-4 h-4 text-gray-400" />
-            Modifier
+            <PencilIcon className="w-5 h-5 text-gray-400" />
+            <span>Modifier</span>
           </button>
 
           <button
             onClick={(e) => {
               e.stopPropagation()
               setIsOpen(false)
+              window.location.href = `mailto:${signalement.email || ''}`
             }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#053F5C] hover:bg-gray-50 transition-colors font-['Montserrat'] hover:text-[#053F5C]"
           >
-            <PhoneIcon className="w-4 h-4 text-gray-400" />
-            Contacter l&apos;habitant
+            <PhoneIcon className="w-5 h-5 text-gray-400" />
+            <span>Contacter l&apos;habitant</span>
           </button>
 
           <button
             onClick={(e) => {
               e.stopPropagation()
+              // Logic to download
               setIsOpen(false)
             }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#053F5C] hover:bg-gray-50 transition-colors font-['Montserrat'] hover:text-[#053F5C]"
           >
-            <ArrowDownTrayIcon className="w-4 h-4 text-gray-400" />
-            Télécharger
+            <ArrowDownTrayIcon className="w-5 h-5 text-gray-400" />
+            <span>Télécharger</span>
           </button>
 
           <button
             onClick={(e) => {
               e.stopPropagation()
+              navigator.clipboard.writeText(`${window.location.origin}/mairie/signalement-habitants/${signalement.id}`)
               setIsOpen(false)
             }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#053F5C] hover:bg-gray-50 transition-colors font-['Montserrat'] hover:text-[#053F5C]"
           >
-            <ShareIcon className="w-4 h-4 text-gray-400" />
-            Partager
+            <ShareIcon className="w-5 h-5 text-gray-400" />
+            <span>Partager</span>
           </button>
 
           <button
@@ -247,24 +255,28 @@ function ActionMenu({ signalement, onValidate }: { signalement: Signalement, onV
               e.stopPropagation()
               handleDelete()
             }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors font-['Montserrat']"
           >
-            <TrashIcon className="w-4 h-4 text-red-400" />
-            Supprimer
+            <TrashIcon className="w-5 h-5" />
+            <span>Supprimer</span>
           </button>
 
-          <div className="border-t border-[#f1f5f9] mt-1">
+          <div className="border-t border-gray-50 mt-1">
             <button
               onClick={(e) => {
                 e.stopPropagation()
+                router.push(`/mairie/signalement-habitants/${signalement.id}?assign=true#intervention`)
+                setIsOpen(false)
               }}
-              className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-[#1e293b] hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-between px-4 py-3 text-sm text-[#053F5C] hover:bg-gray-50 transition-colors font-['Montserrat']"
             >
               <div className="flex items-center gap-3">
-                <UserPlusIcon className="w-4 h-4 text-gray-400" />
-                Assigner un agent
+                <UserIcon className="w-5 h-5 text-gray-400" />
+                <span>Assigner un agent</span>
               </div>
-              <ChevronRightIcon className="w-3 h-3 text-gray-400" />
+              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         </div>
@@ -318,13 +330,16 @@ export default function SignalementHabitantsPage() {
   const { data: allSignalements = [], isLoading } = useAllSignalements()
   const { types: dbTypes } = useTypesSignalement()
   const { updateSignalement } = useSignalements()
+  const { data: me } = useCurrentHabitant(user?.id || null)
 
   const handleValidate = async (id: number) => {
+    if (!me) return
     try {
       await updateSignalement.mutateAsync({
         id,
         updates: {
           valide: true,
+          valide_par: me.id,
           date_validation: new Date().toISOString(),
           statut: 'En attente'
         }
@@ -559,16 +574,17 @@ export default function SignalementHabitantsPage() {
           <ActionMenu
             signalement={item}
             onValidate={() => handleValidate(item.id)}
+            canValidate={!!me}
           />
           <button
-            onClick={() => router.push(`/signalements/${item.id}`)}
+            onClick={() => router.push(`/mairie/signalement-habitants/${item.id}?mode=view`)}
             className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
             title="Voir"
           >
             <EyeIcon className="w-5 h-5 text-gray-600" />
           </button>
           <button
-            onClick={() => router.push(`/signalements/${item.id}`)}
+            onClick={() => router.push(`/mairie/signalement-habitants/${item.id}`)}
             className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
             title="Modifier"
           >
@@ -779,6 +795,7 @@ export default function SignalementHabitantsPage() {
               columns={columns}
               data={paginatedData}
               emptyMessage="Aucun signalement pour le moment"
+              getRowClassName={(item) => !item.valide ? 'bg-[#F1F5F9]' : 'bg-white'}
               pagination={{
                 currentPage,
                 totalPages,

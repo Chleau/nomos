@@ -148,7 +148,7 @@ export default function ImportDetailsPage() {
                 rawDate: date,
                 statut: a.statut || 'Archivé',
                 favori: favorites.has(a.id),
-                agent: a.agents_mairie,
+                agent: a.habitants,
                 auteur: 'Maire', // Mock/Default since DB might not have explicit author string
                 collectivite: a.communes?.nom || commune?.nom || 'Ma Ville'
             }

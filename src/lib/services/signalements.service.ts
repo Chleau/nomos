@@ -33,19 +33,11 @@ export const signalementsService = {
       .from('signalements')
       .select(`
         *,
-        photos_signalement (
-          id,
-          url
-        ),
-        types_signalement (
-          id,
-          libelle
-        ),
-        habitants (
-          id,
-          nom,
-          prenom
-        )
+        photos_signalement(id, url),
+        types_signalement(id, libelle),
+        habitants!habitant_id(id, nom, prenom),
+        agent:habitants!agent_id(id, nom, prenom, email, phone_number),
+        decisionnaire:habitants!valide_par(id, nom, prenom, email, phone_number)
       `)
       .order('date_signalement', { ascending: false })
 
@@ -85,14 +77,11 @@ export const signalementsService = {
       .from('signalements')
       .select(`
         *,
-        photos_signalement (
-          id,
-          url
-        ),
-        types_signalement (
-          id,
-          libelle
-        )
+        photos_signalement(id, url),
+        types_signalement(id, libelle),
+        habitants!habitant_id(id, nom, prenom),
+        agent:habitants!agent_id(id, nom, prenom, email, phone_number),
+        decisionnaire:habitants!valide_par(id, nom, prenom, email, phone_number)
       `)
       .eq('id', id)
       .single()
@@ -106,5 +95,13 @@ export const signalementsService = {
       .eq('commune_id', communeId)
 
     return { data: count || 0, error }
+  },
+
+  async delete(id: number) {
+    const { data, error } = await supabase
+      .from('signalements')
+      .delete()
+      .eq('id', id)
+    return { data, error }
   }
 }
