@@ -24,6 +24,7 @@ const customJestConfig = {
         '!src/**/*.stories.{js,jsx,ts,tsx}',
         '!src/**/__tests__/**',
     ],
+    coverageReporters: ['json', 'lcov', 'text', 'clover', 'json-summary'],
     testMatch: [
         '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
         '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',

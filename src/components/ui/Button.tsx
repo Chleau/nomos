@@ -3,7 +3,7 @@
 import React from 'react'
 
 type Size = 'lg' | 'md' | 'sm' | 'xs'
-type Variant = 'primary' | 'outline' | 'ghost' | 'disabled' | 'pill'
+type Variant = 'primary' | 'outline' | 'ghost' | 'disabled' | 'pill' | 'orange'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: Size
@@ -35,6 +35,8 @@ export default function Button({ size = 'md', variant = 'primary', className = '
     variantClasses = 'btn-pill'
   } else if (variant === 'disabled') {
     variantClasses = 'btn-disabled'
+  } else if (variant === 'orange') {
+    variantClasses = 'bg-[#e67e22] text-[#242a35] border border-[#e67e22] hover:bg-[#d35400] hover:text-white'
   }
 
   const focusClasses = 'focus:outline-none'

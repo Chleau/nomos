@@ -46,6 +46,63 @@ body {
   font-family: var(--font-montserrat);
 }
 
+
+
+/* Masquer la scrollbar pour les carousels */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari and Opera */
+}
+
+/* Reusable input component styles (container + inner field) */
+.input {
+  display: flex;
+  width: 312px;
+  padding: var(--Spacing-Margin-2_5, 10px) var(--Spacing-Margin-3, 12px);
+  align-items: center;
+  gap: var(--Spacing-Margin-2, 8px);
+
+
+
+  border-radius: var(--Radius-lg, 8px);
+  border: 1px solid var(--Components-Input-border-default, #E5E5E5);
+  background: var(--Foreground-Primary-white, #FFF);
+
+  /* Components/Input Shadow */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.input :where(input, textarea, select) {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text, #111827);
+}
+
+.input--full {
+  width: 100%;
+}
+
+.input__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted, hsl(220, 9%, 46%));
+}
+
+
+
+/* dans src/app/globals.css ou palette.css */
 /* Base button token and utilities used by components */
 .btn {
   display: inline-flex;
@@ -71,7 +128,7 @@ body {
 }
 
 .btn-kaki:hover {
-  background-color: var(--color-primary-600);
+  background-color: var(--color-kaki-400);
 }
 
 .btn-kaki:active {
@@ -138,130 +195,13 @@ body {
 
 .btn--xs {
   padding: 4px 8px;
-  min-height: 32px;
+  min-height: 28px;
   font-size: var(--font-size-xs);
   border-radius: 6px;
+  height: 32px;
+
 }
 
-/* Masquer la scrollbar pour les carousels */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  /* IE and Edge */
-  scrollbar-width: none;
-  /* Firefox */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari and Opera */
-}
-
-/* Reusable input component styles (container + inner field) */
-.input {
-  display: flex;
-  width: 312px;
-  padding: var(--Spacing-Margin-2_5, 10px) var(--Spacing-Margin-3, 12px);
-  align-items: center;
-  gap: var(--Spacing-Margin-2, 8px);
-
-
-
-  border-radius: var(--Radius-lg, 8px);
-  border: 1px solid var(--Components-Input-border-default, #E5E5E5);
-  background: var(--Foreground-Primary-white, #FFF);
-
-  /* Components/Input Shadow */
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.input :where(input, textarea, select) {
-  border: none;
-  background: transparent;
-  outline: none;
-  width: 100%;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--text, #111827);
-}
-
-.input--full {
-  width: 100%;
-}
-
-.input__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted, #6B7280);
-}
-
-
-
-/* dans src/app/globals.css ou palette.css */
-.btn-kaki {
-  background-color: var(--color-kaki-500);
-  color: black;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-.btn-kaki:hover {
-  background-color: var(--color-kaki-600);
-}
-
-.btn-kaki:active {
-  background-color: var(--color-kaki-400);
-}
-
-/* Explicit button size utilities to ensure consistent padding/radius */
-.btn--lg {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--Spacing-Margin-2_5, 10px);
-  /* Reduced vertical padding to avoid oversized buttons while keeping roomy horizontal padding */
-  padding: 8px 32px;
-  /* vertical 8, horizontal 32 */
-  border-radius: 12px;
-  min-height: 40px;
-  max-width: 176px;
-  line-height: 1;
-}
-
-.btn--md {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 24px;
-  border-radius: 10px;
-  min-height: 36px;
-  max-width: 153px;
-  line-height: 1;
-}
-
-.btn--sm {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 16px;
-  border-radius: 8px;
-  min-height: 32px;
-  max-width: 131px;
-  line-height: 1;
-}
-
-.btn--xs {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  min-height: 32px;
-  max-width: 300px;
-  line-height: 1;
-}
 
 /* Sidebar */
 
@@ -385,8 +325,6 @@ body {
   flex-direction: column;
   gap: 22px;
 }
-
-.menu-item {}
 
 /* Menu Item Links */
 .menu-item-link {

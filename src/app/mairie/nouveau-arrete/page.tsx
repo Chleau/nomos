@@ -235,10 +235,10 @@ Article 1 : ...
                 })
             }
 
-            router.push('/mairie')
+            router.push('/mairie/redactions')
             router.refresh()
         } catch (error) {
-            console.error('tet lors de la création de l\'arrêté:', error)
+            console.error('Erreur lors de la création de l\'arrêté:', error)
             alert("Une erreur est survenue lors de l'enregistrement. Vérifiez la console pour plus de détails.")
         }
     }

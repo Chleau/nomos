@@ -24,7 +24,7 @@ import {
   BarsArrowDownIcon,
   PlusIcon,
   MagnifyingGlassIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
@@ -46,12 +46,11 @@ interface RedactionRow {
 }
 
 // Helper pour mapper les couleurs de badge
-const getCategoryColor = (categorie: string): 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' => {
-  return (CATEGORY_COLORS[categorie] as 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal') || 'neutral'
+const getCategoryColor = (categorie: string): 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' | 'rose' | 'cyan' => {
+  return (CATEGORY_COLORS[categorie] as 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' | 'rose' | 'cyan') || 'neutral'
 }
 
 function ActionMenu({ row }: { row: RedactionRow }) {
-  const router = useRouter()
   const deleteArrete = useDeleteArrete()
   const updateArrete = useUpdateArrete()
 
@@ -156,6 +155,8 @@ export default function DerniereRedactionsPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [sortOrder, setSortOrder] = useState<'recent' | 'ancien'>('recent')
   const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 15
 
   // State pour les favoris (persistance locale)
   const [favorites, setFavorites] = useState<Set<number>>(new Set())
@@ -205,24 +206,26 @@ export default function DerniereRedactionsPage() {
 
 
   // Transformation des données
-  const redactions: RedactionRow[] = (arretes || []).map(arrete => {
-    const date = new Date(arrete.date_creation)
-    return {
-      id: arrete.id,
-      titre: arrete.titre,
-      reference: arrete.numero || `ARR-${arrete.id}`,
-      categorie: arrete.categorie || 'Sans catégorie',
-      date: date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }),
-      rawDate: date,
-      statut: arrete.statut || 'Brouillon',
-      favori: favorites.has(arrete.id),
-      auteur: {
-        initials: '?',
-        name: '?',
-        email: ''
+  const redactions: RedactionRow[] = (arretes || [])
+    .filter(arrete => arrete.statut !== 'Archivé')
+    .map(arrete => {
+      const date = new Date(arrete.date_creation)
+      return {
+        id: arrete.id,
+        titre: arrete.titre,
+        reference: arrete.numero || `ARR-${arrete.id}`,
+        categorie: arrete.categorie || 'Sans catégorie',
+        date: date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }),
+        rawDate: date,
+        statut: arrete.statut || 'Brouillon',
+        favori: favorites.has(arrete.id),
+        auteur: {
+          initials: '?',
+          name: '?',
+          email: ''
+        }
       }
-    }
-  })
+    })
 
   // Tri
   const sortedRedactions = [...redactions].sort((a, b) => {
@@ -284,6 +287,16 @@ export default function DerniereRedactionsPage() {
   }
 
   const filteredRedactions = filterRedactions(sortedRedactions)
+
+  // Reset pagination on filter change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, activeCategory, filterState, sortOrder])
+
+  const paginatedRedactions = React.useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredRedactions.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredRedactions, currentPage])
 
   // Handlers pour actions groupées
   const handleGroupView = () => {
@@ -510,7 +523,7 @@ export default function DerniereRedactionsPage() {
             <div className="relative">
               <Button
                 variant="outline"
-                size="sm"
+                size="xs"
                 className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
               >
@@ -534,7 +547,7 @@ export default function DerniereRedactionsPage() {
 
             <Button
               variant="outline"
-              size="sm"
+              size="xs"
               className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               onClick={() => setSortOrder(sortOrder === 'recent' ? 'ancien' : 'recent')}
             >
@@ -543,7 +556,9 @@ export default function DerniereRedactionsPage() {
             </Button>
 
             <Button
-              className="gap-2 bg-[#e67e22] hover:bg-[#d35400] text-white border-none shadow-sm"
+              variant="primary"
+              size="xs"
+              className="gap-2"
               onClick={() => router.push('/mairie/nouveau-arrete')}
             >
               <PlusIcon className="w-5 h-5" />
@@ -646,19 +661,16 @@ export default function DerniereRedactionsPage() {
           ) : (
             <DataTable
               columns={columns}
-              data={filteredRedactions}
+              data={paginatedRedactions}
               headerCheckbox={headerCheckbox}
+              pagination={{
+                currentPage,
+                totalPages: Math.ceil(filteredRedactions.length / ITEMS_PER_PAGE),
+                totalItems: filteredRedactions.length,
+                onPageChange: setCurrentPage
+              }}
             />
           )}
-        </div>
-
-        {/* Pagination simulée */}
-        <div className="p-4 border-t border-slate-100 flex justify-between items-center text-sm text-slate-500">
-          <span>Affichage de {filteredRedactions.length > 0 ? 1 : 0} à {filteredRedactions.length} sur {filteredRedactions.length} résultats</span>
-          <div className="flex gap-2">
-            <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Précédent</button>
-            <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50" disabled>Suivant</button>
-          </div>
         </div>
       </div>
     </RoleProtectedPage>
