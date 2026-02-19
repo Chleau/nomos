@@ -26,6 +26,7 @@ function HomeContent() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [filters, setFilters] = useState<FilterState | null>(null);
 
+
   // Data fetching
   const { data: habitant } = useCurrentHabitant(user?.id || null);
   const { data: userDeclarations = 0 } = useHabitantSignalementsCount(habitant?.id || null);

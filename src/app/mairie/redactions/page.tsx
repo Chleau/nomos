@@ -25,6 +25,7 @@ import {
   PlusIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
@@ -503,7 +504,7 @@ export default function DerniereRedactionsPage() {
     <RoleProtectedPage allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MAIRIE]}>
       <div className="p-8 space-y-6">
         <div className="flex flex-col gap-6">
-          <h1 className="text-[32px] font-bold text-[#242a35] font-['Montserrat']">Mes dernières rédactions</h1>
+          <h1 className="text-[36px] font-semibold text-[#242a35] font-['Poppins']">Mes dernières rédactions</h1>
 
           <div className="flex justify-end gap-3 items-center">
             <div className="relative">
@@ -568,37 +569,39 @@ export default function DerniereRedactionsPage() {
 
           <div className="flex items-center gap-2 w-full">
             <div className="flex gap-2 overflow-x-auto items-center flex-1 no-scrollbar">
-              <button
+              <Button
+                variant="favoris"
+                size="xs"
                 onClick={() => setActiveCategory(activeCategory === 'Mes favoris' ? null : 'Mes favoris')}
-                className={`
-                            whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
-                            ${activeCategory === 'Mes favoris'
-                    ? 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d]'
-                    : 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d] hover:bg-[#fff9c4]'}
-                        `}
+                className={`whitespace-nowrap gap-2 ${activeCategory === 'Mes favoris' ? 'active' : ''}`}
               >
+                {activeCategory === 'Mes favoris' ? (
+                  <XMarkIcon className="w-4 h-4" />
+                ) : null}
                 <StarIcon className="w-4 h-4" />
                 Mes favoris
-              </button>
+              </Button>
 
               {ARRETE_CATEGORIES.map((cat) => (
-                <button
+                <Button
+                  variant="outline"
+                  size="xs"
                   key={cat}
                   onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-                  className={`
-                                whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
-                                ${activeCategory === cat
-                      ? 'bg-[#E5E7EB] text-[#1F2937] border-gray-300 font-medium'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
-                            `}
+                  className={`whitespace-nowrap gap-2 ${activeCategory === cat ? 'active' : ''}`}
                 >
+                  {activeCategory === cat ? (
+                    <XMarkIcon className="w-4 h-4" />
+                  ) : null}
                   {cat}
-                </button>
+                </Button>
               ))}
             </div>
 
             <div className="shrink-0 ml-2 relative" ref={groupActionsRef}>
-              <button
+              <Button
+                variant="outline"
+                size="xs"
                 onClick={() => setIsGroupActionsOpen(!isGroupActionsOpen)}
                 className={`whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2 
                             ${selectedRedactions.size > 0
@@ -608,7 +611,7 @@ export default function DerniereRedactionsPage() {
               >
                 Action groupées {selectedRedactions.size > 0 && `(${selectedRedactions.size})`}
                 <ChevronDownIcon className="w-4 h-4" />
-              </button>
+              </Button>
 
               {isGroupActionsOpen && (
                 <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-100 shadow-xl rounded-xl z-50 flex flex-col py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">

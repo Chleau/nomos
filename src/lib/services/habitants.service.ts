@@ -7,7 +7,7 @@ export const habitantsService = {
       .from('habitants')
       .select('*')
       .order('nom')
-    
+
     return { data, error }
   },
 
@@ -17,7 +17,7 @@ export const habitantsService = {
       .select('*')
       .eq('id', id)
       .single()
-    
+
     return { data, error }
   },
 
@@ -27,7 +27,7 @@ export const habitantsService = {
       .insert(habitant)
       .select()
       .single()
-    
+
     return { data, error }
   },
 
@@ -38,7 +38,7 @@ export const habitantsService = {
       .eq('id', id)
       .select()
       .single()
-    
+
     return { data, error }
   },
 
@@ -47,7 +47,7 @@ export const habitantsService = {
       .from('habitants')
       .delete()
       .eq('id', id)
-    
+
     return { error }
   },
 
@@ -57,7 +57,7 @@ export const habitantsService = {
       .select('*')
       .eq('auth_user_id', authUserId)
       .single()
-    
+
     return { data, error }
   },
 
@@ -66,7 +66,18 @@ export const habitantsService = {
       .from('signalements')
       .select('*', { count: 'exact', head: true })
       .eq('habitant_id', habitantId)
-    
+
     return { data: count || 0, error }
+  },
+
+  async getByCommuneAndRoles(communeId: number, roles: string[]): Promise<{ data: Habitant[] | null; error: Error | null }> {
+    const { data, error } = await supabase
+      .from('habitants')
+      .select('*')
+      .eq('commune_id', communeId)
+      .in('role', roles)
+      .order('nom')
+
+    return { data, error }
   }
 }

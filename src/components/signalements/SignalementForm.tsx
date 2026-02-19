@@ -68,7 +68,9 @@ export default function SignalementForm() {
       setNom(habitant.nom || '')
       setPrenom(habitant.prenom || '')
       setEmail(habitant.email || '')
-      // Le téléphone n'est pas dans le type Habitant actuel, on le laisse vide
+      if (habitant.phone_number) {
+        setTelephone(habitant.phone_number)
+      }
     }
   }, [habitant])
 
@@ -203,7 +205,8 @@ export default function SignalementForm() {
       type_id: typeId === '' ? undefined : typeId,
       latitude: latitude === '' ? undefined : latitude,
       longitude: longitude === '' ? undefined : longitude,
-      statut: 'Signalé',
+      statut: 'ouvert',
+      priorite: 'moyenne',
       habitant_id: habitant.id,
       commune_id: habitant.commune_id,
       nom: habitant.nom,
@@ -212,54 +215,54 @@ export default function SignalementForm() {
       email: habitant.email,
     };
 
-    // Création du signalement avec les données de l'habitant connecté
-    const { data: signalement, error } = await createSignalement.mutateAsync(signalementData);
+    try {
+      // Création du signalement avec les données de l'habitant connecté
+      const signalement = await createSignalement.mutateAsync(signalementData);
 
-    if (error) {
-      setMessage("Erreur lors de la création du signalement");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!signalement) {
-      setMessage("Erreur lors de la création du signalement");
-      setIsSubmitting(false);
-      return;
-    }
-    // Si des photos sont sélectionnées, upload puis création des entrées photo_signalement
-    if (photos.length > 0) {
-      try {
-        let firstPhotoPath: string | undefined;
-        for (let i = 0; i < photos.length; i++) {
-          const path = await uploadSignalementPhoto(photos[i], signalement.id);
-          await createPhotoSignalement(signalement.id, path);
-          // Mémoriser le chemin de la première photo
-          if (i === 0) {
-            firstPhotoPath = path;
-          }
-        }
-        // Met à jour l'URL avec la première photo dans le signalement
-        if (firstPhotoPath) {
-          await updateSignalementUrl.mutateAsync({ id: signalement.id, url: firstPhotoPath });
-        }
-      } catch (err) {
-        setMessage("Signalement créé, mais erreur lors de l'upload des photos");
+      if (!signalement) {
+        setMessage("Erreur lors de la création du signalement");
         setIsSubmitting(false);
         return;
       }
+      // Si des photos sont sélectionnées, upload puis création des entrées photo_signalement
+      if (photos.length > 0) {
+        try {
+          let firstPhotoPath: string | undefined;
+          for (let i = 0; i < photos.length; i++) {
+            const path = await uploadSignalementPhoto(photos[i], signalement.id);
+            await createPhotoSignalement(signalement.id, path);
+            // Mémoriser le chemin de la première photo
+            if (i === 0) {
+              firstPhotoPath = path;
+            }
+          }
+          // Met à jour l'URL avec la première photo dans le signalement
+          if (firstPhotoPath) {
+            await updateSignalementUrl.mutateAsync({ id: signalement.id, url: firstPhotoPath });
+          }
+        } catch (err) {
+          setMessage("Signalement créé, mais erreur lors de l'upload des photos");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      setMessage("Signalement créé avec succès !");
+      setTitre('');
+      setDescription('');
+      setTypeId('');
+      setLatitude('');
+      setLongitude('');
+      setAdresse('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setPhotos([]);
+      setTelephone('');
+      setStep(1);
+      setIsSubmitting(false);
+    } catch (err: any) {
+      console.error('Erreur creation signalement:', err);
+      setMessage(err.message || "Erreur lors de la création du signalement");
+      setIsSubmitting(false);
     }
-    setShowSuccessModal(true);
-    setTitre('');
-    setDescription('');
-    setTypeId('');
-    setLatitude('');
-    setLongitude('');
-    setAdresse('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    setPhotos([]);
-    setTelephone('');
-    setStep(1);
-    setIsSubmitting(false);
   };
 
 

@@ -28,6 +28,7 @@ import {
     BarsArrowDownIcon,
     MagnifyingGlassIcon,
     ChevronDownIcon,
+    XMarkIcon
 } from '@heroicons/react/24/outline'
 import { FiMapPin } from 'react-icons/fi'
 
@@ -147,7 +148,7 @@ export default function ImportDetailsPage() {
                 rawDate: date,
                 statut: a.statut || 'Archivé',
                 favori: favorites.has(a.id),
-                agent: a.agents_mairie,
+                agent: a.habitants,
                 auteur: 'Maire', // Mock/Default since DB might not have explicit author string
                 collectivite: a.communes?.nom || commune?.nom || 'Ma Ville'
             }
@@ -471,47 +472,49 @@ export default function ImportDetailsPage() {
 
                     <div className="flex items-center gap-2 w-full">
                         <div className="flex gap-2 overflow-x-auto items-center flex-1 no-scrollbar">
-                            <button
-                                onClick={() => setActiveCategory(activeCategory === 'Mes favoris' ? null : 'Mes favoris')}
-                                className={`
-                            whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
-                            ${activeCategory === 'Mes favoris'
-                                        ? 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d]'
-                                        : 'bg-[#fffbeb] text-[#d97706] border-[#fcd34d] hover:bg-[#fff9c4]'}
-                        `}
+                            <Button
+                                variant="favoris"
+                                size="xs"
+                                onClick={() => setActiveCategory(activeCategory === 'favoris' ? null : 'favoris')}
+                                className={`whitespace-nowrap gap-2 ${activeCategory === 'favoris' ? 'active' : ''}`}
                             >
-                                <StarIcon className="w-4 h-4" />
+                                {activeCategory === 'favoris' ? (
+                                    <XMarkIcon className="w-4 h-4" />
+                                ) : null}
+                                <StarIcon className="w-5 h-5" />
                                 Mes favoris
-                            </button>
+                            </Button>
 
                             {ARRETE_CATEGORIES.map((cat) => (
-                                <button
+                                <Button
+                                    variant="outline"
+                                    size="xs"
                                     key={cat}
                                     onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-                                    className={`
-                                whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2
-                                ${activeCategory === cat
-                                            ? 'bg-[#E5E7EB] text-[#1F2937] border-gray-300 font-medium'
-                                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
-                            `}
+                                    className={`whitespace-nowrap gap-2 ${activeCategory === cat ? 'active' : ''}`}
                                 >
+                                    {activeCategory === cat ? (
+                                        <XMarkIcon className="w-4 h-4" />
+                                    ) : null}
                                     {cat}
-                                </button>
+                                </Button>
                             ))}
                         </div>
 
                         <div className="shrink-0 ml-2 relative" ref={groupActionsRef}>
-                            <button
+                            <Button
+                                size='xs'
+                                variant='outline'
                                 onClick={() => setIsGroupActionsOpen(!isGroupActionsOpen)}
                                 className={`whitespace-nowrap px-4 py-2 rounded-md text-sm border transition-colors flex items-center gap-2 
-                            ${selectedArchives.size > 0
+                                                    ${selectedArchives.size > 0
                                         ? 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 shadow-sm'
                                         : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'}
-                        `}
+                                                `}
                             >
-                                Action groupées {selectedArchives.size > 0 && `(${selectedArchives.size})`}
+                                Actions groupées {selectedArchives.size > 0 && `(${selectedArchives.size})`}
                                 <ChevronDownIcon className="w-4 h-4" />
-                            </button>
+                            </Button>
 
                             {isGroupActionsOpen && (
                                 <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-100 shadow-xl rounded-xl z-50 flex flex-col py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">

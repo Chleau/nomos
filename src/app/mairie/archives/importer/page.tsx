@@ -12,7 +12,6 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useCommune } from '@/lib/hooks/useCommunes'
 import { useCreateArrete } from '@/lib/hooks/useArretes'
-import { agentsService } from '@/lib/services/agents.service'
 import { uploadArreteFile, getArreteFileUrl } from '@/lib/services/storage.service'
 import type { ArreteCategory } from '@/lib/constants'
 
@@ -107,14 +106,6 @@ export default function ImportArchivesPage() {
     setError(null)
 
     try {
-      // 1. Get or create agent
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant as any)
-
-      if (agentError || !agent) {
-        throw new Error("Impossible de récupérer le profil agent. Vérifiez vos droits.")
-      }
-
       // 2. Process each file
       for (const fileData of files) {
         // 2a. Upload file to storage
@@ -124,7 +115,7 @@ export default function ImportArchivesPage() {
         // 2b. Create arrete entry
         await createArrete.mutateAsync({
           commune_id: habitant.commune_id,
-          agent_id: agent.id,
+          agent_id: habitant.id,
           titre: fileData.titre || fileData.file.name,
           contenu: '', // Archives importées n'ont pas de contenu texte directement
           categorie: (fileData.categorie || 'Sans catégorie') as ArreteCategory,

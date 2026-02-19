@@ -108,6 +108,7 @@ export default function SignalementsPage() {
                   description={signalement.description || 'Aucune description'}
                   coordonnees={signalement.latitude && signalement.longitude ? `${signalement.latitude}, ${signalement.longitude}` : undefined}
                   imageUrl={imageUrl}
+                  backgroundColor={!signalement.valide ? 'bg-[#F1F5F9]' : 'bg-white'}
                   onClick={() => router.push(`/signalements/${signalement.id}`)}
                 />
               )

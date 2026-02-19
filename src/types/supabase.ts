@@ -1,26 +1,21 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Database = any;
 
-import { 
-    AgentMairie, 
-    Habitant, 
-    Signalement, 
+import {
+    AgentMairie,
+    Habitant,
+    Signalement,
     ArreteMunicipal,
     LoiReglementation,
     Gamification,
     Badge,
     PhotoSignalement,
-    TypeSignalement 
+    TypeSignalement
 } from './entities';
 
 export interface CustomDatabase extends Database {
     public: {
         Tables: {
-            agents_mairie: {
-                Row: AgentMairie;
-                Insert: Omit<AgentMairie, 'id' | 'created_at'>;
-                Update: Partial<Omit<AgentMairie, 'id' | 'created_at'>>;
-            };
             habitants: {
                 Row: Habitant;
                 Insert: Omit<Habitant, 'id' | 'created_at'>;
