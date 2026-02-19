@@ -221,12 +221,12 @@ export default function MonComptePage() {
         <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
 
         {/* Profile + Design Section */}
-        <div className="flex items-start justify-between px-12 gap-10">
+        <div className="flex flex-col md:flex-row items-center md:items-start justify-center md:justify-between px-4 md:px-12 gap-10">
           {/* Left: Profile Section */}
-          <div className="flex flex-col gap-5 w-[500px] shrink-0">
-            <div className="flex flex-col gap-5">
-              <div className="flex items-center justify-between w-[500px]">
-                <div className="flex flex-col gap-3">
+          <div className="flex flex-col items-center md:items-start gap-5 w-full md:w-[500px] mb-5 md:mb-0 shrink-0">
+            <div className="flex flex-col items-center md:items-start gap-5">
+              <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between w-full md:w-[500px]">
+                <div className="flex flex-col gap-3 items-center md:items-start">
                   {/* Avatar */}
                   <div className="bg-[#fef0e3] border-2 border-[#f27f09] rounded-full w-24 h-24 flex items-center justify-center">
                     <span
@@ -238,15 +238,15 @@ export default function MonComptePage() {
                   </div>
 
                   {/* Name and Role */}
-                  <div className="flex flex-col text-[#242a35]">
+                  <div className="flex flex-col text-[#242a35] text-center md:text-left">
                     <h1
-                      className="text-[48px] font-bold leading-[64px] overflow-hidden text-ellipsis"
+                      className="text-[20px] md:text-[48px] font-bold leading-[32px] md:leading-[64px] overflow-hidden text-ellipsis"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       {fullName}
                     </h1>
                     <p
-                      className="text-[36px] font-medium leading-[48px] overflow-hidden text-ellipsis"
+                      className="text-[18px] md:text-[36px] font-medium leading-[24px] md:leading-[48px] overflow-hidden text-ellipsis"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       Habitant
@@ -257,11 +257,11 @@ export default function MonComptePage() {
 
               {/* Commune Info */}
               <div
-                className="flex flex-col text-[#242a35] font-medium w-[368px]"
+                className="flex flex-col text-[#242a35] font-medium text-center md:text-left"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                <p className="font-['Montserrat'] font-medium text-[20px] leading-[32px]">Commune</p>
-                <p className="font-['Montserrat'] font-medium text-[18px] leading-[28px]">{commune}</p>
+                <p className="font-['Montserrat'] font-medium text-[16px] md:text-[20px] leading-[16px] md:leading-[32px]">Commune</p>
+                <p className="font-['Montserrat'] font-medium text-[14px] md:text-[18px] leading-[14px] md:leading-[28px]">{commune}</p>
               </div>
             </div>
 
@@ -278,7 +278,7 @@ export default function MonComptePage() {
           </div>
 
           {/* Right: Geometric Design Image */}
-          <div className="w-[600px] h-[400px] rounded-[24px] overflow-hidden shrink-0">
+          <div className="hidden md:block w-[600px] h-[400px] rounded-[24px] overflow-hidden shrink-0">
             <Image
               src={geometricImagePlaceholder}
               alt="Design géométrique"
@@ -290,13 +290,13 @@ export default function MonComptePage() {
         </div>
 
         {/* Tabs + Content Section */}
-        <div className="flex flex-col gap-10 items-center px-12 w-full mx-auto">
+        <div className="flex flex-col gap-6 md:gap-10 items-center px-4 md:px-12 w-full mx-auto">
           {/* Tabs */}
           <div className="flex flex-col gap-6 w-full">
-            <div className="flex gap-12 items-center w-full">
+            <div className="flex gap-4 md:gap-12 items-center w-full">
               <button
                 onClick={() => setActiveTab('lois')}
-                className={`font-medium text-[20px] ${activeTab === 'lois' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
+                className={`font-medium text-[16px] md:text-[20px] ${activeTab === 'lois' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
                   }`}
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
@@ -304,7 +304,7 @@ export default function MonComptePage() {
               </button>
               <button
                 onClick={() => setActiveTab('incidents')}
-                className={`font-medium text-[20px] ${activeTab === 'incidents' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
+                className={`font-medium text-[16px] md:text-[20px] ${activeTab === 'incidents' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
                   }`}
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
@@ -312,7 +312,7 @@ export default function MonComptePage() {
               </button>
               <button
                 onClick={() => setActiveTab('profil')}
-                className={`font-medium text-[20px] ${activeTab === 'profil' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
+                className={`font-medium text-[16px] md:text-[20px] ${activeTab === 'profil' ? 'text-[#053f5c]' : 'text-[#94a3b8]'
                   }`}
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
@@ -422,7 +422,7 @@ export default function MonComptePage() {
                       label={signalement.statut || 'Signalé'}
                       date={signalement.created_at ? new Date(signalement.created_at).toLocaleDateString() : 'Date inconnue'}
                       username={signalement.prenom && signalement.nom ? `${signalement.prenom} ${signalement.nom}` : 'Anonyme'}
-                      description={signalement.description}
+                      description={signalement.description || 'Aucune description'}
                       image={signalement.photos_signalement?.[0]?.url ? getPublicUrlFromPath(signalement.photos_signalement[0].url) : undefined}
                       onClick={() => router.push(`/signalements/${signalement.id}`)}
                     />
@@ -486,7 +486,7 @@ export default function MonComptePage() {
                     onClick={() => setIsEditingProfile(true)}
                     className="flex items-center gap-2 text-[#053f5c] hover:text-[#f27f09] transition-colors"
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg width="19" height="19" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                     </svg>
@@ -517,7 +517,7 @@ export default function MonComptePage() {
                 {/* Email */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center justify-center w-10 h-10 bg-[#f5fcfe] rounded-lg shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#053f5c" strokeWidth="2">
+                    <svg width="19" height="19" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#053f5c" strokeWidth="2">
                       <rect x="2" y="4" width="20" height="16" rx="2" />
                       <path d="m2 7 10 6 10-6" />
                     </svg>
@@ -532,7 +532,7 @@ export default function MonComptePage() {
                     />
                   ) : (
                     <span
-                      className="text-[#053f5c] font-medium text-[20px]"
+                      className="text-[#053f5c] font-medium text-[16px] md:text-[20px]"
                       style={{
                         fontFamily: 'Montserrat'
                       }}
@@ -545,7 +545,7 @@ export default function MonComptePage() {
                 {/* Téléphone */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center justify-center w-10 h-10 bg-[#f5fcfe] rounded-lg shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#053f5c" strokeWidth="2">
+                    <svg width="19" height="19" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#053f5c" strokeWidth="2">
                       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                     </svg>
                   </div>
@@ -559,7 +559,7 @@ export default function MonComptePage() {
                     />
                   ) : (
                     <span
-                      className="text-[#053f5c] font-medium text-[20px]"
+                      className="text-[#053f5c] font-medium text-[16px] md:text-[20px]]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       {profileData.phone_number || 'Téléphone non renseigné'}
@@ -570,7 +570,7 @@ export default function MonComptePage() {
                 {/* Adresse */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center justify-center w-10 h-10 bg-[#f5fcfe] rounded-lg shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#053f5c" strokeWidth="2">
+                    <svg width="19" height="19" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#053f5c" strokeWidth="2">
                       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                       <polyline points="9 22 9 12 15 12 15 22" />
                     </svg>
@@ -586,7 +586,7 @@ export default function MonComptePage() {
                     />
                   ) : (
                     <span
-                      className="text-[#053f5c] font-medium text-[20px]"
+                      className="text-[#053f5c] font-medium text-[16px] md:text-[20px]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       {`${habitantData?.communes?.nom}`}
@@ -597,13 +597,13 @@ export default function MonComptePage() {
                 {/* Statut */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center justify-center w-10 h-10 bg-[#f5fcfe] rounded-lg shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#053f5c" strokeWidth="2">
+                    <svg width="19" height="19" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#053f5c" strokeWidth="2">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
                   <span
-                    className="text-[#053f5c] font-medium text-[20px] capitalize"
+                    className="text-[#053f5c] font-medium text-[16px] md:text-[20px] capitalize"
                     style={{ fontFamily: 'Montserrat, sans-serif' }}
                   >
                     {`${habitantData?.role}`}
