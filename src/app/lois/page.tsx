@@ -122,14 +122,14 @@ export default function LoisPage() {
   };
 
   return (
-    <div className="bg-[#f5fcfe] min-h-screen relative">
+    <div className="bg-[#f5fcfe] min-h-screen relative pb-20 md:pb-0">
       {/* Main Content - offset for sidebar */}
       <div className="flex flex-col">
         {/* Alert Banner */}
         <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
       </div>
 
-      <div className="container px-2.5 md:px-12 mb-8">
+      <div className="container px-2.5 md:px-12 mb-6 md:mb-8">
         <h1 className="font-['Poppins'] font-semibold text-xl md:text-[36px] mb-6 text-center md:text-left">
           Dernières lois en vigueur
         </h1>
@@ -176,7 +176,7 @@ export default function LoisPage() {
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
             >
               <AdjustmentsVerticalIcon className="w-5 h-5" />
-              <span className="font-['Montserrat'] text-sm md:text-[16px]">Filtres</span>
+              <span className="font-['Montserrat'] text-[16px]">Filtres</span>
             </Button>
             <FilterDropdown
               isOpen={showFilterDropdown}

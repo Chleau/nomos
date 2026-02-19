@@ -187,8 +187,8 @@ body {
 }
 
 .btn--sm {
-  padding: 6px 16px;
-  min-height: 32px;
+  padding: 8px 16px;
+  min-height: 37px;
   font-size: var(--font-size-sm);
   border-radius: 8px;
 }
@@ -284,12 +284,12 @@ body {
 
 /* Commune Section */
 .commune-section {
-  margin-bottom: 32px;
+  margin-bottom: 48px;
   margin-left: -16px;
   margin-right: -16px;
   padding-left: 16px;
   padding-right: 16px;
-  padding-bottom: 32px;
+  padding-bottom: 48px;
   border-bottom: 1px solid rgba(255, 255, 255, 1);
 }
 
@@ -479,10 +479,9 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 70px;
-  background-color: #1e293b;
+  height: 62px;
+  background-color: #053F5C;
   color: white;
-  border-top: 1px solid #334155;
   z-index: 1000;
   box-sizing: border-box;
   font-family: 'Montserrat', sans-serif;
@@ -490,11 +489,11 @@ body {
   overflow-y: hidden;
   justify-content: space-around;
   align-items: center;
+  border-radius: 16px 16px 0 0;
 }
 
 .mobile-menu-container {
   display: flex;
-  gap: 4px;
   padding: 0 8px;
   width: 100%;
   justify-content: space-around;
@@ -537,7 +536,7 @@ body {
 /* Floating Button */
 .floating-button {
   position: fixed;
-  bottom: 90px;
+  bottom: 70px;
   right: 20px;
   width: 60px;
   height: 60px;
@@ -552,7 +551,6 @@ body {
   box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4);
   z-index: 1001;
   transition: all 0.3s ease;
-  border: 3px solid white;
 }
 
 .floating-button.active {

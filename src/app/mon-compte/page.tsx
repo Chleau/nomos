@@ -235,13 +235,13 @@ export default function MonComptePage() {
                 className="flex flex-col text-[#242a35] font-medium w-[368px]"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                <p className="text-[20px] leading-[32px]">Commune</p>
-                <p className="text-[18px] leading-[28px]">{commune}</p>
+                <p className="font-['Montserrat'] font-medium text-[20px] leading-[32px]">Commune</p>
+                <p className="font-['Montserrat'] font-medium text-[18px] leading-[28px]">{commune}</p>
               </div>
             </div>
 
             {/* Disconnect Button */}
-            <Button variant="primary" size="sm" onClick={async () => {
+            <Button className="text-[14px] font-medium" variant="primary" size="sm" onClick={async () => {
               if (signOut) {
                 await signOut();
                 router.push('/signin');

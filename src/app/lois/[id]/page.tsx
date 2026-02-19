@@ -143,12 +143,12 @@ export default function LoiDetailPage() {
   }
 
   return (
-    <div className="bg-[#f5fcfe] min-h-screen">
+    <div className="bg-[#f5fcfe] min-h-screen pb-10 md:pb-6">
       <div className="flex flex-col">
         {/* Alert Banner */}
         <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
       </div>
-      <div className="container px-12 py-8">
+      <div className="container px-2.5 md:px-12 py-4 md:py-8">
         {/* Bouton retour */}
         <button
           onClick={() => router.back()}
@@ -164,7 +164,7 @@ export default function LoiDetailPage() {
         <div className="">
           {/* En-tête */}
           <div className="mb-8">
-            <h1 className="font-['Poppins'] font-semibold text-[36px] mt-6 mb-6">
+            <h1 className="font-['Poppins'] font-semibold text-xl md:text-[36px] mt-6 mb-6">
               {loi.titre}
             </h1>
           </div>
@@ -174,10 +174,10 @@ export default function LoiDetailPage() {
             {articles.length > 0 ? (
               articles.map((article, index) => (
                 <div key={index} className="flex flex-col gap-[14px]">
-                  <h2 className="font-['Poppins'] font-medium text-[30px] text-[#242A35]">
+                  <h2 className="font-['Poppins'] font-medium text-lg md:text-[30px] text-[#242A35]">
                     {article.title}
                   </h2>
-                  <div className="whitespace-pre-wrap text-[#242A35] font-['Montserrat'] font-normal text-[18px]">
+                  <div className="whitespace-pre-wrap text-[#242A35] font-['Montserrat'] font-normal text-base md:text-[18px]">
                     {article.content}
                   </div>
                 </div>
@@ -192,10 +192,10 @@ export default function LoiDetailPage() {
           {/* Section Signature */}
           {signatureSection && (
             <div className="flex flex-col mt-6 gap-6">
-              <h2 className="font-['Poppins'] font-medium text-[30px] text-[#242A35]">
+              <h2 className="font-['Poppins'] font-medium text-lg md:text-[30px] text-[#242A35]">
                 {signatureSection.title}
               </h2>
-              <div className="whitespace-pre-wrap text-[#242A35] font-['Montserrat'] font-normal text-[18px]">
+              <div className="whitespace-pre-wrap text-[#242A35] font-['Montserrat'] font-normal text-base md:text-[18px]">
                 {signatureSection.content}
               </div>
             </div>
@@ -204,10 +204,10 @@ export default function LoiDetailPage() {
           {/* Section Informations Pratiques */}
           {infoSection && (
             <div className="flex flex-col mt-6 mb-6 gap-6">
-              <h2 className="font-['Poppins'] font-medium text-[30px] text-[#242A35]">
+              <h2 className="font-['Poppins'] font-medium text-lg md:text-[30px] text-[#242A35]">
                 {infoSection.title}
               </h2>
-              <div className="whitespace-pre-wrap text-[#242A35] font-['Montserrat'] font-normal text-[18px]">
+              <div className="whitespace-pre-wrap text-[#242A35] font-['Montserrat'] font-normal text-base md:text-[18px]">
                 {infoSection.content}
               </div>
             </div>

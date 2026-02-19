@@ -159,10 +159,10 @@ export default function SignalementDetailPage() {
   const photos = signalement.photos_signalement || []
 
   return (
-    <div className="bg-[#f5fcfe] min-h-screen px-12 py-6">
+    <div className="bg-[#f5fcfe] min-h-screen px-2.5 md:px-12 py-6 pb-20 md:pb-6">
       <div className="mx-auto">
         {/* Header avec retour et notifications */}
-        <div className="flex items-center justify-between mb-[44px]">
+        <div className="flex items-center justify-between mb-[44px] md:justify-start md:gap-4">
           <button
             onClick={() => router.back()}
             className="flex items-center w-[101px] h-[37px] gap-2 px-4 py-2 bg-transparent border border-[#64748B] text-[#053F5C] text-[14px] font-[Poppins] text-md rounded-md hover:bg-[#D9F5FB] transition-colors"
@@ -172,6 +172,7 @@ export default function SignalementDetailPage() {
             </svg>
             retour
           </button>
+          <div className="flex-1"></div>
           <button
             onClick={() => setNotificationsMuted(!notificationsMuted)}
             className="p-2 text-[#053F5C]"
@@ -187,12 +188,12 @@ export default function SignalementDetailPage() {
 
         {/* Titre et statut */}
         <div className="mb-[44px]">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="font-['Poppins'] font-semibold text-[36px]">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+            <h1 className="font-['Montserrat'] md:font-['Poppins'] font-bold md:font-semibold text-xl md:text-[36px] text-left mb-4 md:mb-0">
               Incident #{signalement.id} {signalement.prenom} {signalement.nom}
             </h1>
             {/* Dropdown Statut */}
-            <div className="relative">
+            <div className="relative flex justify-start md:justify-start">
               {(() => {
                 const displayStatus = getDisplayStatus(signalement.statut)
                 const statusStyle = statutsConfig[displayStatus as keyof typeof statutsConfig] || statutsConfig['En attente']
@@ -242,7 +243,7 @@ export default function SignalementDetailPage() {
           </div>
           {/* Badge type */}
           {signalement.types_signalement && (
-            <span className=" h-[24px] inline-block px-1 py-0.5 rounded-sm bg-[#F5F3FF] text-[#8B5CF6] border border-[#DDD6FE] font-['Montserrat'] font-normal text-[14px]">
+            <span className="h-[24px] inline-block px-1 py-0.5 rounded-sm bg-[#F5F3FF] text-[#8B5CF6] border border-[#DDD6FE] font-['Montserrat'] font-normal text-[14px]">
               {signalement.types_signalement.libelle}
             </span>
           )}
@@ -252,11 +253,11 @@ export default function SignalementDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-[44px]">
           {/* Card Rappel de l'incident */}
           <div>
-            <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Rappel de l&apos;incident</h2>
-            <div className="bg-white rounded-2xl shadow-md p-5 w-full h-[295px] relative">
-              <h3 className="font-['Poppins'] font-medium text-[20px] text-[#475569] mb-4">{signalement.titre || 'Sans titre'}</h3>
+            <h2 className="font-['Poppins'] font-medium text-[18px] md:text-[30px] mb-[14px]">Rappel de l'incident</h2>
+            <div className="bg-white rounded-2xl shadow-md p-5 w-full h-[250px] md:h-[295px] relative">
+              <h3 className="font-['Poppins'] font-medium text-[16px] md:text-[20px] text-[#475569] mb-4">{signalement.titre || 'Sans titre'}</h3>
 
-              <div className="flex items-center gap-4 mb-4 text-sm">
+              <div className="flex items-center gap-3 md:gap-4 mb-4 text-sm">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 bg-gray-700 rounded-full"></div>
                   <span className="font-medium">{signalement.statut || 'Signalé'}</span>
@@ -266,7 +267,7 @@ export default function SignalementDetailPage() {
               </div>
 
               <div className="mb-4">
-                <h4 className="font-['Poppins'] font-medium text-[18px] text-[#64748B] mb-4">Contact</h4>
+                <h4 className="font-['Poppins'] font-medium text-[16px] md:text-[18px] text-[#64748B] mb-4">Contact</h4>
                 <div className='flex items-center gap-4 mb-4 text-sm'>
                   <p className="font-['Poppins'] font-regular text-[14px] text-gray-600">{signalement.telephone || 'Non renseigné'}</p>
                   <p className="font-['Poppins'] font-regular text-[14px] text-gray-600">{signalement.email || 'anonyme@gmail.com'}</p>
@@ -292,7 +293,7 @@ export default function SignalementDetailPage() {
 
           {/* Card Lieu de l'incident */}
           <div>
-            <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Lieu de l&apos;incident</h2>
+            <h2 className="font-['Poppins'] font-medium text-[18px] md:text-[30px] mb-[14px]">Lieu de l'incident</h2>
             <div className="rounded-2xl shadow-md w-full h-[295px] relative overflow-hidden">
               {/* Carte interactive */}
               {signalement.latitude && signalement.longitude ? (
@@ -353,8 +354,8 @@ export default function SignalementDetailPage() {
         </div>
 
         {/* Photos de l'incident */}
-        <div>
-          <h2 className="font-['Poppins'] font-medium text-[30px] mb-[14px]">Photos de l&apos;incident</h2>
+        <div className=''>
+          <h2 className="font-['Poppins'] font-medium text-[18px] md:text-[30px] mb-[14px]">Photos de l'incident</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {photos.length > 0 ? (
               photos.map((photo: { id: number; url: string }, index: number) => {
