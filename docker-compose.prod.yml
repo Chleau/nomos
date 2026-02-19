@@ -1,0 +1,19 @@
+services:
+  nomos:
+    build:
+      context: .
+      target: runner # Utilise l'étape finale légère du Dockerfile
+      args:
+        - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+        - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - NODE_ENV=production
+    restart: always # Redémarre automatiquement en cas de crash ou reboot du VPS
+    networks:
+      - public
+
+networks:
+  public:
+    external: true
