@@ -559,7 +559,7 @@ export default function MonComptePage() {
                     />
                   ) : (
                     <span
-                      className="text-[#053f5c] font-medium text-[16px] md:text-[20px]]"
+                      className="text-[#053f5c] font-medium text-[16px] md:text-[20px]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       {profileData.phone_number || 'Téléphone non renseigné'}
