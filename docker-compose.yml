@@ -1,6 +1,8 @@
 services:
-  app:
-    build: .
+  nomos:
+    build:
+      context: .
+      target: development
     ports:
       - "3000:3000"
     environment:
