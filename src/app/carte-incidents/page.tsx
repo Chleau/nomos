@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import IncidentMap from "@/components/map/IncidentMap"
 import SignalementCard from "@/components/signalements/SignalementCard"
+import AlertBanner from '@/components/compte/AlertBanner';
 import CardIncident from "@/components/ui/CardIncident"
 import FilterDropdown, { FilterState } from "@/components/ui/FilterDropdown"
 import { useAllSignalements } from "@/lib/hooks/useSignalements"
@@ -24,6 +25,21 @@ export default function CartePage() {
   const [showDropdown, setShowDropdown] = useState(false)
   const [filters, setFilters] = useState<FilterState | null>(null)
   const [sortBy, setSortBy] = useState<'recent' | 'ancient'>('recent')
+  const [isMobile, setIsMobile] = useState(false)
+  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const filterButtonRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 1024)
+    }
+
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
 
   // Filtrer les signalements
   const filteredSignalements = (signalements || []).filter((s) => {
@@ -62,14 +78,14 @@ export default function CartePage() {
     return true
   })
 
-  // Trier par date selon le choix et prendre les 4 derniers
+  // Trier par date selon le choix et prendre les 2 derniers sur mobile, 4 sur desktop
   const derniers4Signalements = [...filteredSignalements]
     .sort((a, b) => {
       const dateA = new Date(a.date_signalement || a.created_at || 0).getTime()
       const dateB = new Date(b.date_signalement || b.created_at || 0).getTime()
       return sortBy === 'recent' ? dateB - dateA : dateA - dateB
     })
-    .slice(0, 4)
+    .slice(0, isMobile ? 2 : 4)
 
   // Préparer les marqueurs pour la carte
   const markers = filteredSignalements
@@ -104,6 +120,39 @@ export default function CartePage() {
     if (statut === "En cours") return "En cours"
     if (statut === "Résolu") return "Résolu"
     return "Signalé"
+  }
+
+  // Fonctions pour le carrousel
+  const nextSlide = () => {
+    setCurrentCarouselIndex((prev) => (prev + 1) % typesIncidents.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentCarouselIndex((prev) => (prev - 1 + typesIncidents.length) % typesIncidents.length)
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX)
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null) return
+
+    const touchEnd = e.changedTouches[0].clientX
+    const diff = touchStart - touchEnd
+
+    // Si le swipe est suffisamment important (> 50px)
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        // Swipe vers la gauche → aller au slide suivant
+        nextSlide()
+      } else {
+        // Swipe vers la droite → aller au slide précédent
+        prevSlide()
+      }
+    }
+
+    setTouchStart(null)
   }
 
   // Types d'incidents (données statiques pour la section du bas)
@@ -156,15 +205,15 @@ export default function CartePage() {
   return (
     <div className="bg-[#f5fcfe] min-h-screen">
 
-      <div className="bg-[#f7ad19] w-full px-4 py-5 flex items-center justify-center mb-8">
-        <p className="font-['Montserrat'] font-medium text-[#242a35] text-[20px] text-center">
-          ⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage.
-        </p>
+      <div className="flex flex-col">
+        {/* Alert Banner */}
+        <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
       </div>
+
       {/* En-tête avec titre et recherche */}
       <div className="">
-        <div className="container px-12 mb-8">
-          <h1 className="font-['Poppins'] font-semibold text-[36px] mb-8">
+        <div className="container px-2.5 md:px-12 mb-8">
+          <h1 className="font-['Poppins'] font-semibold text-xl md:text-[36px] mb-6 md:mb-8">
             Carte interactive des incidents
           </h1>
 
@@ -191,13 +240,13 @@ export default function CartePage() {
       </div>
 
       {/* Section carte avec filtres */}
-      <div className="container px-12">
+      <div className="container px-2.5 md:px-12">
         <div className="mb-8 flex items-center justify-between">
-          <h2 className="font-['Poppins'] text-[30px] font-medium">
+          <h2 className="font-['Poppins'] text-[30px] font-medium hidden md:block">
             Carte interactive des incidents signalés
           </h2>
-          <div className="flex gap-4 items-center">
-            <div className="relative">
+          <div className="flex justify-between items-center w-full md:justify-start md:w-auto md:gap-4">
+            <div className="relative" ref={filterButtonRef}>
               <Button
                 variant="outline"
                 size="xs"
@@ -218,6 +267,7 @@ export default function CartePage() {
                   setShowDropdown(false)
                 }}
                 themes={types}
+                parentRef={filterButtonRef}
               />
             </div>
             <Button
@@ -241,7 +291,7 @@ export default function CartePage() {
             </div>
           </div>
         ) : markers.length > 0 ? (
-          <div className="h-[520px]">
+          <div className="h-[407px] md:h-[520px]">
             <IncidentMap markers={markers} />
           </div>
         ) : (
@@ -285,7 +335,7 @@ export default function CartePage() {
 
         {/* Bouton "Voir tout" - Affiché seulement s'il y a plus de 4 signalements */}
         {filteredSignalements.length > 4 && (
-          <div className="flex justify-end mt-6">
+          <div className="flex justify-center md:justify-end mt-6">
             <Link href="/signalements">
               <Button size="xs" variant='primary'>
                 Voir tout
@@ -296,13 +346,13 @@ export default function CartePage() {
       </div>
 
       {/* Section : Découvrez les différents types d'incidents signalés */}
-      <div className="mt-8 mb-8 px-12">
+      <div className="mt-8 mb-16 md:mb-8 px-12">
         <div className="container">
-          <h2 className="font-['Poppins'] text-[30px] font-medium mb-8">
+          <h2 className="font-['Montserrat'] md:font-['Poppins'] text-[18px] md:text-[30px] font-semibold md:font-medium mb-8 text-center md:text-left">
             Découvrez les différents types d&apos;incidents signalés
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 justify-items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 justify-items-center hidden md:grid">
             {typesIncidents.map((type) => {
               const IconComponent = type.icon
               const isLast = type.id === typesIncidents.length
@@ -321,6 +371,55 @@ export default function CartePage() {
                 </div>
               )
             })}
+          </div>
+
+          {/* Carrousel mobile */}
+          <div className="md:hidden">
+            <div className="relative">
+              <div
+                className="overflow-hidden"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div
+                  className="transition-transform duration-300 ease-out"
+                  style={{
+                    transform: `translateX(-${currentCarouselIndex * 100}%)`,
+                  }}
+                >
+                  <div className="flex">
+                    {typesIncidents.map((type) => {
+                      const IconComponent = type.icon
+                      return (
+                        <div key={type.id} className="w-full flex-shrink-0 px-2.5">
+                          <div className="bg-white rounded-2xl p-6 shadow-sm h-[311px] flex flex-col">
+                            <div className="flex items-center gap-3 mb-4">
+                              <IconComponent size={32} width="32" height="32" className="flex-shrink-0 w-8 h-8" style={{ color: '#053F5C' }} />
+                              <h3 className="font-['Poppins'] text-[18px] font-medium text-[#053F5C]">{type.titre}</h3>
+                            </div>
+                            <p className="font-['Montserrat'] text-[13px] font-normal flex-1 overflow-y-auto">
+                              {type.description}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Indicateurs de pagination */}
+              <div className="flex justify-center gap-3 mt-6 pb-4">
+                {typesIncidents.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentCarouselIndex(index)}
+                    className={`w-3 h-3 rounded-full transition ${index === currentCarouselIndex ? 'bg-[#F27F09]' : 'bg-gray-400'
+                      }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

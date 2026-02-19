@@ -6,6 +6,7 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { useCurrentHabitant, useHabitantSignalementsCount } from '@/lib/hooks/useHabitants';
 import { useCommuneSignalementsCount, useAllSignalements, useHabitantSignalements } from '@/lib/hooks/useSignalements';
 import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement';
+import AlertBanner from '@/components/compte/AlertBanner';
 import CardIncident from '@/components/ui/CardIncident';
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown';
 import Acteur from '@/components/accueil-v2/Acteur';
@@ -24,6 +25,7 @@ function HomeContent() {
   const { user } = useSupabaseAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const [filters, setFilters] = useState<FilterState | null>(null);
+
 
   // Data fetching
   const { data: habitant } = useCurrentHabitant(user?.id || null);
@@ -105,42 +107,42 @@ function HomeContent() {
   return (
     <div className="bg-[#f5fcfe] min-h-screen w-full relative">
       {/* Alerte Banner */}
-      <div className="bg-[#f7ad19] w-full px-4 py-5 flex items-center justify-center mb-8">
-        <p className="font-['Montserrat'] font-medium text-[#242a35] text-[20px] text-center">
-          ⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage.
-        </p>
+      <div className="flex flex-col">
+        {/* Alert Banner */}
+        <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
       </div>
 
-      <div className="px-12 pb-12">
+
+      <div className="px-2.5 md:px-12 pb-40 md:pb-12">
         <div className="flex flex-col gap-6 mx-auto">
           {/* Welcome Section */}
           <div>
-            <h1 className="font-['Poppins'] font-semibold text-[#242a35] text-[36px]">
+            <h1 className="font-['Poppins'] font-semibold text-[#242a35] text-xl md:text-[36px] text-center md:text-left mb-6 md:mb-0">
               Bienvenue {habitant?.prenom || 'Nicolas'} {habitant?.nom || 'Moreau'} ! 👋🏻
             </h1>
           </div>
 
           {/* Stats & Shortcuts Section */}
-          <div className="flex flex-col gap-12">
+          <div className="flex flex-col gap-6 md:gap-12">
             {/* Top Row: Acteur & Niveau */}
-            <div className="flex flex-col lg:flex-row gap-12">
+            <div className="flex flex-col lg:flex-row gap-6 md:gap-12">
               {/* Acteur Card */}
               <Acteur
-                className="bg-white h-[340px] flex flex-col items-center justify-center rounded-[24px] shadow-sm flex-shrink-0 lg:w-[450px]"
+                className="bg-white h-[184px] md:h-[340px] flex flex-row lg:flex-col items-center justify-center rounded-[24px] shadow-sm flex-shrink-0 lg:w-[450px]"
                 message={levelInfo.message}
               />
 
               {/* Niveau Card */}
-              <div className="bg-white h-[340px] flex-1 flex flex-col lg:flex-row gap-5 items-center justify-center p-12 rounded-[24px] shadow-sm">
+              <div className="bg-white h-[340px] flex-1 flex flex-col lg:flex-row gap-5 items-center justify-center px-4 py-6 md:p-12 rounded-[24px] shadow-sm">
                 <InformationNiveau className="flex-shrink-0 w-[258px]" niveau={levelInfo.label} />
 
                 <div className="flex flex-col gap-5 w-full max-w-[350px]">
                   {/* User Declarations */}
                   <div className="flex flex-col gap-2">
-                    <p className="font-['Poppins'] font-medium text-[#053f5c] text-[16px]">
+                    <p className="font-['Montserrat'] md:font-['Poppins'] font-semibold md:font-medium text-[#053f5c] text-[14px] md:text-[16px]">
                       Votre nombre de déclarations
                     </p>
-                    <p className="font-['Montserrat'] font-semibold text-[#053f5c] text-[36px] leading-[48px] mb-2">
+                    <p className="font-['Montserrat'] font-semibold text-[#053f5c] text-[20px] md:text-[36px] leading-[32px] md:leading-[48px] mb-2">
                       {userDeclarations}
                     </p>
                     <ProgressBar current={userDeclarations} total={levelInfo.threshold} />
@@ -148,10 +150,10 @@ function HomeContent() {
 
                   {/* Commune Declarations */}
                   <div className="flex flex-col gap-2 mt-4">
-                    <p className="font-['Poppins'] font-medium text-[#053f5c] text-[16px]">
+                    <p className="font-['Montserrat'] md:font-['Poppins'] font-semibold md:font-medium text-[#053f5c] text-[14px] md:text-[16px]">
                       Déclarations total dans la commune
                     </p>
-                    <p className="font-['Montserrat'] font-semibold text-[#053f5c] text-[36px] leading-[48px]">
+                    <p className="font-['Montserrat'] font-semibold text-[#053f5c] text-[20px] md:text-[36px] leading-[32px] md:leading-[48px]">
                       {totalDeclarations}
                     </p>
                   </div>
@@ -160,7 +162,7 @@ function HomeContent() {
             </div>
 
             {/* Shortcuts Row */}
-            <div className="flex flex-col md:flex-row gap-12">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-12">
               <Link href="/lois" className="flex-1">
                 <CardRaccourci label="Accédez aux lois mises en vigueur." />
               </Link>
@@ -172,7 +174,7 @@ function HomeContent() {
             {/* Derniers Incidents Section */}
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <h2 className="font-['Poppins'] font-medium text-[#242a35] text-[30px]">
+                <h2 className="font-['Montserrat'] md:font-['Poppins'] font-semibold md:font-medium text-[#242a35] text-[18px] md:text-[30px]">
                   Derniers incidents déclarés
                 </h2>
                 <div className="relative">
@@ -210,7 +212,6 @@ function HomeContent() {
                     username={`${signalement.habitants?.prenom} ${signalement.habitants?.nom}`}
                     description={signalement.description}
                     image={signalement.photos_signalement?.[0]?.url ? getPublicUrlFromPath(signalement.photos_signalement[0].url) : undefined}
-                    backgroundColor={!signalement.valide ? 'bg-[#F1F5F9]' : 'bg-white'}
                     onClick={() => handleCardClick(signalement.id)}
                   />
                 ))}
@@ -221,7 +222,7 @@ function HomeContent() {
 
               <div className="flex justify-end">
                 <Link href="/signalements">
-                  <Button size="xs" variant='ghost'>
+                  <Button size="xs" variant='primary'>
                     Voir tout
                   </Button>
                 </Link>
@@ -231,7 +232,7 @@ function HomeContent() {
             {/* Vos Dernières Déclarations Section */}
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <h2 className="font-['Poppins'] font-medium text-[#242a35] text-[30px]">
+                <h2 className="font-['Montserrat'] md:font-['Poppins'] font-semibold md:font-medium text-[#242a35] text-[18px] md:text-[30px]">
                   Vos dernières déclarations d’incident
                 </h2>
               </div>
@@ -246,7 +247,6 @@ function HomeContent() {
                     username="Vous"
                     description={signalement.description}
                     image={signalement.photos_signalement?.[0]?.url ? getPublicUrlFromPath(signalement.photos_signalement[0].url) : undefined}
-                    backgroundColor={!signalement.valide ? 'bg-[#F1F5F9]' : 'bg-white'}
                     onClick={() => handleCardClick(signalement.id)}
                   />
                 ))}

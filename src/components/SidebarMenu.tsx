@@ -29,15 +29,17 @@ import {
   FolderIcon,
   MapPinIcon,
   BuildingLibraryIcon,
-  DocumentChartBarIcon
+  DocumentChartBarIcon,
+  Bars3Icon
+
 } from '@heroicons/react/24/outline';
 
 const mobileMenuItems = [
   // Habitants
   { label: 'Accueil', href: '/', icon: HomeIcon, roles: ['habitant'] },
   { label: 'Carte', href: '/carte-incidents', icon: MapIcon, roles: ['habitant'] },
-  { label: 'Lois', href: '/lois', icon: DocumentTextIcon, roles: ['habitant', 'mairie'] },
-  { label: 'Signalements', href: '/signalements', icon: ClockIcon, roles: ['habitant'] },
+  { label: 'Lois', href: '/lois', icon: NewspaperIcon, roles: ['habitant', 'mairie'] },
+  { label: 'Menu', href: '/signalements', icon: Bars3Icon, roles: ['habitant'] },
   // Mairie
   { label: 'Accueil', href: '/mairie', icon: HomeIcon, roles: ['mairie'] },
   { label: 'Lois', href: '/mairie/derniere-lois-en-vigueur', icon: DocumentTextIcon, roles: ['mairie'] },
@@ -114,7 +116,16 @@ export default function SidebarMenu() {
             href="/signaler-incident"
             className={`floating-button ${pathname === '/signaler-incident' ? 'active' : ''}`}
           >
-            ⚠️
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Triangle with rounded corners */}
+              <path d="M17 1C17.4865 1 17.9637 1.13402 18.3789 1.3877C18.7941 1.6415 19.1316 2.00538 19.3535 2.43848L19.3545 2.43945V2.44043L32.7168 29.165C32.9194 29.5676 33.0168 30.0168 32.998 30.4658V30.4668C32.9791 30.9172 32.8451 31.3554 32.6094 31.7393C32.3734 32.1234 32.0433 32.4405 31.6504 32.6611C31.2576 32.8817 30.8143 32.9986 30.3633 33H3.63672C3.18581 32.9986 2.7426 32.8818 2.34961 32.6611C1.95665 32.4404 1.6264 32.1233 1.39062 31.7393C1.15493 31.3553 1.02089 30.9171 1.00195 30.4668C0.983107 30.0168 1.07991 29.569 1.28223 29.167L14.6465 2.43848C14.8683 2.00548 15.2058 1.64155 15.6211 1.3877C16.0363 1.13403 16.5135 1 17 1Z" fill="#F27F09" stroke="#242A35" strokeWidth="2" />
+              {/* Croix SVG */}
+              <g transform="translate(10, 13)">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.33398 7.00016H11.6673M7.00065 2.3335V11.6668" stroke="#242A35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </g>
+            </svg>
           </Link>
         )}
 
@@ -131,7 +142,7 @@ export default function SidebarMenu() {
                     className={`mobile-menu-item ${pathname === item.href ? 'active' : ''}`}
                   >
                     <IconComponent width="24" height="24" style={{ marginBottom: '4px' }} />
-                    <span style={{ textAlign: 'center' }}>{item.label}</span>
+                    <span style={{ textAlign: 'center', fontSize: '12px', fontWeight: 'normal' }}>{item.label}</span>
                   </Link>
                 );
               })}

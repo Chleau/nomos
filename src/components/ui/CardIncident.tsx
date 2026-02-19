@@ -30,7 +30,7 @@ export default function CardIncident({
     >
       {/* Image section */}
       {image && (
-        <div className="w-[189px] h-full bg-gray-300 flex-shrink-0">
+        <div className="w-[114px] md:w-[189px] h-full bg-gray-300 flex-shrink-0">
           <img
             src={image}
             alt={title}
@@ -42,7 +42,7 @@ export default function CardIncident({
       {/* Content section */}
       <div className="flex-1 p-[20px] flex flex-col gap-[16px]">
         {/* Title */}
-        <h3 className="font-['Poppins'] font-medium text-[20px] text-[#242a35] leading-[24px]">
+        <h3 className="font-['Poppins'] font-medium text-[16px] md:text-[20px] text-[#242a35] leading-[24px]">
           {title}
         </h3>
 
@@ -56,13 +56,13 @@ export default function CardIncident({
 
         {/* Username row */}
         <div>
-          <span className="text-[14px] font-['Montserrat'] font-medium text-[#242a35]">
+          <span className="text-[12px] md:text-[14px] font-['Montserrat'] font-semibold text-[#242a35]">
             {username}
           </span>
         </div>
 
         {/* Description with ellipsis */}
-        <p className="text-[14px] font-['Montserrat'] font-normal text-[#475569] line-clamp-2">
+        <p className="text-[12px] md:text-[14px] font-['Montserrat'] font-normal text-[#242A35] line-clamp-2">
           {description}
         </p>
       </div>

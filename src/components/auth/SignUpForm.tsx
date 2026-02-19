@@ -60,7 +60,7 @@ export function SignUpForm() {
 
     try {
       const { data: authData, error } = await authService.signUp(data)
-      
+
       if (error) {
         console.error('Signup error:', error) // Pour le débogage
         setError(error.message)
@@ -78,18 +78,18 @@ export function SignUpForm() {
 
   return (
     <div className="w-full">
-      <h1 className="text-4xl font-bold mb-8 text-gray-900">Créer un compte</h1>
-      
+      <h1 className="text-4xl font-bold mb-10 text-gray-900">Créer un compte</h1>
+
       {error && (
         <div className="mb-6 p-4 text-red-700 bg-red-100 rounded-lg border border-red-200">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="w-full space-y-5">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="nom" className="block text-sm font-medium text-gray-600 mb-2">
+            <label htmlFor="nom" className="block text-xl font-medium text-gray-600 mb-2">
               Nom
             </label>
             <input
@@ -97,13 +97,13 @@ export function SignUpForm() {
               id="nom"
               name="nom"
               required
-              className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+              className="w-full h-[50px] rounded-sm border border-gray-300 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
               placeholder="Dupont"
             />
           </div>
 
           <div>
-            <label htmlFor="prenom" className="block text-sm font-medium text-gray-600 mb-2">
+            <label htmlFor="prenom" className="block text-xl font-medium text-gray-600 mb-2">
               Prénom
             </label>
             <input
@@ -111,14 +111,14 @@ export function SignUpForm() {
               id="prenom"
               name="prenom"
               required
-              className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+              className="w-full h-[50px] rounded-sm border border-gray-300 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
               placeholder="Jean"
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-600 mb-2">
+          <label htmlFor="email" className="block text-xl font-medium text-gray-600 mb-2">
             Email
           </label>
           <input
@@ -127,13 +127,13 @@ export function SignUpForm() {
             name="email"
             required
             pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+            className="w-full h-[50px] rounded-sm border border-gray-300 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
             placeholder="exemple@gmail.com"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-600 mb-2">
+          <label htmlFor="password" className="block text-xl font-medium text-gray-600 mb-2">
             Mot de passe
           </label>
           <input
@@ -142,13 +142,13 @@ export function SignUpForm() {
             name="password"
             required
             minLength={8}
-            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+            className="w-full h-[50px] rounded-sm border border-gray-300 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
             placeholder="Minimum 8 caractères"
           />
         </div>
 
         <div>
-          <label htmlFor="commune_id" className="block text-sm font-medium text-gray-600 mb-2">
+          <label htmlFor="commune_id" className="block text-xl font-medium text-gray-600 mb-2">
             Commune
           </label>
           <select
@@ -156,11 +156,11 @@ export function SignUpForm() {
             name="commune_id"
             required
             disabled={communesLoading}
-            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 focus:outline-none focus:ring-0 shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-full h-[50px] rounded-sm border border-gray-300 bg-white px-4 py-4 text-gray-400 focus:outline-none focus:ring-0"
           >
             <option value="">Sélectionnez votre commune</option>
             {communes?.map(commune => (
-              <option key={commune.id} value={commune.id}>
+              <option className='text-gray-900' key={commune.id} value={commune.id}>
                 {commune.nom} ({commune.code_postal})
               </option>
             ))}
@@ -175,19 +175,11 @@ export function SignUpForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-black text-white py-4 px-4 rounded-xl font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all mt-6"
+          className="w-full bg-[#F27F09] text-white py-4 px-4 rounded-xl font-medium hover:bg-[#F59839] disabled:bg-gray-400 disabled:cursor-not-allowed transition-all mt-2"
         >
           {loading ? 'Inscription en cours...' : 'Créer mon compte'}
         </button>
 
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            Déjà un compte ?{' '}
-            <Link href="/signin" className="text-gray-900 hover:underline font-medium">
-              Se connecter
-            </Link>
-          </p>
-        </div>
       </form>
     </div>
   )

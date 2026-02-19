@@ -48,8 +48,8 @@ export function SignInForm() {
 
   return (
     <div className="w-full">
-      <h1 className="text-4xl font-bold mb-8 text-gray-900">Se connecter</h1>
-      
+      <h1 className="font-['Poppins'] text-4xl font-semibold mb-10 text-[#242A35]">Se connecter</h1>
+
       {error && (
         <div className="mb-6 p-4 text-red-700 bg-red-100 rounded-lg border border-red-200">
           {error}
@@ -58,7 +58,7 @@ export function SignInForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-600 mb-2">
+          <label htmlFor="email" className="block text-xl font-['Poppins'] font-medium text-[#242A35] mb-2">
             Email
           </label>
           <input
@@ -66,13 +66,13 @@ export function SignInForm() {
             id="email"
             name="email"
             required
-            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+            className="w-full h-[50px] rounded-sm border border-gray-300 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
             placeholder="exemple@gmail.com"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-600 mb-2">
+          <label htmlFor="password" className="block text-xl font-['Poppins'] font-medium text-[#242A35] mb-2">
             Mot de passe
           </label>
           <input
@@ -80,7 +80,7 @@ export function SignInForm() {
             id="password"
             name="password"
             required
-            className="w-full rounded-xl border-0 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 shadow-sm"
+            className="w-full h-[50px] rounded-sm border border-gray-300 bg-white px-4 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
             placeholder="Entrez votre mot de passe"
           />
           <div className="mt-2 text-right">
@@ -93,7 +93,7 @@ export function SignInForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-black text-white py-4 px-4 rounded-xl font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+          className="w-full bg-[#F27F09] text-white py-4 px-4 rounded-xl font-medium hover:bg-[#F59839] disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
         >
           {loading ? 'Connexion en cours...' : 'Connexion'}
         </button>
