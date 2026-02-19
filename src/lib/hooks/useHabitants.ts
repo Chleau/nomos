@@ -15,7 +15,7 @@ export function useHabitants() {
   })
 
   const createHabitant = useMutation({
-    mutationFn: (newHabitant: Omit<Habitant, 'id'>) => 
+    mutationFn: (newHabitant: Omit<Habitant, 'id'>) =>
       habitantsService.create(newHabitant),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['habitants'] })
@@ -70,5 +70,18 @@ export function useHabitantSignalementsCount(habitantId: number | null) {
       return data
     },
     enabled: !!habitantId
+  })
+}
+
+export function useHabitantsByCommuneAndRoles(communeId: number | null, roles: string[]) {
+  return useQuery({
+    queryKey: ['habitants', 'commune', communeId, 'roles', roles],
+    queryFn: async () => {
+      if (!communeId) return []
+      const { data, error } = await habitantsService.getByCommuneAndRoles(communeId, roles)
+      if (error) throw error
+      return data || []
+    },
+    enabled: !!communeId
   })
 }

@@ -7,7 +7,7 @@ export const arretesService = {
       .from('arretes_municipaux')
       .select(`
         *,
-        agents_mairie (
+        habitants!agent_id (
           id,
           nom,
           prenom
@@ -32,7 +32,7 @@ export const arretesService = {
       .from('arretes_municipaux')
       .select(`
         *,
-        agents_mairie (
+        habitants!agent_id (
           id,
           nom,
           prenom
@@ -92,7 +92,7 @@ export const arretesService = {
       .from('arretes_municipaux')
       .select(`
         *,
-        agents_mairie (
+        habitants!agent_id (
           id,
           nom,
           prenom
@@ -128,7 +128,7 @@ export const arretesService = {
         id,
         import_name,
         date_creation,
-        agents_mairie (
+        habitants!agent_id (
           id,
           nom,
           prenom
@@ -160,7 +160,7 @@ export const arretesService = {
           id: item.id, // ID of one of the files, serving as key
           titre: item.import_name,
           date_creation: item.date_creation,
-          agent: item.agents_mairie,
+          agent: item.habitants,
           commune: item.communes,
           count: 1
         })
@@ -179,7 +179,7 @@ export const arretesService = {
       .from('arretes_municipaux')
       .select(`
         *,
-        agents_mairie (
+        habitants!agent_id (
           id,
           nom,
           prenom

@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import HistoriqueImportsPage from '../page'
 import { createTestWrapper } from '@/lib/test-utils'
 import { arretesService } from '@/lib/services/arretes.service'
+import * as NextNavigation from 'next/navigation'
 import '@testing-library/jest-dom'
 
 // Mock dependencies
@@ -128,7 +129,7 @@ describe('HistoriqueImportsPage', () => {
 
     it('navigates to import detail', async () => {
         const mockPush = jest.fn()
-        jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue({
+        jest.spyOn(NextNavigation, 'useRouter').mockReturnValue({
             push: mockPush,
             back: jest.fn()
         })
@@ -174,7 +175,7 @@ describe('HistoriqueImportsPage', () => {
 
     it('goes back to archives page', async () => {
         const mockBack = jest.fn()
-        jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue({
+        jest.spyOn(NextNavigation, 'useRouter').mockReturnValue({
             push: jest.fn(),
             back: mockBack
         })
@@ -260,7 +261,7 @@ describe('HistoriqueImportsPage', () => {
 
     it('navigates to import archives page', async () => {
         const mockPush = jest.fn()
-        jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue({
+        jest.spyOn(NextNavigation, 'useRouter').mockReturnValue({
             push: mockPush,
             back: jest.fn()
         })

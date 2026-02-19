@@ -1,47 +1,31 @@
 import { supabase } from '../supabase/client'
 import { AgentMairie, Habitant } from '@/types/entities'
 
+import { UserRole } from '@/types/auth'
+
 export const agentsService = {
   async getByEmail(email: string) {
     const { data, error } = await supabase
-      .from('agents_mairie')
+      .from('habitants')
       .select('*')
       .eq('email', email)
+      .in('role', [UserRole.MAIRIE, UserRole.ADMIN])
       .maybeSingle()
     return { data, error }
   },
 
-  async createFromHabitant(habitant: Habitant) {
-    // On prépare les données de l'agent à partir de l'habitant
-    const newAgent = {
-      nom: habitant.nom,
-      prenom: habitant.prenom,
-      email: habitant.email,
-      commune_id: habitant.commune_id,
-      role: habitant.role // On assume que l'habitant a déjà le bon role (MAIRIE/ADMIN)
-    }
-
+  async getByCommune(communeId: number) {
     const { data, error } = await supabase
-      .from('agents_mairie')
-      .insert(newAgent)
-      .select()
-      .single()
-
+      .from('habitants')
+      .select('*')
+      .eq('commune_id', communeId)
+      .in('role', [UserRole.MAIRIE, UserRole.ADMIN])
     return { data, error }
   },
 
   async getOrCreateAgentFromHabitant(habitant: Habitant) {
-      if (!habitant.email) return { data: null, error: new Error("Habitant sans email") }
-
-      // 1. Chercher si l'agent existe déjà par email
-      const { data: existingAgent } = await this.getByEmail(habitant.email)
-      
-      if (existingAgent) {
-          return { data: existingAgent, error: null }
-      }
-
-      // 2. Sinon, le créer
-      const { data: newAgent, error } = await this.createFromHabitant(habitant)
-      return { data: newAgent, error }
+    // Dans le nouveau modèle, l'agent EST l'habitant.
+    // On retourne simplement l'habitant.
+    return { data: habitant, error: null }
   }
 }

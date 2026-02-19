@@ -9,6 +9,7 @@ interface SignalementCardProps {
   coordonnees?: string
   imageUrl?: string
   onClick?: () => void
+  backgroundColor?: string
 }
 
 export default function SignalementCard({
@@ -19,7 +20,8 @@ export default function SignalementCard({
   description,
   coordonnees,
   imageUrl,
-  onClick
+  onClick,
+  backgroundColor = 'bg-white'
 }: SignalementCardProps) {
   const getStatutColor = () => {
     switch (statut) {
@@ -37,7 +39,7 @@ export default function SignalementCard({
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-2xl md:rounded-3xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow h-[160px] md:h-[200px]"
+      className={`${backgroundColor} rounded-2xl md:rounded-3xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow h-[160px] md:h-[200px]`}
     >
       <div className="flex h-full">
         {/* Image à gauche */}
@@ -70,7 +72,7 @@ export default function SignalementCard({
 
           {/* Description */}
           <p className="text-[11px] md:text-xs lg:text-sm text-gray-900 leading-relaxed line-clamp-2 md:line-clamp-3 mb-1">{description}</p>
-          
+
           {/* Coordonnées GPS */}
           {coordonnees && (
             <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mt-auto">

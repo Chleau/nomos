@@ -6,33 +6,56 @@ export function useSignalements() {
   const queryClient = useQueryClient()
 
   const createSignalement = useMutation({
-    mutationFn: (newSignalement: Omit<Signalement, 'id' | 'created_at' | 'date_signalement' | 'date_dernier_suivi' | 'date_validation'>) =>
-      signalementsService.create(newSignalement),
+    mutationFn: async (newSignalement: Omit<Signalement, 'id' | 'created_at' | 'date_signalement' | 'date_dernier_suivi' | 'date_validation'>) => {
+      const { data, error } = await signalementsService.create(newSignalement)
+      if (error) throw error
+      return data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['signalements'] })
     }
   })
 
   const updateSignalement = useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: Partial<Signalement> }) =>
-      signalementsService.update(id, updates),
+    mutationFn: async ({ id, updates }: { id: number; updates: Partial<Signalement> }) => {
+      const { data, error } = await signalementsService.update(id, updates)
+      if (error) throw error
+      return data
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['signalements'] })
+      queryClient.invalidateQueries({ queryKey: ['signalements', variables.id] })
+    }
+  })
+
+  const updateSignalementUrl = useMutation({
+    mutationFn: async ({ id, url }: { id: number; url: string }) => {
+      const { data, error } = await signalementsService.updateUrl(id, url)
+      if (error) throw error
+      return data
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['signalements'] })
+      queryClient.invalidateQueries({ queryKey: ['signalements', variables.id] })
+    }
+  });
+
+  const deleteSignalement = useMutation({
+    mutationFn: async (id: number) => {
+      const { data, error } = await signalementsService.delete(id)
+      if (error) throw error
+      return data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['signalements'] })
     }
   })
 
-  const updateSignalementUrl = useMutation({
-    mutationFn: ({ id, url }: { id: number; url: string }) =>
-      signalementsService.updateUrl(id, url),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['signalements'] })
-    }
-  });
-
   return {
     createSignalement,
     updateSignalement,
-    updateSignalementUrl
+    updateSignalementUrl,
+    deleteSignalement
   }
 }
 

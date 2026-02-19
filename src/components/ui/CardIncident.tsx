@@ -10,6 +10,7 @@ interface CardIncidentProps {
   username: string
   description: string
   onClick?: () => void
+  backgroundColor?: string
 }
 
 export default function CardIncident({
@@ -20,11 +21,12 @@ export default function CardIncident({
   username,
   description,
   onClick,
+  backgroundColor = 'bg-white'
 }: CardIncidentProps) {
   return (
     <div
       onClick={onClick}
-      className="flex w-full h-[177px] bg-white rounded-[24px] overflow-hidden border border-[#e7eaed] cursor-pointer hover:bg-[#f1f5f9] transition-colors"
+      className={`flex w-full h-[177px] ${backgroundColor} rounded-[24px] overflow-hidden border border-[#e7eaed] cursor-pointer hover:bg-[#f1f5f9] transition-colors`}
     >
       {/* Image section */}
       {image && (

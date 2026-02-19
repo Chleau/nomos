@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
@@ -8,19 +8,15 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useCreateArrete, useRecentArretes, useArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
 
-import { agentsService } from '@/lib/services/agents.service'
 import { ARRETE_CATEGORIES, type ArreteCategory } from '@/lib/constants'
 import Button from '@/components/ui/Button'
+import RichTextEditor from '@/components/ui/RichTextEditor'
+import ArreteModal from '@/components/ui/ArreteModal'
+import type { ArreteMunicipal } from '@/types/entities'
 import {
     ArrowLeftIcon,
     ChevronDownIcon,
     SparklesIcon,
-    BoldIcon,
-    ItalicIcon,
-    UnderlineIcon,
-    ListBulletIcon,
-    LinkIcon,
-    PhotoIcon,
     // New icons for sidebar
     MagnifyingGlassIcon,
     ChevronRightIcon,
@@ -70,7 +66,8 @@ Article 1 : ...
     const [isActionsOpen, setIsActionsOpen] = useState(false)
     const [isTypeOpen, setIsTypeOpen] = useState(false)
     const [isCategoryOpen, setIsCategoryOpen] = useState(false)
-    const editorRef = useRef<HTMLDivElement>(null)
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
+    const [selectedArrete, setSelectedArrete] = useState<ArreteMunicipal | null>(null)
 
     // Indicateur de synchronisation avec la DB
     const [hasSyncedWithDb, setHasSyncedWithDb] = useState(false)
@@ -78,11 +75,11 @@ Article 1 : ...
     // Reset de la synchro si l'ID dans l'URL change
     useEffect(() => {
         setHasSyncedWithDb(false)
-        // On nettoie aussi l'éditeur pour éviter de voir l'ancien contenu pendant le chargement
-        if (editorRef.current) {
-            editorRef.current.innerHTML = ''
+        // Forcer le refetch quand on revient sur la page avec un ID
+        if (arreteId) {
+            refetchArrete()
         }
-    }, [arreteId])
+    }, [arreteId, refetchArrete])
 
     // Effet principal de chargement et synchronisation
     useEffect(() => {
@@ -96,15 +93,12 @@ Article 1 : ...
             setTypeDocument(existingArrete.type || 'Arrêté')
 
             const contentToSet = existingArrete.contenu || ''
-            setContent(contentToSet)
-
-            if (editorRef.current) {
-                // Normalisation des sauts de ligne pour l'affichage HTML
-                if (contentToSet && !contentToSet.includes('<') && contentToSet.includes('\n')) {
-                    editorRef.current.innerHTML = contentToSet.replace(/\n/g, '<br>')
-                } else {
-                    editorRef.current.innerHTML = contentToSet
-                }
+            console.log('📥 Contenu HTML chargé depuis la DB:', contentToSet)
+            // Normalisation des sauts de ligne pour l'affichage HTML si ce n'est pas déjà du HTML
+            if (contentToSet && !contentToSet.includes('<') && contentToSet.includes('\n')) {
+                setContent(contentToSet.replace(/\n/g, '<br>'))
+            } else {
+                setContent(contentToSet)
             }
 
             setHasSyncedWithDb(true)
@@ -113,21 +107,11 @@ Article 1 : ...
         // Cas 2 : Création d'un nouvel arrêté (pas d'ID)
         else if (!arreteId && !hasSyncedWithDb) {
             console.log('Initialisation nouveau document')
-            // On s'assure que le contenu par défaut du state est bien dans l'éditeur
-            if (editorRef.current && content) {
-                editorRef.current.innerHTML = content.replace(/\n/g, '<br>')
-            }
+            // Convertir le contenu par défaut en HTML
+            setContent(content.replace(/\n/g, '<br>'))
             setHasSyncedWithDb(true)
         }
-    }, [arreteId, existingArrete, loadingArrete, hasSyncedWithDb, content])
-
-    // Initial Content Setup for new documents
-    useEffect(() => {
-        if (!arreteId && editorRef.current && !editorRef.current.innerHTML) {
-            // Convert the default state content newlines to breaks
-            editorRef.current.innerHTML = content.replace(/\n/g, '<br>')
-        }
-    }, []) // Run once on mount
+    }, [arreteId, existingArrete, loadingArrete, hasSyncedWithDb])
 
     // Actions Handlers
     const handleDownload = () => {
@@ -177,19 +161,12 @@ Article 1 : ...
     const handleSave = async () => {
         if (!habitant?.commune_id || !title) return
 
+        setSaveStatus('saving')
+
         try {
-            // 0. Vérifier que l'agent existe pour l'utilisateur courant (important pour les règles RLS)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data: agent, error: agentError } = await agentsService.getOrCreateAgentFromHabitant(habitant as any)
-
-            if (agentError || !agent) {
-                console.error('Erreur récupération agent:', agentError)
-                alert("Impossible de récupérer le profil agent pour cet utilisateur. Vérifiez vos droits.")
-                return
-            }
-
             if (arreteId) {
                 console.log('Updating arrete:', arreteId)
+                console.log('📝 Contenu HTML à enregistrer:', content)
                 const updateData = {
                     titre: title,
                     numero: numero,
@@ -208,37 +185,55 @@ Article 1 : ...
                     updates: updateData
                 })
                 console.log('Update result:', result)
+
+                // Forcer le refetch pour mettre à jour les données
+                await refetchArrete()
+
+                setSaveStatus('success')
+                setTimeout(() => setSaveStatus('idle'), 3000)
             } else {
-                console.log('Agent found/created:', agent)
+                console.log('📝 Contenu HTML à enregistrer (création):', content)
 
                 console.log('Sending arrete data...', {
                     titre: title,
                     contenu: content,
                     commune_id: habitant.commune_id,
-                    agent_id: agent.id,
+                    agent_id: habitant.id,
                     statut: 'Brouillon',
                     categorie: category,
                     type: typeDocument
                 })
 
-                await createArrete.mutateAsync({
+                const result = await createArrete.mutateAsync({
                     titre: title,
                     numero: numero,
                     contenu: content,
                     commune_id: habitant.commune_id,
-                    agent_id: agent.id,
+                    agent_id: habitant.id,
                     statut: 'Brouillon', // Décommenter si la colonne existe
                     categorie: category as ArreteCategory,
                     type: typeDocument,
                     date_creation: new Date().toISOString(),
                     archive: false
                 })
-            }
 
-            router.push('/mairie/redactions')
-            router.refresh()
+                console.log('Arrêté créé avec succès:', result)
+
+                // Mettre à jour l'URL avec l'ID du nouvel arrêté
+                if (result && result.id) {
+                    router.push(`/mairie/nouveau-arrete?id=${result.id}`, { scroll: false })
+                    // Attendre que l'URL soit mise à jour puis refetch
+                    await new Promise(resolve => setTimeout(resolve, 100))
+                    await refetchArrete()
+                }
+
+                setSaveStatus('success')
+                setTimeout(() => setSaveStatus('idle'), 3000)
+            }
         } catch (error) {
             console.error('Erreur lors de la création de l\'arrêté:', error)
+            setSaveStatus('error')
+            setTimeout(() => setSaveStatus('idle'), 3000)
             alert("Une erreur est survenue lors de l'enregistrement. Vérifiez la console pour plus de détails.")
         }
     }
@@ -252,55 +247,37 @@ Article 1 : ...
             const newHtml = newText.replace(/\n/g, '<br>')
 
             setContent(prev => prev + newHtml)
-            if (editorRef.current) {
-                editorRef.current.innerHTML += newHtml
-            }
 
             setPrompt('')
             setIsGenerating(false)
         }, 1500)
     }
 
-    const handleFormat = (command: string, value?: string) => {
-        if (isReadOnly) return
-        document.execCommand(command, false, value)
-        editorRef.current?.focus()
-        // Sync state
-        if (editorRef.current) {
-            setContent(editorRef.current.innerHTML)
-        }
-    }
-
-    const handleLink = (e: React.MouseEvent) => {
-        e.preventDefault()
-        if (isReadOnly) return
-
-        const selection = window.getSelection()
-        if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
-            alert("Veuillez sélectionner le texte à transformer en lien.")
-            return
-        }
-
-        const range = selection.getRangeAt(0)
-        const url = window.prompt("Entrez l'URL du lien :")
-
-        if (url) {
-            selection.removeAllRanges()
-            selection.addRange(range)
-            handleFormat('createLink', url)
-        }
-    }
-
     // Sidebar Card Component
-    const SidebarCard = ({ number, title, date }: { number: string, title: string, date: string }) => (
-        <div className="bg-white border border-[#e7eaed] rounded-3xl p-6 flex flex-col gap-4 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden">
+    const SidebarCard = ({
+        number,
+        title,
+        date,
+        arrete,
+        onClick
+    }: {
+        number: string,
+        title: string,
+        date: string,
+        arrete: ArreteMunicipal,
+        onClick: () => void
+    }) => (
+        <div
+            className="bg-white border border-[#e7eaed] rounded-3xl p-6 flex flex-col gap-4 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden"
+            onClick={onClick}
+        >
             <div className="flex flex-col gap-2">
                 <p className="text-[#242a35] underline font-medium font-['Poppins']">{number}</p>
                 <p className="text-[#242a35] font-normal leading-tight line-clamp-2">{title}</p>
             </div>
             <div className="flex items-center justify-between text-sm">
                 <span className="text-[#242a35]">{date}</span>
-                <span className="text-[#f27f09]">Consulter</span>
+                <span className="text-[#f27f09] font-medium">Consulter</span>
             </div>
         </div>
     )
@@ -435,9 +412,9 @@ Article 1 : ...
                                     size="sm"
                                     className="bg-[#f27f09] hover:bg-[#d67008] text-white border-transparent"
                                     onClick={handleSave}
-                                    disabled={createArrete.isPending || updateArrete.isPending}
+                                    disabled={createArrete.isPending || updateArrete.isPending || saveStatus === 'saving'}
                                 >
-                                    {createArrete.isPending || updateArrete.isPending ? 'Enregistrement...' : 'Enregistrer'}
+                                    {saveStatus === 'saving' ? 'Enregistrement...' : saveStatus === 'success' ? '✓ Enregistré' : 'Enregistrer'}
                                 </Button>
                             )}
                         </div>
@@ -457,61 +434,15 @@ Article 1 : ...
                         />
                     </div>
 
-                    {/* Editor Formatting Toolbar */}
-                    {!isReadOnly && (
-                        <div className="bg-white border-b border-[#e7eaed] px-6 py-2 flex items-center gap-4 shrink-0 z-20">
-                            <div className="flex items-center gap-1 border-r border-gray-200 pr-4">
-                                <button
-                                    onMouseDown={(e) => { e.preventDefault(); handleFormat('bold') }}
-                                    className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
-                                    title="Gras"
-                                >
-                                    <BoldIcon className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onMouseDown={(e) => { e.preventDefault(); handleFormat('italic') }}
-                                    className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
-                                    title="Italique"
-                                >
-                                    <ItalicIcon className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onMouseDown={(e) => { e.preventDefault(); handleFormat('underline') }}
-                                    className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
-                                    title="Souligner"
-                                >
-                                    <UnderlineIcon className="w-4 h-4" />
-                                </button>
-                            </div>
-                            <div className="flex items-center gap-1 border-r border-gray-200 pr-4">
-                                <button
-                                    onMouseDown={(e) => { e.preventDefault(); handleFormat('insertUnorderedList') }}
-                                    className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
-                                    title="Liste à puces"
-                                >
-                                    <ListBulletIcon className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onMouseDown={handleLink}
-                                    className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black transition-colors"
-                                    title="Lien"
-                                >
-                                    <LinkIcon className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Document Content (Scrollable) */}
                     <div className="flex-1 overflow-y-auto bg-[#f5fcfe] p-8 flex justify-center relative">
-                        <div className="bg-white w-[210mm] min-h-[297mm] shadow-sm p-[20mm] text-[#4a4a4a] text-[12pt] leading-normal font-serif">
-                            <div
-                                ref={editorRef}
-                                className="w-full h-full min-h-[800px] outline-none focus:ring-0 p-0 bg-transparent font-[Montserrat] opacity-90 disabled:cursor-default whitespace-pre-wrap"
-                                contentEditable={!isReadOnly}
-                                suppressContentEditableWarning
-                                onInput={(e) => setContent(e.currentTarget.innerHTML)}
-                                spellCheck={false}
+                        <div className="bg-white w-[210mm] min-h-[297mm] shadow-sm">
+                            <RichTextEditor
+                                value={content}
+                                onChange={setContent}
+                                disabled={isReadOnly}
+                                placeholder="Commencez à rédiger votre arrêté..."
+                                className="w-full h-full"
                             />
                         </div>
                     </div>
@@ -586,6 +517,8 @@ Article 1 : ...
                                             number={`${arrete.type || 'Arrêté'} n° ${arrete.numero || '#' + arrete.id}`}
                                             title={arrete.titre || 'Sans titre'}
                                             date={new Date(arrete.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            arrete={arrete}
+                                            onClick={() => setSelectedArrete(arrete)}
                                         />
                                     ))}
                                     {(!recentArretes || recentArretes.length === 0) && (
@@ -612,6 +545,13 @@ Article 1 : ...
                 )}
 
             </div>
+
+            {/* Modal de consultation */}
+            <ArreteModal
+                isOpen={!!selectedArrete}
+                onClose={() => setSelectedArrete(null)}
+                arrete={selectedArrete}
+            />
         </RoleProtectedPage>
     )
 }
