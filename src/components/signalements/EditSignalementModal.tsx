@@ -30,12 +30,12 @@ export default function EditSignalementModal({ signalement, onClose }: EditSigna
     setIsSaving(true)
     setError(null)
     try {
-      // Convertir les chaînes vides en null pour éviter l'erreur "invalid input syntax for type numeric"
+      // Convertir les chaînes vides en undefined pour correspondre aux types Partial<Signalement>
       const updates = {
-        titre: formData.titre || null,
-        description: formData.description || null,
-        telephone: formData.telephone || null,
-        email: formData.email || null
+        titre: formData.titre || undefined,
+        description: formData.description || undefined,
+        telephone: formData.telephone || undefined,
+        email: formData.email || undefined
       }
 
       const result = await updateSignalement.mutateAsync({
