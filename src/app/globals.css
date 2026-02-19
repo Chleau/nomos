@@ -344,12 +344,12 @@ body {
 
 /* Commune Section */
 .commune-section {
-  margin-bottom: 32px;
+  margin-bottom: 48px;
   margin-left: -16px;
   margin-right: -16px;
   padding-left: 16px;
   padding-right: 16px;
-  padding-bottom: 32px;
+  padding-bottom: 48px;
   border-bottom: 1px solid rgba(255, 255, 255, 1);
 }
 
