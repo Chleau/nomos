@@ -59,9 +59,10 @@ export default function FiltresModal({ isOpen, onClose, filters, onApply }: Prop
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
             >
               <option value="">Tous les statuts</option>
-              <option value="Signalé">Signalé</option>
+              <option value="En attente">En attente</option>
               <option value="En cours">En cours</option>
               <option value="Résolu">Résolu</option>
+              <option value="Urgent">Urgent</option>
             </select>
           </div>
 

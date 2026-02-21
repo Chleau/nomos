@@ -207,7 +207,7 @@ function HomeContent() {
                   <CardIncident
                     key={signalement.id}
                     title={signalement.titre}
-                    label={signalement.statut || 'Signalé'}
+                    label={signalement.statut || 'En attente'}
                     date={new Date(signalement.created_at).toLocaleDateString()}
                     username={`${signalement.habitants?.prenom} ${signalement.habitants?.nom}`}
                     description={signalement.description}
@@ -242,7 +242,7 @@ function HomeContent() {
                   <CardIncident
                     key={signalement.id}
                     title={signalement.titre}
-                    label={signalement.statut || 'Signalé'}
+                    label={signalement.statut || 'En attente'}
                     date={new Date(signalement.created_at).toLocaleDateString()}
                     username="Vous"
                     description={signalement.description}

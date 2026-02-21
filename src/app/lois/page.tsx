@@ -122,7 +122,7 @@ export default function LoisPage() {
   };
 
   return (
-    <div className="bg-[#f5fcfe] min-h-screen relative pb-20 md:pb-0">
+    <div className="bg-[#f5fcfe] min-h-screen relative pb-4">
       {/* Main Content - offset for sidebar */}
       <div className="flex flex-col">
         {/* Alert Banner */}

@@ -323,7 +323,7 @@ export default function SignalementForm() {
         </>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-[#f5fcfe] min-h-screen pb-20 md:pb-0">
+      <form onSubmit={handleSubmit} className="bg-[#f5fcfe] min-h-screen pb-4">
         <div className="flex flex-col">
           {/* Alert Banner */}
           <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
@@ -645,7 +645,7 @@ export default function SignalementForm() {
                           latitude: latitude as number,
                           longitude: longitude as number,
                           imageUrl: photos.length > 0 ? URL.createObjectURL(photos[0]) : null,
-                          statut: 'Signalé'
+                          statut: ''
                         }]}
                         center={[latitude as number, longitude as number]}
                         zoom={15}

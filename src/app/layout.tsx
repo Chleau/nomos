@@ -41,6 +41,9 @@ export default function RootLayout({
 
   return (
     <html lang="fr" style={{ margin: 0, padding: 0, height: '100%', overflow: 'hidden' }} suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </head>
       <body style={{ margin: 0, padding: 0, height: '100%', boxSizing: 'border-box', overflow: 'hidden' }} suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
@@ -54,7 +57,7 @@ export default function RootLayout({
               <div style={{
                 display: 'flex',
                 flexDirection: isMobile ? 'column' : 'row',
-                height: '100vh',
+                height: isMobile ? '100dvh' : '100vh',
                 width: '100vw',
                 margin: 0,
                 padding: 0,
@@ -65,10 +68,12 @@ export default function RootLayout({
                 <main style={{
                   flex: 1,
                   backgroundColor: '#F5FCFE',
-                  padding: 0,
+                  paddingTop: isMobile ? 'env(safe-area-inset-top)' : 0,
+                  paddingLeft: 'env(safe-area-inset-left)',
+                  paddingRight: 'env(safe-area-inset-right)',
+                  marginBottom: isMobile ? 'calc(105px + env(safe-area-inset-bottom))' : 0,
                   minWidth: 0,
-                  overflow: 'auto',
-                  height: isMobile ? 'calc(100% - 70px)' : '100%',
+                  overflowY: 'auto',
                   boxSizing: 'border-box'
                 }}>
                   {children}

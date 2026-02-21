@@ -116,10 +116,11 @@ export default function CartePage() {
     })
   }
 
-  const getStatut = (statut?: string | null): "Signalé" | "En cours" | "Résolu" => {
+  const getStatut = (statut?: string | null): "En attente" | "En cours" | "Urgent" | "Résolu" => {
     if (statut === "En cours") return "En cours"
+    if (statut === "Urgent") return "Urgent"
     if (statut === "Résolu") return "Résolu"
-    return "Signalé"
+    return "En attente"
   }
 
   // Fonctions pour le carrousel
@@ -316,7 +317,7 @@ export default function CartePage() {
                   <CardIncident
                     key={signalement.id}
                     title={signalement.titre || "Sans titre"}
-                    label={signalement.statut || "Signalé"}
+                    label={signalement.statut || "En attente"}
                     date={formatDate(signalement.date_signalement)}
                     username={`${signalement.prenom || ""} ${signalement.nom || "Anonyme"}`.trim()}
                     description={signalement.description || "Aucune description"}

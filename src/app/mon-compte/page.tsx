@@ -419,7 +419,7 @@ export default function MonComptePage() {
                     <CardIncident
                       key={signalement.id}
                       title={signalement.titre}
-                      label={signalement.statut || 'Signalé'}
+                      label={signalement.statut || 'En attente'}
                       date={signalement.created_at ? new Date(signalement.created_at).toLocaleDateString() : 'Date inconnue'}
                       username={signalement.prenom && signalement.nom ? `${signalement.prenom} ${signalement.nom}` : 'Anonyme'}
                       description={signalement.description || 'Aucune description'}
