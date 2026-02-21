@@ -2,7 +2,7 @@
 
 interface SignalementCardProps {
   titre: string
-  statut: 'En cours' | 'Résolu' | 'Signalé'
+  statut: 'En cours' | 'Résolu' | 'En attente' | 'Urgent'
   date: string
   auteur: string
   description: string
@@ -29,8 +29,10 @@ export default function SignalementCard({
         return 'text-gray-600'
       case 'Résolu':
         return 'text-green-600'
-      case 'Signalé':
+      case 'En attente':
         return 'text-gray-700'
+      case 'Urgent':
+        return 'text-red-600'
       default:
         return 'text-gray-600'
     }

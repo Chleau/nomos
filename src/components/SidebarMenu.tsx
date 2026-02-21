@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { UserRole } from '@/types/auth';
@@ -14,7 +14,6 @@ import {
   HomeIcon,
   MapIcon,
   DocumentTextIcon,
-  ClockIcon,
   PencilSquareIcon,
   ArchiveBoxIcon,
   UserGroupIcon,
@@ -55,6 +54,7 @@ export default function SidebarMenu() {
   const [habitantData, setHabitantData] = useState<HabitantFull | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [notificationsMuted, setNotificationsMuted] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 
   // Déterminer le rôle de l'utilisateur - attendre que habitantData soit chargé
@@ -95,6 +95,11 @@ export default function SidebarMenu() {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Fermer le menu mobile quand on change de page
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
   // Rendu conditionnel selon la taille d'écran
   if (isMobile) {
     // Filtrer les items du menu selon le rôle
@@ -111,7 +116,7 @@ export default function SidebarMenu() {
     return (
       <>
         {/* Bouton flottant "Signaler un incident" */}
-        {dataLoaded && (
+        {dataLoaded && !isMobileMenuOpen && (
           <Link
             href="/signaler-incident"
             className={`floating-button ${pathname === '/signaler-incident' ? 'active' : ''}`}
@@ -129,28 +134,175 @@ export default function SidebarMenu() {
           </Link>
         )}
 
-        {/* Bottom Bar Navigation */}
-        <nav className="mobile-bottom-bar">
-          {dataLoaded ? (
-            <div className="mobile-menu-container">
-              {filteredMobileItems.map(item => {
-                const IconComponent = item.icon;
-                return (
+        {/* Menu overlay mobile type CAF */}
+        {isMobileMenuOpen && (
+          <div
+            className="mobile-full-menu-overlay"
+            role="button"
+            tabIndex={0}
+            onClick={() => setIsMobileMenuOpen(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setIsMobileMenuOpen(false)}
+          >
+            <div
+              className="mobile-full-menu-container"
+              role="dialog"
+              aria-modal="true"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+            >
+              {/* Barre de navigation au-dessus (Header du menu) */}
+              <div className="mobile-menu-header-bar">
+                {filteredMobileItems.map(item => {
+                  const IconComponent = item.icon;
+                  const isMenuButton = item.label === 'Menu';
+
+                  if (isMenuButton) {
+                    return (
+                      <button
+                        key="close-button"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="mobile-menu-item active"
+                      >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: '4px' }}>
+                          <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span style={{ textAlign: 'center', fontSize: '11px', fontWeight: '500' }}>Fermer</span>
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`mobile-menu-item ${pathname === item.href ? 'active' : ''}`}
+                    >
+                      <IconComponent width="24" height="24" style={{ marginBottom: '4px' }} />
+                      <span style={{ textAlign: 'center', fontSize: '11px', fontWeight: 'normal' }}>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Contenu des sous-menus en dessous */}
+              <div className="mobile-menu-content">
+                <nav className="mobile-menu-links">
+                  {isMairieUser ? (
+                    <Link
+                      href="/mairie/ma-mairie"
+                      className={`mobile-drawer-link ${pathname === '/mairie/ma-mairie' ? 'active' : ''}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="link-icon-bg">
+                        <BuildingLibraryIcon width="20" height="20" />
+                      </div>
+                      <div className="link-text">
+                        <span className="title">Ma mairie</span>
+                        <span className="description">Gérer les informations de la commune</span>
+                      </div>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/dernieres-arretes"
+                        className={`mobile-drawer-link ${pathname === '/dernieres-arretes' ? 'active' : ''}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="link-icon-bg">
+                          <DocumentChartBarIcon width="20" height="20" />
+                        </div>
+                        <div className="link-text">
+                          <span className="title">Derniers arrêtés</span>
+                          <span className="description">Consultez les décisions municipales récentes</span>
+                        </div>
+                      </Link>
+                      <Link
+                        href="/signalements"
+                        className={`mobile-drawer-link ${pathname === '/signalements' ? 'active' : ''}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="link-icon-bg">
+                          <PlusCircleIcon width="20" height="20" />
+                        </div>
+                        <div className="link-text">
+                          <span className="title">Déclarations d&apos;incidents</span>
+                          <span className="description">Voir vos signalements et leur état</span>
+                        </div>
+                      </Link>
+                    </>
+                  )}
+
                   <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`mobile-menu-item ${pathname === item.href ? 'active' : ''}`}
+                    href="/parametres"
+                    className={`mobile-drawer-link ${pathname === '/parametres' ? 'active' : ''}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <IconComponent width="24" height="24" style={{ marginBottom: '4px' }} />
-                    <span style={{ textAlign: 'center', fontSize: '12px', fontWeight: 'normal' }}>{item.label}</span>
+                    <div className="link-icon-bg">
+                      <Cog6ToothIcon width="20" height="20" />
+                    </div>
+                    <div className="link-text">
+                      <span className="title">Paramètres</span>
+                      <span className="description">Notifications et préférences</span>
+                    </div>
                   </Link>
-                );
-              })}
+                  <Link
+                    href="/mon-compte"
+                    className={`mobile-drawer-link ${pathname === '/mon-compte' ? 'active' : ''}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <div className="link-icon-bg">
+                      <UserIcon width="20" height="20" />
+                    </div>
+                    <div className="link-text">
+                      <span className="title">Mon compte</span>
+                      <span className="description">Gérer vos informations personnelles</span>
+                    </div>
+                  </Link>
+                </nav>
+              </div>
             </div>
-          ) : (
-            <div className="mobile-loading">Chargement...</div>
-          )}
-        </nav>
+          </div>
+        )}
+
+        {/* Bottom Bar Navigation (Masquée si menu ouvert) */}
+        {!isMobileMenuOpen && (
+          <nav className="mobile-bottom-bar">
+            {dataLoaded ? (
+              <div className="mobile-menu-container">
+                {filteredMobileItems.map(item => {
+                  const IconComponent = item.icon;
+                  const isMenuButton = item.label === 'Menu';
+
+                  if (isMenuButton) {
+                    return (
+                      <button
+                        key="menu-button"
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className={`mobile-menu-item ${isMobileMenuOpen ? 'active' : ''}`}
+                      >
+                        <IconComponent width="24" height="24" />
+                        <span style={{ textAlign: 'center', fontSize: '11px', fontWeight: '500' }}>{item.label}</span>
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`mobile-menu-item ${pathname === item.href ? 'active' : ''}`}
+                    >
+                      <IconComponent width="24" height="24" />
+                      <span style={{ textAlign: 'center', fontSize: '11px', fontWeight: '500' }}>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mobile-loading">Chargement...</div>
+            )}
+          </nav>
+        )}
       </>
     );
   }

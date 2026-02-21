@@ -21,11 +21,12 @@ export default function SignalementsPage() {
   }
 
   // Fonction pour mapper le statut
-  const getStatut = (statut: string | null): 'En cours' | 'Résolu' | 'Signalé' => {
-    if (!statut) return 'Signalé'
+  const getStatut = (statut: string | null): 'En cours' | 'Résolu' | 'En attente' | 'Urgent' => {
+    if (!statut) return 'En attente'
     if (statut.toLowerCase().includes('résolu') || statut.toLowerCase().includes('resolu')) return 'Résolu'
     if (statut.toLowerCase().includes('cours')) return 'En cours'
-    return 'Signalé'
+    if (statut.toLowerCase().includes('urgent')) return 'Urgent'
+    return 'En attente'
   }
 
   // Trier les signalements
