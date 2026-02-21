@@ -1,0 +1,33 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Audit quotidien à 6h UTC
+    - cron: '0 6 * * *'
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Security audit (production dependencies only)
+        run: npm run audit:prod
+        
+      - name: Full audit report (informational)
+        run: npm audit || true
+        continue-on-error: true
