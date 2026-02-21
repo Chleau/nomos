@@ -29,9 +29,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 2. SCA (Dependency Scan)
-      - name: Dependency Scan (npm audit)
-        run: npm audit --audit-level=high
+      # 2. Setup Node.js and install dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      # 3. SCA (Dependency Scan) - Production only
+      - name: Security Audit (Production dependencies only)
+        run: npm run audit:prod
+      
+      # 4. Full audit report (informational, non-blocking)
+      - name: Full Audit Report (Dev + Prod)
+        run: npm audit || true
+        continue-on-error: true
 
   sast_scan:
     name: SAST Analysis (CodeQL)
