@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
+import { supabase } from '@/lib/supabase/client';
+import { habitantsService } from '@/lib/services/habitants.service';
 import { UserRole } from '@/types/auth';
 import type { Habitant } from '@/types/habitants';
 
@@ -49,39 +51,50 @@ const mobileMenuItems = [
 export default function SidebarMenu() {
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
-  const { user } = useSupabaseAuth();
+  const { user, loading: authLoading } = useSupabaseAuth();
   const [habitantData, setHabitantData] = useState<HabitantFull | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [notificationsMuted, setNotificationsMuted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 
-  // Déterminer le rôle de l'utilisateur - attendre que habitantData soit chargé
-  const userRole = habitantData?.role as UserRole;
-  const isMairieUser = habitantData ? [
+  // Déterminer le rôle de l'utilisateur
+  // On utilise habitantData en priorité, puis user_metadata sinon habitant par défaut
+  const userRole = (habitantData?.role || user?.user_metadata?.role || UserRole.HABITANT) as UserRole;
+
+  const isMairieUser = [
     UserRole.SUPER_ADMIN,
     UserRole.ADMIN,
     UserRole.MAIRIE
-  ].includes(userRole) : false;
+  ].includes(userRole);
 
   // Charger les données de l'habitant depuis la table habitants
   useEffect(() => {
     async function loadHabitantData() {
       if (user) {
         try {
-          const response = await fetch(`/api/habitants?auth_user_id=${user.id}`);
-          const result = await response.json();
-          if (!result.error && result.data && result.data.length > 0) {
-            setHabitantData(result.data[0]);
+          // Utilisation du service pour récupérer les données avec le join commune
+          const { data, error } = await habitantsService.getByAuthUserId(user.id);
+
+          if (!error && data) {
+            setHabitantData(data as HabitantFull);
+          } else if (error) {
+            console.error('Error fetching habitant data:', error);
           }
         } catch (err) {
-          console.error('Error loading habitant data:', err);
+          console.error('Unexpected error loading habitant data:', err);
         }
+        setDataLoaded(true);
+      } else if (!authLoading) {
+        // Si plus en train de charger et pas d'utilisateur, on arrête le chargement
         setDataLoaded(true);
       }
     }
     loadHabitantData();
-  }, [user]);
+  }, [user, authLoading]);
+
+  // État de chargement global combiné
+  const isLoading = authLoading || (!dataLoaded && !!user);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -103,7 +116,7 @@ export default function SidebarMenu() {
   if (isMobile) {
     // Filtrer les items du menu selon le rôle
     const filteredMobileItems = mobileMenuItems.filter(item => {
-      if (!dataLoaded) return false;
+      if (isLoading) return false;
 
       if (isMairieUser) {
         return item.roles.includes('mairie');
@@ -115,7 +128,7 @@ export default function SidebarMenu() {
     return (
       <>
         {/* Bouton flottant d'action principale */}
-        {dataLoaded && !isMobileMenuOpen && (
+        {!isLoading && !isMobileMenuOpen && (
           isMairieUser ? (
             <Link
               href="/mairie/nouveau-arrete"
@@ -292,7 +305,7 @@ export default function SidebarMenu() {
         {/* Bottom Bar Navigation (Masquée si menu ouvert) */}
         {!isMobileMenuOpen && (
           <nav className="mobile-bottom-bar">
-            {dataLoaded ? (
+            {!isLoading ? (
               <div className="mobile-menu-container">
                 {filteredMobileItems.map(item => {
                   const IconComponent = item.icon;
@@ -345,7 +358,7 @@ export default function SidebarMenu() {
             {habitantData?.prenom || user?.user_metadata?.prenom} {habitantData?.nom || user?.user_metadata?.nom}
           </div>
           <div className="profile-role">
-            {habitantData?.role || user?.user_metadata?.role || 'Habitant'}
+            {userRole}
           </div>
         </div>
         <button
@@ -373,7 +386,7 @@ export default function SidebarMenu() {
 
       {/* Menu principal */}
       <nav>
-        {!dataLoaded ? (
+        {isLoading ? (
           <div className="menu-loading">
             <p>Chargement du menu...</p>
           </div>
@@ -444,7 +457,7 @@ export default function SidebarMenu() {
             </li>
           </ul>
         )}
-        {dataLoaded && !isMairieUser && (
+        {!isLoading && !isMairieUser && (
           <div>
             <Link href="/signaler-incident" className="action-button habitant">
               <ExclamationTriangleIcon width="24" height="24" />
@@ -452,7 +465,7 @@ export default function SidebarMenu() {
             </Link>
           </div>
         )}
-        {dataLoaded && isMairieUser && (
+        {!isLoading && isMairieUser && (
           <div>
             <Link href="/mairie/nouveau-arrete" className="action-button mairie">
               <PencilSquareIcon width="24" height="24" />

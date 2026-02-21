@@ -44,12 +44,33 @@ export default function MonComptePage() {
   // États pour l'édition du profil
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
-    email: habitantData?.email || user?.email || '',
-    phone_number: habitantData?.phone_number || '',
-    adresse: habitantData?.adresse || '',
-    date_naissance: habitantData?.date_naissance || '',
-    role: habitantData?.role || 'habitant'
+    email: '',
+    phone_number: '',
+    adresse: '',
+    date_naissance: '',
+    role: 'habitant'
   });
+
+  // Synchroniser les données du profil quand habitantData est chargé
+  useEffect(() => {
+    if (habitantData) {
+      setProfileData({
+        email: habitantData.email || user?.email || '',
+        phone_number: habitantData.phone_number || '',
+        adresse: habitantData.adresse || '',
+        date_naissance: habitantData.date_naissance || '',
+        role: habitantData.role || 'habitant'
+      });
+    } else {
+      setProfileData({
+        email: user?.email || '',
+        phone_number: '',
+        adresse: '',
+        date_naissance: '',
+        role: 'habitant'
+      });
+    }
+  }, [habitantData, user]);
 
   // Gérer la pagination des lois
   useEffect(() => {
@@ -182,9 +203,16 @@ export default function MonComptePage() {
   }
 
   // Initialiser les variables avec données ou valeurs par défaut
-  const initials = habitantData ? `${habitantData?.prenom?.[0]?.toUpperCase()}${habitantData?.nom?.[0]?.toUpperCase()}` : '';
-  const fullName = habitantData ? `${habitantData?.prenom} ${habitantData?.nom}` : '';
-  const commune = habitantData ? `${habitantData?.communes?.nom}` : '';
+  const initials = habitantData
+    ? `${habitantData?.prenom?.[0] || ''}${habitantData?.nom?.[0] || ''}`.toUpperCase()
+    : (user?.user_metadata?.prenom?.[0] || user?.email?.[0] || 'U').toUpperCase();
+
+  const fullName = habitantData
+    ? `${habitantData?.prenom} ${habitantData?.nom}`
+    : (user?.user_metadata?.prenom ? `${user.user_metadata.prenom} ${user.user_metadata.nom}` : user?.email || 'Utilisateur');
+
+  const roleDisplay = habitantData?.role || user?.user_metadata?.role || 'Habitant';
+  const commune = habitantData?.communes?.nom || 'Non spécifiée';
 
   return (
     <div className="bg-[#f5fcfe] min-h-screen relative">
@@ -219,10 +247,10 @@ export default function MonComptePage() {
                       {fullName}
                     </h1>
                     <p
-                      className="text-[18px] md:text-[36px] font-medium leading-[24px] md:leading-[48px] overflow-hidden text-ellipsis"
+                      className="text-[18px] md:text-[36px] font-medium leading-[24px] md:leading-[48px] overflow-hidden text-ellipsis capitalize"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
-                      Habitant
+                      {roleDisplay}
                     </p>
                   </div>
                 </div>
@@ -562,7 +590,7 @@ export default function MonComptePage() {
                       className="text-[#053f5c] font-medium text-[16px] md:text-[20px]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
-                      {`${habitantData?.communes?.nom}`}
+                      {commune}
                     </span>
                   )}
                 </div>
@@ -579,7 +607,7 @@ export default function MonComptePage() {
                     className="text-[#053f5c] font-medium text-[16px] md:text-[20px] capitalize"
                     style={{ fontFamily: 'Montserrat, sans-serif' }}
                   >
-                    {`${habitantData?.role}`}
+                    {roleDisplay}
                   </span>
                 </div>
               </div>
