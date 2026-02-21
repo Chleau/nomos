@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
 import SidebarMenu from '../components/SidebarMenu';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import { HabitantProvider } from '@/lib/contexts/HabitantContext';
 import './globals.css';
 
 export default function RootLayout({
@@ -47,40 +48,42 @@ export default function RootLayout({
       <body style={{ margin: 0, padding: 0, height: '100%', boxSizing: 'border-box', overflow: 'hidden' }} suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            {isAuthPage ? (
-              // Layout simple pour les pages d'authentification
-              <div className="min-h-screen bg-gray-50">
-                {children}
-              </div>
-            ) : (
-              // Layout avec sidebar pour les pages protégées
-              <div style={{
-                display: 'flex',
-                flexDirection: isMobile ? 'column' : 'row',
-                height: isMobile ? '100dvh' : '100vh',
-                width: '100vw',
-                margin: 0,
-                padding: 0,
-                overflow: 'hidden',
-                boxSizing: 'border-box'
-              }}>
-                {!isMobile && <SidebarMenu />}
-                <main style={{
-                  flex: 1,
-                  backgroundColor: '#F5FCFE',
-                  paddingTop: isMobile ? 'env(safe-area-inset-top)' : 0,
-                  paddingLeft: 'env(safe-area-inset-left)',
-                  paddingRight: 'env(safe-area-inset-right)',
-                  marginBottom: isMobile ? 'calc(105px + env(safe-area-inset-bottom))' : 0,
-                  minWidth: 0,
-                  overflowY: 'auto',
+            <HabitantProvider>
+              {isAuthPage ? (
+                // Layout simple pour les pages d'authentification
+                <div className="min-h-screen bg-gray-50">
+                  {children}
+                </div>
+              ) : (
+                // Layout avec sidebar pour les pages protégées
+                <div style={{
+                  display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  height: isMobile ? '100dvh' : '100vh',
+                  width: '100vw',
+                  margin: 0,
+                  padding: 0,
+                  overflow: 'hidden',
                   boxSizing: 'border-box'
                 }}>
-                  {children}
-                </main>
-                {isMobile && <SidebarMenu />}
-              </div>
-            )}
+                  {!isMobile && <SidebarMenu />}
+                  <main style={{
+                    flex: 1,
+                    backgroundColor: '#F5FCFE',
+                    paddingTop: isMobile ? 'env(safe-area-inset-top)' : 0,
+                    paddingLeft: 'env(safe-area-inset-left)',
+                    paddingRight: 'env(safe-area-inset-right)',
+                    paddingBottom: isMobile ? 'calc(120px + env(safe-area-inset-bottom))' : '24px',
+                    minWidth: 0,
+                    overflowY: 'auto',
+                    boxSizing: 'border-box'
+                  }}>
+                    {children}
+                  </main>
+                  {isMobile && <SidebarMenu />}
+                </div>
+              )}
+            </HabitantProvider>
           </AuthProvider>
         </QueryClientProvider>
       </body>

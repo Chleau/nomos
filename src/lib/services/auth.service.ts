@@ -35,12 +35,12 @@ export const authService = {
     // Validation des données
     const email = data.email.trim().toLowerCase()
     if (!email || !email.includes('@')) {
-      return { 
-        data: null, 
-        error: new Error('Adresse email invalide') 
+      return {
+        data: null,
+        error: new Error('Adresse email invalide')
       }
     }
-    
+
     try {
       // Créer l'utilisateur dans Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -95,5 +95,21 @@ export const authService = {
 
   },
 
-  // Fin du service
+  async updatePassword(newPassword: string) {
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      if (error) {
+        console.error('Password update error:', error)
+        return { data: null, error }
+      }
+
+      return { data, error: null }
+    } catch (error) {
+      console.error('Unexpected error during password update:', error)
+      return { data: null, error: error as Error }
+    }
+  }
 }

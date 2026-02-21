@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
+import { useHabitant } from '@/lib/contexts/HabitantContext';
 import { LoiReglementation } from '@/types/entities';
 import { Signalement } from '@/types/signalements';
-import { Habitant } from '@/types/habitants';
 import AlertBanner from '@/components/compte/AlertBanner';
 import Button from '@/components/ui/Button';
 import CardLoi from '@/components/compte/CardLoi';
@@ -19,18 +19,12 @@ import { useSearchLois } from '@/lib/hooks/useLois';
 
 type TabType = 'lois' | 'incidents' | 'profil';
 
-interface HabitantFull extends Habitant {
-  adresse?: string;
-  date_naissance?: string;
-  communes?: { nom: string };
-}
-
 const geometricImagePlaceholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="683" height="451" viewBox="0 0 683 451"%3E%3Crect fill="%23053f5c" width="683" height="451"/%3E%3Cpolygon fill="%23f27f09" points="300,100 450,250 300,400"/%3E%3Cpolygon fill="%23f7ad19" points="100,350 250,451 0,451"/%3E%3Cpolygon fill="%23053f5c" points="500,50 683,200 500,350"/%3E%3C/svg%3E';
 
 export default function MonComptePage() {
   const router = useRouter();
   const { user, loading, signOut } = useSupabaseAuth();
-  const [habitantData, setHabitantData] = useState<HabitantFull | null>(null);
+  const { habitantData, refetch } = useHabitant();
   const [activeTab, setActiveTab] = useState<TabType>('lois');
   const [loisData, setLoisData] = useState<LoiReglementation[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,7 +33,6 @@ export default function MonComptePage() {
 
   // Récupérer toutes les lois depuis la base de données
   const { data: allLois, isLoading: isLoadingAllLois } = useSearchLois('');
-
 
   // États pour les incidents
   const [incidentsData, setIncidentsData] = useState<Signalement[]>([]);
@@ -51,33 +44,12 @@ export default function MonComptePage() {
   // États pour l'édition du profil
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
-    email: '',
-    phone_number: '',
-    adresse: '',
-    date_naissance: '',
-    role: ''
+    email: habitantData?.email || user?.email || '',
+    phone_number: habitantData?.phone_number || '',
+    adresse: habitantData?.adresse || '',
+    date_naissance: habitantData?.date_naissance || '',
+    role: habitantData?.role || 'habitant'
   });
-
-  useEffect(() => {
-    async function loadHabitantData() {
-      if (user) {
-        const response = await fetch(`/api/habitants?auth_user_id=${user.id}`);
-        const { data, error } = await response.json();
-        if (!error && data && data.length > 0) {
-          setHabitantData(data[0]);
-          // Initialiser les données du profil
-          setProfileData({
-            email: data[0].email || user.email || '',
-            phone_number: data[0].phone_number || '',
-            adresse: data[0].adresse || '',
-            date_naissance: data[0].date_naissance || '',
-            role: data[0].role || 'habitant'
-          });
-        }
-      }
-    }
-    loadHabitantData();
-  }, [user]);
 
   // Gérer la pagination des lois
   useEffect(() => {
@@ -168,7 +140,7 @@ export default function MonComptePage() {
       if (error) throw error;
 
       if (data) {
-        setHabitantData(data);
+        await refetch();
         setIsEditingProfile(false);
       }
     } catch (error) {
@@ -209,9 +181,10 @@ export default function MonComptePage() {
     );
   }
 
-  const initials = `${habitantData?.prenom?.[0]?.toUpperCase()}${habitantData?.nom?.[0]?.toUpperCase()}`;
-  const fullName = `${habitantData?.prenom} ${habitantData?.nom}`;
-  const commune = `${habitantData?.communes?.nom}`;
+  // Initialiser les variables avec données ou valeurs par défaut
+  const initials = habitantData ? `${habitantData?.prenom?.[0]?.toUpperCase()}${habitantData?.nom?.[0]?.toUpperCase()}` : '';
+  const fullName = habitantData ? `${habitantData?.prenom} ${habitantData?.nom}` : '';
+  const commune = habitantData ? `${habitantData?.communes?.nom}` : '';
 
   return (
     <div className="bg-[#f5fcfe] min-h-screen relative">
@@ -559,7 +532,7 @@ export default function MonComptePage() {
                     />
                   ) : (
                     <span
-                      className="text-[#053f5c] font-medium text-[16px] md:text-[20px]]"
+                      className="text-[#053f5c] font-medium text-[16px] md:text-[20px]"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       {profileData.phone_number || 'Téléphone non renseigné'}

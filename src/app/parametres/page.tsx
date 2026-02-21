@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
+import { useUpdatePassword } from '@/lib/hooks/useUpdatePassword';
 import AlertBanner from '@/components/compte/AlertBanner';
 
 type TabType = 'securite' | 'notifications' | 'langue' | 'confidentialite';
@@ -17,7 +18,9 @@ interface SessionDevice {
 
 export default function ParametresPage() {
   useSupabaseAuth(); // Trigger auth check but don't use user yet
+  const { updatePassword, loading, error, success } = useUpdatePassword();
   const [activeTab, setActiveTab] = useState<TabType>('securite');
+
 
   // États pour les mots de passe
   const [currentPassword, setCurrentPassword] = useState('');
@@ -27,8 +30,10 @@ export default function ParametresPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+
   // État pour la 2FA
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+
 
   // Sessions actives (mock data)
   const [sessions, setSessions] = useState<SessionDevice[]>([
@@ -36,7 +41,7 @@ export default function ParametresPage() {
       id: '1',
       deviceName: 'Windows PC',
       deviceType: 'desktop',
-      location: 'Paris, France',
+      location: 'Nantes, France',
       lastActive: 'Actif maintenant',
       isCurrent: true
     },
@@ -44,7 +49,7 @@ export default function ParametresPage() {
       id: '2',
       deviceName: 'Iphone 14',
       deviceType: 'mobile',
-      location: 'Paris, France',
+      location: 'Nantes, France',
       lastActive: 'Il y a 2 heures',
       isCurrent: false
     },
@@ -52,19 +57,45 @@ export default function ParametresPage() {
       id: '3',
       deviceName: 'Windows PC',
       deviceType: 'desktop',
-      location: 'Paris, France',
-      lastActive: 'Il y a 2 heures',
+      location: 'Nantes, France',
+      lastActive: 'Il y a 14 heures',
       isCurrent: false
     }
   ]);
 
   const handleUpdatePassword = async () => {
+    // Validation
+    if (!currentPassword) {
+      alert('Veuillez entrer votre mot de passe actuel');
+      return;
+    }
+    if (!newPassword) {
+      alert('Veuillez entrer un nouveau mot de passe');
+      return;
+    }
+    if (newPassword.length < 6) {
+      alert('Le mot de passe doit contenir au moins 6 caractères');
+      return;
+    }
     if (newPassword !== confirmPassword) {
       alert('Les mots de passe ne correspondent pas');
       return;
     }
-    // TODO: Appel API pour mettre à jour le mot de passe
-    console.log('Updating password...');
+
+    // Appel de la fonction pour mettre à jour le mot de passe
+    const success = await updatePassword(newPassword);
+
+    if (success) {
+      // Réinitialiser les champs
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+
+      // Afficher un message de succès après 2 secondes
+      setTimeout(() => {
+        alert('Mot de passe mis à jour avec succès!');
+      }, 500);
+    }
   };
 
   const handleDisconnectSession = (sessionId: string) => {
@@ -79,7 +110,7 @@ export default function ParametresPage() {
         <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
 
         {/* Titre Principal */}
-        <div className="px-6 lg:px-12 py-6 lg:py-9">
+        <div className="px-6 lg:px-12 py-6 lg:py-9 mb-8">
           <h1
             className="text-[#242a35] text-2xl lg:text-[36px] leading-normal"
             style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}
@@ -89,7 +120,7 @@ export default function ParametresPage() {
         </div>
 
         {/* Tabs + Content Section */}
-        <div className="flex flex-col gap-6 lg:gap-12 items-start px-6 lg:px-12 w-full max-w-[1328px] mx-auto pb-4">
+        <div className="flex flex-col gap-6 lg:gap-12 items-start px-6 lg:px-12 w-full mx-auto pb-4 mb-12">
           {/* Tabs */}
           <div className="flex flex-col gap-4 w-full">
             <div className="flex gap-6 lg:gap-12 items-center w-full overflow-x-auto no-scrollbar pb-2">
@@ -126,6 +157,7 @@ export default function ParametresPage() {
                 Confidentialité & Données
               </button>
             </div>
+
 
             {/* Separator Line */}
             <div className="h-0 w-full border-t border-[#475569] opacity-20" />
@@ -260,8 +292,21 @@ export default function ParametresPage() {
                   className="bg-[#f27f09] w-full lg:w-auto px-6 py-3 rounded-xl text-[#242a35] text-base leading-normal hover:bg-[#e06f08] transition-all active:scale-[0.98]"
                   style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}
                 >
-                  Mettre à jour le mot de passe
+                  {loading ? 'Mise à jour en cours...' : 'Mettre à jour le mot de passe'}
                 </button>
+
+                {/* Messages d'erreur et de succès */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-700 text-[14px]">
+                    ❌ {error}
+                  </div>
+                )}
+
+                {success && (
+                  <div className="bg-green-50 border border-green-200 rounded-md p-3 text-green-700 text-[14px]">
+                    ✅ Mot de passe mis à jour avec succès!
+                  </div>
+                )}
               </div>
 
               {/* Section 2FA */}
@@ -297,6 +342,7 @@ export default function ParametresPage() {
                       {twoFactorEnabled ? 'Activée' : 'Désactivée'}
                     </p>
                   </div>
+
 
                   {/* Toggle Switch */}
                   <button
@@ -342,14 +388,19 @@ export default function ParametresPage() {
                           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <rect x="2" y="3" width="16" height="11" rx="1" stroke="#242a35" strokeWidth="2" />
                             <path d="M6 18h8M10 14v4" stroke="#242a35" strokeWidth="2" />
+                            <rect x="2" y="3" width="16" height="11" rx="1" stroke="#242a35" strokeWidth="2" />
+                            <path d="M6 18h8M10 14v4" stroke="#242a35" strokeWidth="2" />
                           </svg>
                         ) : (
                           <svg width="14" height="24" viewBox="0 0 14 24" fill="none">
                             <rect x="1" y="1" width="12" height="22" rx="2" stroke="#242a35" strokeWidth="2" />
                             <circle cx="7" cy="19" r="1" fill="#242a35" />
+                            <rect x="1" y="1" width="12" height="22" rx="2" stroke="#242a35" strokeWidth="2" />
+                            <circle cx="7" cy="19" r="1" fill="#242a35" />
                           </svg>
                         )}
                       </div>
+
 
                       {/* Device Info */}
                       <div className="flex flex-col">
