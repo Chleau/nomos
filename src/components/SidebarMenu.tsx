@@ -13,10 +13,7 @@ interface HabitantFull extends Habitant {
 import {
   HomeIcon,
   MapIcon,
-  DocumentTextIcon,
   PencilSquareIcon,
-  ArchiveBoxIcon,
-  UserGroupIcon,
   Cog6ToothIcon,
   UserIcon,
   BellIcon,
@@ -27,7 +24,6 @@ import {
   InboxIcon,
   FolderIcon,
   MapPinIcon,
-  BuildingLibraryIcon,
   DocumentChartBarIcon,
   Bars3Icon
 
@@ -238,7 +234,7 @@ export default function SidebarMenu() {
                         </div>
                         <div className="link-text">
                           <span className="title">Mes rédactions</span>
-                          <span className="description">Gérer les projets d'arrêtés en cours</span>
+                          <span className="description">Gérer les projets d&apos;arrêtés en cours</span>
                         </div>
                       </Link>
                       <Link
