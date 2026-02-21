@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Habitant } from '@/types/habitants';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
+import { habitantsService } from '@/lib/services/habitants.service';
 
 interface HabitantFull extends Habitant {
   adresse?: string;
@@ -19,17 +20,16 @@ interface HabitantContextType {
 const HabitantContext = createContext<HabitantContextType | undefined>(undefined);
 
 export function HabitantProvider({ children }: { children: ReactNode }) {
-  const { user } = useSupabaseAuth();
+  const { user, loading: authLoading } = useSupabaseAuth();
   const [habitantData, setHabitantData] = useState<HabitantFull | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchHabitantData = async () => {
     if (user) {
       try {
-        const response = await fetch(`/api/habitants?auth_user_id=${user.id}`);
-        const { data, error } = await response.json();
-        if (!error && data && data.length > 0) {
-          setHabitantData(data[0]);
+        const { data, error } = await habitantsService.getByAuthUserId(user.id);
+        if (!error && data) {
+          setHabitantData(data as HabitantFull);
         }
       } catch (error) {
         console.error('Error loading habitant data:', error);
@@ -42,13 +42,17 @@ export function HabitantProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // Charger les données seulement si elles ne sont pas déjà chargées
-    if (!habitantData && user) {
+    if (authLoading) return;
+
+    if (user) {
+      // Charger les données si l'utilisateur change ou si elles ne sont pas là
       fetchHabitantData();
-    } else if (!user) {
+    } else {
+      // Nettoyer les données si déconnexion
+      setHabitantData(null);
       setLoading(false);
     }
-  }, [user, habitantData]);
+  }, [user, authLoading]);
 
   const refetch = async () => {
     setLoading(true);
