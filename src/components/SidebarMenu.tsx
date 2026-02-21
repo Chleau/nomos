@@ -168,9 +168,9 @@ export default function SidebarMenu() {
                       <button
                         key="close-button"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="mobile-menu-item active"
+                        className="mobile-menu-item close-item"
                       >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: '4px' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginBottom: '4px' }}>
                           <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <span style={{ textAlign: 'center', fontSize: '11px', fontWeight: '500' }}>Fermer</span>
@@ -185,16 +185,48 @@ export default function SidebarMenu() {
                       className={`mobile-menu-item ${pathname === item.href ? 'active' : ''}`}
                     >
                       <IconComponent width="24" height="24" style={{ marginBottom: '4px' }} />
-                      <span style={{ textAlign: 'center', fontSize: '11px', fontWeight: 'normal' }}>{item.label}</span>
+                      <span style={{ textAlign: 'center', fontSize: '11px', fontWeight: '500' }}>{item.label}</span>
                     </Link>
                   );
                 })}
               </div>
 
               {/* Contenu des sous-menus en dessous */}
-              <div className="mobile-menu-content">
+              <div className="mobile-menu-content no-scrollbar">
                 <nav className="mobile-menu-links">
-                  {isMairieUser ? (
+                  {!isMairieUser && (
+                    <Link
+                      href="/dernieres-arretes"
+                      className={`mobile-drawer-link ${pathname === '/dernieres-arretes' ? 'active' : ''}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="link-icon-bg">
+                        <DocumentChartBarIcon width="24" height="24" />
+                      </div>
+                      <div className="link-text">
+                        <span className="title">Derniers arrêtés</span>
+                        <span className="description">Consultez les décisions municipales récentes</span>
+                      </div>
+                    </Link>
+                  )}
+
+                  {!isMairieUser && (
+                    <Link
+                      href="/signalements"
+                      className={`mobile-drawer-link ${pathname === '/signalements' ? 'active' : ''}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="link-icon-bg">
+                        <PlusCircleIcon width="24" height="24" />
+                      </div>
+                      <div className="link-text">
+                        <span className="title">Déclarations d&apos;incidents</span>
+                        <span className="description">Voir vos signalements et leur état</span>
+                      </div>
+                    </Link>
+                  )}
+
+                  {isMairieUser && (
                     <>
                       <Link
                         href="/mairie/redactions"
@@ -202,7 +234,7 @@ export default function SidebarMenu() {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <div className="link-icon-bg">
-                          <InboxIcon width="20" height="20" />
+                          <InboxIcon width="24" height="24" />
                         </div>
                         <div className="link-text">
                           <span className="title">Mes rédactions</span>
@@ -215,40 +247,11 @@ export default function SidebarMenu() {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <div className="link-icon-bg">
-                          <FolderIcon width="20" height="20" />
+                          <FolderIcon width="24" height="24" />
                         </div>
                         <div className="link-text">
                           <span className="title">Archives</span>
                           <span className="description">Consulter les documents archivés</span>
-                        </div>
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <Link
-                        href="/dernieres-arretes"
-                        className={`mobile-drawer-link ${pathname === '/dernieres-arretes' ? 'active' : ''}`}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="link-icon-bg">
-                          <DocumentChartBarIcon width="20" height="20" />
-                        </div>
-                        <div className="link-text">
-                          <span className="title">Derniers arrêtés</span>
-                          <span className="description">Consultez les décisions municipales récentes</span>
-                        </div>
-                      </Link>
-                      <Link
-                        href="/signalements"
-                        className={`mobile-drawer-link ${pathname === '/signalements' ? 'active' : ''}`}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="link-icon-bg">
-                          <PlusCircleIcon width="20" height="20" />
-                        </div>
-                        <div className="link-text">
-                          <span className="title">Déclarations d&apos;incidents</span>
-                          <span className="description">Voir vos signalements et leur état</span>
                         </div>
                       </Link>
                     </>
@@ -260,7 +263,7 @@ export default function SidebarMenu() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div className="link-icon-bg">
-                      <Cog6ToothIcon width="20" height="20" />
+                      <Cog6ToothIcon width="24" height="24" />
                     </div>
                     <div className="link-text">
                       <span className="title">Paramètres</span>
@@ -273,7 +276,7 @@ export default function SidebarMenu() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div className="link-icon-bg">
-                      <UserIcon width="20" height="20" />
+                      <UserIcon width="24" height="24" />
                     </div>
                     <div className="link-text">
                       <span className="title">Mon compte</span>

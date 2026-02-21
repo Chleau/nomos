@@ -662,44 +662,51 @@ body {
     background-color: #053F5C;
     color: white;
     padding: 0 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .mobile-menu-header-bar .mobile-menu-item.active {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #f97316;
+  }
+
+  .mobile-menu-header-bar .mobile-menu-item.close-item {
+    color: #f97316;
   }
 
   .mobile-menu-content {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
-    /* Réduit de 24px à 16px */
-    background-color: #f8fafc;
+    padding: 20px 16px;
+    background-color: #F1F5F9;
   }
 
   .mobile-drawer-link {
     display: flex;
     align-items: center;
-    gap: 12px;
-    /* Réduit de 16px à 12px */
-    padding: 12px;
-    /* Réduit de 16px à 12px */
+    gap: 16px;
+    padding: 16px;
     text-decoration: none;
     color: #1e293b;
-    border-radius: 12px;
+    border-radius: 20px;
     background: white;
-    margin-bottom: 8px;
-    /* Réduit de 12px à 8px */
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
   }
 
   .mobile-drawer-link:active {
-    background-color: #f1f5f9;
+    background-color: #FEF0E3;
     transform: scale(0.98);
+    border-color: #f9731633;
   }
 
   .link-icon-bg {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background-color: rgba(5, 63, 92, 0.05);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: #F1F5F9;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -715,18 +722,20 @@ body {
   .link-text {
     display: flex;
     flex-direction: column;
+    gap: 2px;
   }
 
   .link-text .title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #0f172a;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: -0.01em;
   }
 
   .link-text .description {
-    font-size: 13px;
-    color: #64748b;
-    margin-top: 2px;
+    font-size: 14px;
+    color: #64748B;
+    line-height: 1.4;
   }
 
   .mobile-menu-divider {

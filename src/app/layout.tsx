@@ -41,11 +41,11 @@ export default function RootLayout({
   }, []);
 
   return (
-    <html lang="fr" style={{ margin: 0, padding: 0, height: '100%', overflow: 'hidden' }} suppressHydrationWarning>
+    <html lang="fr" style={{ margin: 0, padding: 0, height: '100dvh', overflow: 'hidden' }} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
-      <body style={{ margin: 0, padding: 0, height: '100%', boxSizing: 'border-box', overflow: 'hidden' }} suppressHydrationWarning>
+      <body style={{ margin: 0, padding: 0, height: '100dvh', boxSizing: 'border-box', overflow: 'hidden' }} suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <HabitantProvider>
