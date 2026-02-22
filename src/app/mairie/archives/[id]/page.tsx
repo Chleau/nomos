@@ -9,6 +9,7 @@ import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
 import { ARRETE_CATEGORIES } from '@/lib/constants'
 import Button from '@/components/ui/Button'
+import ArreteContent from '@/components/ui/ArreteContent'
 import { ArrowLeftIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 
 export default function ArchiveDetailPage() {
@@ -172,7 +173,7 @@ export default function ArchiveDetailPage() {
                     </div>
 
                     {/* Content Area */}
-                    <div className="bg-white rounded-2xl p-6 md:p-12 shadow-sm border border-gray-100 min-h-[500px]">
+                    <div className="2xl p-6 md:p-12 min-h-[500px]">
                         {fichierUrl ? (
                             <div className="w-full h-[800px] flex flex-col items-center justify-center">
                                 <object
@@ -196,10 +197,7 @@ export default function ArchiveDetailPage() {
                                 </object>
                             </div>
                         ) : (
-                            <div
-                                className="prose max-w-none text-[#242a35] font-['Poppins'] whitespace-pre-wrap leading-relaxed font-normal"
-                                dangerouslySetInnerHTML={{ __html: contenu }}
-                            />
+                            <ArreteContent content={contenu} />
                         )}
                     </div>
                 </div>

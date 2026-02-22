@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useArrete } from '@/lib/hooks/useArretes';
 import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import AlertBanner from '@/components/compte/AlertBanner';
+import ArreteContent from '@/components/ui/ArreteContent';
 
 export default function ArretePage() {
   const { id } = useParams<{ id: string }>();
@@ -96,16 +97,8 @@ export default function ArretePage() {
 
           {/* Contenu de l'arrêté */}
           {arrete.contenu && (
-            <div className="mt-6 w-full overflow-hidden">
-              <div
-                className=""
-                style={{
-                  overflowWrap: 'break-word',
-                  wordBreak: 'break-word',
-                  hyphens: 'auto'
-                }}
-                dangerouslySetInnerHTML={{ __html: arrete.contenu }}
-              />
+            <div className="mt-6 w-full">
+              <ArreteContent content={arrete.contenu} />
             </div>
           )}
         </div>
