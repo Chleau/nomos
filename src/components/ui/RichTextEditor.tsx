@@ -6,64 +6,64 @@ import 'react-quill-new/dist/quill.snow.css'
 
 // Import dynamique de React Quill pour éviter les problèmes SSR
 const ReactQuill = dynamic(() => import('react-quill-new'), {
-    ssr: false,
-    loading: () => <div className="w-full h-full min-h-[800px] bg-gray-50 animate-pulse rounded" />
+  ssr: false,
+  loading: () => <div className="w-full h-full min-h-[800px] bg-gray-50 animate-pulse rounded" />
 })
 
 interface RichTextEditorProps {
-    value: string
-    onChange: (content: string) => void
-    disabled?: boolean
-    placeholder?: string
-    className?: string
+  value: string
+  onChange: (content: string) => void
+  disabled?: boolean
+  placeholder?: string
+  className?: string
 }
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
-    value,
-    onChange,
-    disabled = false,
-    placeholder = 'Commencez à rédiger...',
-    className = ''
+  value,
+  onChange,
+  disabled = false,
+  placeholder = 'Commencez à rédiger...',
+  className = ''
 }) => {
-    // Configuration de la toolbar avec les options de formatage
-    // En mode lecture seule, on désactive complètement la toolbar
-    const modules = useMemo(() => ({
-        toolbar: disabled ? false : [
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'indent': '-1' }, { 'indent': '+1' }],
-            [{ 'align': [] }],
-            ['link', 'image'],
-            [{ 'color': [] }, { 'background': [] }],
-            ['clean']
-        ],
-    }), [disabled])
+  // Configuration de la toolbar avec les options de formatage
+  // En mode lecture seule, on désactive complètement la toolbar
+  const modules = useMemo(() => ({
+    toolbar: disabled ? false : [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'align': [] }],
+      ['link', 'image'],
+      [{ 'color': [] }, { 'background': [] }],
+      ['clean']
+    ],
+  }), [disabled])
 
-    const formats = [
-        'header',
-        'bold', 'italic', 'underline', 'strike',
-        'list',
-        'indent',
-        'align',
-        'link', 'image',
-        'color', 'background'
-    ]
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list',
+    'indent',
+    'align',
+    'link', 'image',
+    'color', 'background'
+  ]
 
-    return (
-        <div className={`rich-text-editor-wrapper ${className}`}>
-            <ReactQuill
-                theme="snow"
-                value={value}
-                onChange={onChange}
-                modules={modules}
-                formats={formats}
-                placeholder={placeholder}
-                readOnly={disabled}
-                className="bg-white"
-            />
+  return (
+    <div className={`rich-text-editor-wrapper ${className}`}>
+      <ReactQuill
+        theme="snow"
+        value={value}
+        onChange={onChange}
+        modules={modules}
+        formats={formats}
+        placeholder={placeholder}
+        readOnly={disabled}
+        className="bg-white"
+      />
 
-            <style jsx global>{`
+      <style jsx global>{`
         .rich-text-editor-wrapper {
           height: auto;
           min-height: 297mm;
@@ -152,8 +152,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           background-color: #fafafa;
         }
       `}</style>
-        </div>
-    )
+    </div>
+  )
 }
 
 export default RichTextEditor
