@@ -70,7 +70,7 @@ export default function SignalementDetailPage() {
 
   // Mapper le statut actuel au statut du dropdown, ou utiliser "En attente" par défaut
   const getDisplayStatus = (status: string | null) => {
-    if (!status || status === 'Signalé') return 'En attente'
+    if (!status || status === 'En attente') return 'En attente'
     return status
   }
 
@@ -260,7 +260,7 @@ export default function SignalementDetailPage() {
               <div className="flex items-center gap-3 md:gap-4 mb-4 text-sm">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 bg-gray-700 rounded-full"></div>
-                  <span className="font-medium">{signalement.statut || 'Signalé'}</span>
+                  <span className="font-medium">{signalement.statut || 'En attente'}</span>
                 </div>
                 <span className="text-sm text-[#053F5C]">Déclaré le {formatDate(signalement.date_signalement)}</span>
                 <span className="text-sm font-medium">{signalement.prenom} {signalement.nom?.charAt(0) || 'M'}</span>

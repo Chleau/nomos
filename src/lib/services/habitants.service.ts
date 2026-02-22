@@ -51,12 +51,12 @@ export const habitantsService = {
     return { error }
   },
 
-  async getByAuthUserId(authUserId: string): Promise<{ data: Habitant | null; error: Error | null }> {
+  async getByAuthUserId(authUserId: string): Promise<{ data: any | null; error: Error | null }> {
     const { data, error } = await supabase
       .from('habitants')
-      .select('*')
+      .select('*, communes(*)')
       .eq('auth_user_id', authUserId)
-      .single()
+      .maybeSingle()
 
     return { data, error }
   },

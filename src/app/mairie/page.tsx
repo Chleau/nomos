@@ -187,11 +187,12 @@ function MairieContent() {
     return date.toLocaleDateString('fr-FR')
   }
 
-  const getStatut = (statut: string | null | undefined): 'En cours' | 'Résolu' | 'Signalé' => {
-    if (!statut) return 'Signalé'
+  const getStatut = (statut: string | null | undefined): 'En cours' | 'Résolu' | 'En attente' | 'Urgent' => {
+    if (!statut) return 'En attente'
     if (statut.toLowerCase().includes('résolu') || statut.toLowerCase().includes('resolu')) return 'Résolu'
     if (statut.toLowerCase().includes('cours')) return 'En cours'
-    return 'Signalé'
+    if (statut.toLowerCase().includes('urgent')) return 'Urgent'
+    return 'En attente'
   }
 
   const getBadgeColor = (category: string) => {

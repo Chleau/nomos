@@ -100,7 +100,7 @@ export default function MairieSignalementDetailPage() {
     const statuts = ['Résolu', 'En cours', 'Urgent', 'En attente']
 
     const getDisplayStatus = (status: string | null) => {
-        if (!status || status === 'Signalé') return 'En attente'
+        if (!status || status === 'En attente') return 'En attente'
         return status
     }
 
