@@ -1,4 +1,0 @@
-[allowlist]
-  description = "Ignore SonarQube project configuration (false positive generic-api-key)"
-  paths = ['sonar-project.properties']
-  regexes = ['Chleau_nomos_[a-f0-9-]+']
