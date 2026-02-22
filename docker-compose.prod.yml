@@ -53,28 +53,6 @@ services:
     networks:
       - public
 
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
-    volumes:
-      - ./monitoring/loki-config.yml:/etc/loki/local-config.yaml
-    command: -config.file=/etc/loki/local-config.yaml
-    restart: always
-    networks:
-      - public
-
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
-    restart: always
-    networks:
-      - public
-
 volumes:
   prometheus_data:
   grafana_data:
