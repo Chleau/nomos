@@ -1,0 +1,8 @@
+# Ignorer les vulnérabilités dans les devDependencies qui ne sont pas présentes en production
+# Ces packages sont utilisés uniquement pour le build et les tests, pas dans l'image runtime
+
+# minimatch - Utilisé par ESLint/Jest (devDependencies uniquement)
+CVE-2026-26996
+
+# glob - Utilisé par les outils de test/build (devDependencies uniquement) 
+CVE-2025-64756

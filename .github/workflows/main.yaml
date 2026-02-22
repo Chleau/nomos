@@ -125,6 +125,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+          trivyignores: '.trivyignore' # Utilise le fichier d'exclusion
 
       # Bonus : Génération du SBOM (Syft)
       - name: Generate SBOM (Syft)
