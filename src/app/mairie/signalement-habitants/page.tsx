@@ -8,6 +8,8 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useAllSignalements, useSignalements } from '@/lib/hooks/useSignalements'
 import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement'
 import { DataTable, Column, TableUserInfo, TableBadge } from '@/components/ui/Table'
+
+
 import {
   EyeIcon,
   PencilIcon,

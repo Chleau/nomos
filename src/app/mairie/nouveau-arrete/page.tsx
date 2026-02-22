@@ -46,18 +46,7 @@ export default function NouveauArretePage() {
     const [numero, setNumero] = useState('')
     const [category, setCategory] = useState<string>('Sans catégorie')
     const [typeDocument, setTypeDocument] = useState<string>('Arrêté')
-    const [content, setContent] = useState(`SERVICE : DIRECTION DU SECRETARIAT GENERAL ET DE L'OBSERVATOIRE
-
-ARRÊTÉ : ${new Date().getFullYear()}-XXXX
-
-OBJET : Taper l'objet du document ici...
-
-Vu le Code du Travail...
-Vu le Code Général des Collectivités Territoriales...
-
-ARRETE
-Article 1 : ...
-`)
+    const [content, setContent] = useState(`<p>SERVICE : DIRECTION DU SECRETARIAT GENERAL ET DE L'OBSERVATOIRE</p><p><br></p><p>ARRÊTÉ : ${new Date().getFullYear()}-XXXX</p><p><br></p><p>OBJET : Taper l'objet du document ici...</p><p><br></p><p>Vu le Code du Travail...</p><p>Vu le Code Général des Collectivités Territoriales...</p><p><br></p><p>ARRETE</p><p>Article 1 : ...</p>`)
     const [prompt, setPrompt] = useState('')
     const [isGenerating, setIsGenerating] = useState(false)
 
@@ -94,9 +83,11 @@ Article 1 : ...
 
             const contentToSet = existingArrete.contenu || ''
             console.log('📥 Contenu HTML chargé depuis la DB:', contentToSet)
-            // Normalisation des sauts de ligne pour l'affichage HTML si ce n'est pas déjà du HTML
-            if (contentToSet && !contentToSet.includes('<') && contentToSet.includes('\n')) {
-                setContent(contentToSet.replace(/\n/g, '<br>'))
+
+            // Le contenu est déjà en HTML, on le charge tel quel
+            // Si c'est du texte brut legacy (pas de balises HTML), on le wrapper dans un <p>
+            if (contentToSet && !contentToSet.includes('<')) {
+                setContent(`<p>${contentToSet.replace(/\n/g, '</p><p>')}</p>`)
             } else {
                 setContent(contentToSet)
             }
@@ -105,10 +96,9 @@ Article 1 : ...
         }
 
         // Cas 2 : Création d'un nouvel arrêté (pas d'ID)
+        // Le contenu par défaut est déjà en HTML, pas besoin de conversion
         else if (!arreteId && !hasSyncedWithDb) {
             console.log('Initialisation nouveau document')
-            // Convertir le contenu par défaut en HTML
-            setContent(content.replace(/\n/g, '<br>'))
             setHasSyncedWithDb(true)
         }
     }, [arreteId, existingArrete, loadingArrete, hasSyncedWithDb])
@@ -243,10 +233,9 @@ Article 1 : ...
         setIsGenerating(true)
         // Simulation of AI generation
         setTimeout(() => {
-            const newText = `\n\n[Texte généré pour : "${prompt}"]\nConsidérant que...`
-            const newHtml = newText.replace(/\n/g, '<br>')
+            const newText = `<p><br></p><p>[Texte généré pour : "${prompt}"]</p><p>Considérant que...</p>`
 
-            setContent(prev => prev + newHtml)
+            setContent(prev => prev + newText)
 
             setPrompt('')
             setIsGenerating(false)

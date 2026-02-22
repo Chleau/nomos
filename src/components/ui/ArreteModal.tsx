@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import RichTextEditor from './RichTextEditor'
+import ArreteContent from './ArreteContent'
 import type { ArreteMunicipal } from '@/types/entities'
 
 interface ArreteModalProps {
@@ -71,10 +71,8 @@ export const ArreteModal: React.FC<ArreteModalProps> = ({ isOpen, onClose, arret
                     {/* Content */}
                     <div className="flex-1 overflow-y-auto p-6 bg-[#f5fcfe]">
                         <div className="bg-white w-full max-w-[210mm] mx-auto shadow-sm rounded-lg overflow-hidden">
-                            <RichTextEditor
-                                value={arrete.contenu || '<p>Aucun contenu</p>'}
-                                onChange={() => { }}
-                                disabled={true}
+                            <ArreteContent
+                                content={arrete.contenu || '<p>Aucun contenu</p>'}
                                 className="w-full"
                             />
                         </div>

@@ -25,7 +25,7 @@ export default function DerniereArreteesPage() {
   // Récupérer les thématiques uniques
   const thematiques = useMemo(() => {
     if (!allArretes) return [];
-    const uniqueThemes = [...new Set(allArretes.map((arrete: any) => arrete.thematique).filter(Boolean))];
+    const uniqueThemes = [...new Set(allArretes.map((arrete: any) => arrete.categorie).filter(Boolean))];
     return uniqueThemes.sort();
   }, [allArretes]);
 
@@ -37,12 +37,12 @@ export default function DerniereArreteesPage() {
 
     // Filtrer par thématique sélectionnée (boutons à gauche)
     if (selectedThematique) {
-      filtered = filtered.filter((arrete: any) => arrete.thematique === selectedThematique);
+      filtered = filtered.filter((arrete: any) => arrete.categorie === selectedThematique);
     }
 
     // Filtrer par thématique depuis le dropdown
     if (filters.themes && filters.themes.length > 0) {
-      filtered = filtered.filter((arrete: any) => filters.themes.includes(arrete.thematique));
+      filtered = filtered.filter((arrete: any) => filters.themes.includes(arrete.categorie));
     }
 
     // Filtrer par période
@@ -129,7 +129,7 @@ export default function DerniereArreteesPage() {
         <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
       </div>
 
-      <div className="container px-12 mb-8">
+      <div className="container px-2.5 md:px-12">
         <h1 className="font-['Poppins'] font-semibold text-[36px] mb-6">
           Derniers arrêtés
         </h1>
@@ -154,19 +154,21 @@ export default function DerniereArreteesPage() {
         </div>
 
         {/* Boutons de thématiques et filtres */}
-        <div className="flex items-center gap-3 mb-6 flex-wrap">
-          {thematiques.map((thematique) => (
-            <button
-              key={thematique}
-              onClick={() => setSelectedThematique(selectedThematique === thematique ? null : thematique)}
-              className={`px-2 h-[32px] flex items-center rounded-lg font-['Montserrat'] text-[16px] font-no transition-colors ${selectedThematique === thematique
-                ? 'bg-[#F27F09] text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
-            >
-              {thematique}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 md:gap-3 mb-6 flex-wrap">
+          <div className="hidden md:flex gap-3 flex-wrap">
+            {thematiques.map((thematique) => (
+              <button
+                key={thematique}
+                onClick={() => setSelectedThematique(selectedThematique === thematique ? null : thematique)}
+                className={`px-2 h-[32px] flex items-center rounded-lg font-['Montserrat'] text-sm md:text-[16px] font-no transition-colors ${selectedThematique === thematique
+                  ? 'bg-[#F27F09] text-white'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+              >
+                {thematique}
+              </button>
+            ))}
+          </div>
           <div className="ml-auto relative z-50">
             <Button
               variant="outline"

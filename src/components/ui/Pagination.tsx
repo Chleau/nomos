@@ -79,7 +79,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange, item
             </button>
 
             {itemCount !== undefined && totalItems !== undefined && (
-                <span className="ml-6 text-sm text-slate-500 font-medium whitespace-nowrap">
+                <span className="hidden lg:inline-block ml-6 text-sm text-slate-500 font-medium whitespace-nowrap">
                     {itemCount} sur {totalItems} résultats
                 </span>
             )}
