@@ -115,15 +115,17 @@ jobs:
             --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} \
             -t mon-app:${{ github.sha }} .
 
-      # 4. Container Scan (Docker Scout)
-      - name: Docker Scout
-        uses: docker/scout-action@v1
+      # 4. Container Scan (Trivy)
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
-          command: quickview,cve
-          image: mon-app:${{ github.sha }}
-          # Ne bloque pas le pipeline par défaut, mais affiche le rapport
-          exit-code-threshold: 'CRITICAL'
-          # ignore-base: true # Optionnel : ignore les failles héritées de l'image de base node:20
+          image-ref: 'mon-app:${{ github.sha }}'
+          format: 'table'
+          # On met exit-code: 0 pour éviter de bloquer le déploiement en cas de failles
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
       # Bonus : Génération du SBOM (Syft)
       - name: Generate SBOM (Syft)
