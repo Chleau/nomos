@@ -98,6 +98,7 @@ export const arretesService = {
           prenom
         )
       `)
+      .eq('statut', 'Publié')
       .order('date_creation', { ascending: false })
 
     if (communeId) {

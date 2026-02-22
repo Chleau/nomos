@@ -12,10 +12,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const sizeMap: Record<Size, string> = {
   // Use explicit button classes defined in globals.css to avoid Tailwind missing utilities
-  lg: 'btn--lg text-base',
-  md: 'btn--md text-sm',
+  lg: 'btn--lg text-lg',
+  md: 'btn--md text-base',
   sm: 'btn--sm text-sm',
-  xs: 'btn--xs text-xs'
+  xs: 'btn--xs text-sm'
 }
 
 export default function Button({ size = 'md', variant = 'primary', className = '', children, disabled, ...props }: ButtonProps) {

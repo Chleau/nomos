@@ -143,12 +143,12 @@ export default function LoiDetailPage() {
   }
 
   return (
-    <div className="bg-[#f5fcfe] min-h-screen pb-10 md:pb-6">
+    <div className="bg-[#f5fcfe] min-h-screen pb-24 md:pb-6">
       <div className="flex flex-col">
         {/* Alert Banner */}
         <AlertBanner message="⚠️ Attention : À 100m de votre position, Rue de Rivoli, un arbre bloque le passage." />
       </div>
-      <div className="container px-2.5 md:px-12 py-4 md:py-8">
+      <div className="container px-2.5 md:px-12">
         {/* Bouton retour */}
         <button
           onClick={() => router.back()}

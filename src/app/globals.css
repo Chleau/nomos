@@ -223,16 +223,16 @@ body {
   /* Size helpers (kept in sync with Button.tsx size mapping) */
   .btn--lg {
     padding: 8px 32px;
-    min-height: 40px;
-    font-size: var(--font-size-md);
+    min-height: 59px;
+    /* font-size: var(--font-size-md); */
     border-radius: 12px;
   }
 
 
   .btn--md {
     padding: 8px 24px;
-    min-height: 36px;
-    font-size: var(--font-size-sm);
+    min-height: 48px;
+    /* font-size: var(--font-size-sm); */
     border-radius: 10px;
   }
 
@@ -241,7 +241,7 @@ body {
     padding: 8px 16px;
     min-height: 37px;
     max-width: 124px;
-    font-size: var(--font-size-sm);
+    /* font-size: var(--font-size-sm); */
     border-radius: 8px;
   }
 
@@ -249,7 +249,7 @@ body {
   .btn--xs {
     padding: 4px 8px;
     min-height: 28px;
-    font-size: var(--font-size-xs);
+    /* font-size: var(--font-size-xs); */
     border-radius: 6px;
     height: 32px;
 
