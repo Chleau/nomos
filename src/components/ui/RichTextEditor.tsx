@@ -64,17 +64,23 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             />
 
             <style jsx global>{`
+        .rich-text-editor-wrapper {
+          height: auto;
+          min-height: 297mm;
+        }
+
         .rich-text-editor-wrapper .quill {
-          height: 100%;
+          height: auto;
+          min-height: 100%;
           display: flex;
           flex-direction: column;
         }
         
         .rich-text-editor-wrapper .ql-toolbar {
           background: white;
-          border: 1px solid #e7eaed !important;
-          border-bottom: none !important;
-          border-radius: 8px 8px 0 0;
+          border: none !important;
+          border-bottom: 1px solid #e7eaed !important;
+          border-radius: 0;
           position: sticky;
           top: 0;
           z-index: 10;
@@ -87,24 +93,20 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         
         .rich-text-editor-wrapper .ql-container {
           flex: 1;
-          border: 1px solid #e7eaed !important;
-          border-radius: 0 0 8px 8px;
+          border: none !important;
           font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
           font-size: 12pt;
-          min-height: 800px;
-        }
-        
-        /* En mode lecture seule (sans toolbar), arrondir tous les coins */
-        .rich-text-editor-wrapper .quill:has(.ql-toolbar:empty) .ql-container,
-        .rich-text-editor-wrapper .quill:not(:has(.ql-toolbar)) .ql-container {
-          border-radius: 8px;
+          height: auto !important;
+          min-height: 200mm;
         }
         
         .rich-text-editor-wrapper .ql-editor {
-          min-height: 800px;
+          height: auto !important;
+          min-height: 200mm;
           padding: 20mm;
           color: #4a4a4a;
           line-height: 1.6;
+          overflow-y: visible !important;
         }
         
         .rich-text-editor-wrapper .ql-editor.ql-blank::before {

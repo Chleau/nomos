@@ -435,45 +435,43 @@ Article 1 : ...
                     </div>
 
                     {/* Document Content (Scrollable) */}
-                    <div className="flex-1 overflow-y-auto bg-[#f5fcfe] p-8 flex justify-center relative">
-                        <div className="bg-white w-[210mm] min-h-[297mm] shadow-sm">
+                    <div className="flex-1 overflow-y-auto bg-[#f5fcfe] pt-8 pb-0 px-8 flex flex-col items-center relative scroll-smooth">
+                        <div className="bg-white w-[210mm] min-h-[297mm] h-auto shadow-sm shrink-0 mb-12">
                             <RichTextEditor
                                 value={content}
                                 onChange={setContent}
                                 disabled={isReadOnly}
                                 placeholder="Commencez à rédiger votre arrêté..."
-                                className="w-full h-full"
+                                className="w-full"
                             />
                         </div>
                     </div>
 
                     {/* AI Prompt Section (Bottom) */}
                     {!isReadOnly && (
-                        <div className="bg-[#cbd5e1] p-0 shrink-0 z-30">
-                            <div className="flex items-center gap-4 max-w-5xl mx-auto w-full px-6 py-6">
-                                <div className="flex-1 flex flex-col gap-2">
-                                    <label className="text-[#053f5c] font-medium text-lg flex items-center gap-2 font-['Poppins']">
-                                        <SparklesIcon className="w-5 h-5" />
-                                        Aidez vous de l&apos;IA pour rédiger votre arrêté
+                        <div className="bg-white p-0 shrink-0 z-30 w-full border-t border-[#e2e8f0] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                            <div className="flex items-center gap-6 w-full max-w-[210mm] mx-auto px-6 py-4">
+                                <div className="flex-1 flex flex-col gap-1.5">
+                                    <label className="text-[#053f5c] font-semibold text-sm flex items-center gap-2 font-['Poppins']">
+                                        <SparklesIcon className="w-4 h-4 text-[#f27f09]" />
+                                        Aidez-vous de l&apos;IA pour rédiger votre arrêté
                                     </label>
-                                    <div className="bg-white rounded-md flex items-center p-2.5 gap-3 border border-[#e7eaed]">
-                                        <SparklesIcon className="w-5 h-5 text-gray-400" />
+                                    <div className="bg-[#f8fafc] rounded-xl flex items-center px-4 py-2 gap-3 border border-[#e2e8f0] focus-within:border-[#f27f09] focus-within:ring-2 focus-within:ring-[#f27f09]/10 transition-all">
                                         <input
                                             type="text"
-                                            className="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder:text-gray-400 font-[Montserrat]"
-                                            placeholder="Rédige un arrété sur l’ouverture des commerce en centre ville..."
+                                            className="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 placeholder:text-gray-400 font-['Montserrat']"
+                                            placeholder="Rédige un arrêté sur l’ouverture des commerces..."
                                             value={prompt}
                                             onChange={(e) => setPrompt(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
                                         />
                                     </div>
-                                    <p className="text-[#475569] text-xs pl-1">Hint text or instructions</p>
                                 </div>
-                                <div className="self-center">
+                                <div className="self-end pb-0.5">
                                     <Button
                                         variant="primary"
                                         size="md"
-                                        className="bg-[#f27f09] hover:bg-[#d67008] text-white border-transparent h-[56px] px-8 text-lg rounded-xl font-['Poppins']"
+                                        className="bg-[#f27f09] hover:bg-[#d67008] text-white border-transparent h-[42px] px-8 text-sm rounded-xl font-medium font-['Poppins'] transition-all shadow-md active:scale-95"
                                         onClick={handleGenerate}
                                         disabled={isGenerating}
                                     >
