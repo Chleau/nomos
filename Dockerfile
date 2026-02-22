@@ -1,12 +1,14 @@
 # --- Étape de base (commune) ---
 FROM node:20-alpine AS base
 WORKDIR /app
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat python3 make g++
 COPY package*.json ./
 
 # --- Étape Développement ---
 FROM base AS development
 RUN npm install --legacy-peer-deps
+# Rebuild les modules natifs pour l'architecture Alpine
+RUN npm rebuild
 COPY . .
 ENV NODE_ENV=development
 EXPOSE 3000
@@ -20,6 +22,8 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 RUN npm ci --legacy-peer-deps
+# Rebuild les modules natifs pour l'architecture cible
+RUN npm rebuild
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
