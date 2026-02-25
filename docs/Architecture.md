@@ -6,44 +6,8 @@ Ce document détaille l'organisation technique du projet NOMOS, son infrastructu
  
 Le pipeline est déclenché à chaque push sur la branche `main` via GitHub Actions. Il assure la sécurité et la qualité du code avant toute mise en production.
  
-```mermaid
-flowchart TD
-    Start([Push/PR sur main]) --> Parallel
+ [Voici le schéma de la pipeline](docs/evidence/ci-pipeline-success.png)
 
-    subgraph Parallel ["1. ANALYSE & TESTS (Parallèle)"]
-        direction LR
-        SCA["Security Scan<br/><i>Gitleaks + SCA Audit</i>"]
-        SAST["SAST Analysis<br/><i>CodeQL</i>"]
-        Tests["Unit Tests<br/><i>Jest</i>"]
-    end
-
-    subgraph Quality ["2. QUALITÉ & LINT"]
-        direction LR
-        Lint["Lint & Type Check<br/><i>ESLint + TypeScript</i>"]
-        Sonar{"SonarQube<br/>Quality Gate"}
-    end
-
-    subgraph Delivery ["3. BUILD & DEPLOY"]
-        Build{"Build & Scan<br/><i>Docker + Trivy</i>"}
-        Deploy["Deploy to VPS<br/><i>Infomaniak</i>"]
-    end
-
-    %% Connexions logiques simplifiées
-    Parallel --> Quality
-    Quality --> Build
-    Build --> Deploy
-
-    %% Stylisation
-    classDef default font-family:Arial, font-size:13px;
-    classDef highlight fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef success fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef warning fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
-
-    class Start,Deploy success;
-    class Parallel,Quality warning;
-    class Build highlight;
-```
- 
 ### Étapes détaillées :
 
 **Phase 1 - Exécution parallèle :**
@@ -66,6 +30,7 @@ flowchart TD
 L'infrastructure repose sur un modèle hybride : une partie auto-hébergée sur un VPS (pour l'application et le monitoring) et une partie SaaS via Supabase (pour les données et l'authentification)
  
 ### Schéma de l'infrastructure
+Attention ça pique un peu les yeux (mais on a essayé de généré un schéma clair)
  
 ```mermaid
 flowchart LR
@@ -92,7 +57,6 @@ flowchart LR
     %% Connexions sortantes
     WebApp ==> Auth
     WebApp ==> DB
-    WebApp ==> Storage
 
     %% Connexions Monitoring
     WebApp -.-> Promtail
