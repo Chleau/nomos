@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify'
  */
 export function sanitizeHtml(dirty: string): string {
     if (!dirty || typeof dirty !== 'string') return ''
-    
+
     // DOMPurify needs a DOM point to work (window). 
     // In Next.js SSR, we skip sanitization on the server and do it on the client.
     if (typeof window === 'undefined') {
