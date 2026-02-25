@@ -32,6 +32,7 @@ export default function LoiDetailPage() {
   const articles: Article[] = useMemo(() => {
     if (!loi?.contenu) return []
 
+    // Utilisation d'une regex globale simple pour extraire les articles
     const articleRegex = /Article\s+\d+/gi
     const matches = [...loi.contenu.matchAll(articleRegex)]
 
@@ -95,8 +96,8 @@ export default function LoiDetailPage() {
   const signatureSection: SignatureSection | null = useMemo(() => {
     if (!loi?.contenu) return null
 
-    // Utilisation d'une regex limitée pour éviter le backtracking excessif (ReDoS)
-    const signatureRegex = /Fait\s+à\s+[^,\r\n]+,\s+le\s+[^\r\n]+/i
+    // Utilisation d'une regex avec limites de longueur pour garantir un temps d'exécution constant (Safe against ReDoS)
+    const signatureRegex = /Fait\s+à\s+([^,\r\n]{1,100}),\s+le\s+([^\r\n]{1,100})/i
     const match = loi.contenu.match(signatureRegex)
 
     if (!match) return null

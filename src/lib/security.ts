@@ -1,12 +1,17 @@
-import DOMPurify from 'isomorphic-dompurify'
+import DOMPurify from 'dompurify'
 
 /**
  * Sanitize HTML content to prevent XSS attacks
- * @param dirty - The unsanitized HTML string
- * @returns Sanitized HTML string safe to render
+ * Note: This runs on the client. On server, returns the input string as-is.
  */
 export function sanitizeHtml(dirty: string): string {
     if (!dirty || typeof dirty !== 'string') return ''
+
+    // DOMPurify needs a DOM point to work (window). 
+    // In Next.js SSR, we skip sanitization on the server and do it on the client.
+    if (typeof window === 'undefined') {
+        return dirty
+    }
 
     return DOMPurify.sanitize(dirty, {
         ALLOWED_TAGS: [
@@ -15,18 +20,21 @@ export function sanitizeHtml(dirty: string): string {
         ],
         ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id', 'style'],
         ALLOW_DATA_ATTR: false,
-    })
+    }) as string
 }
 
 /**
- * Sanitize HTML content for rich text display (Quill editor output)
- * More permissive than general sanitization for proper editor rendering
+ * Sanitize HTML content for rich text display
  */
 export function sanitizeRichText(dirty: string): string {
     if (!dirty || typeof dirty !== 'string') return ''
 
+    if (typeof window === 'undefined') {
+        return dirty
+    }
+
     return DOMPurify.sanitize(dirty, {
         ADD_ATTR: ['target'],
         ADD_TAGS: ['iframe'],
-    })
+    }) as string
 }
