@@ -21,7 +21,8 @@ export function SignInForm() {
 
     try {
       // Vérification basique du format email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      // Utilisation d'une regex robuste pour éviter les attaques ReDoS
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
       if (!emailRegex.test(email)) {
         setError('Format d\'email invalide. Veuillez vérifier votre saisie.')
         setLoading(false)

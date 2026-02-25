@@ -7,6 +7,7 @@ import { UserRole } from '@/types/auth'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useCreateArrete, useRecentArretes, useArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
+import { logger } from '@/lib/logger'
 
 import { ARRETE_CATEGORIES, type ArreteCategory } from '@/lib/constants'
 import Button from '@/components/ui/Button'
@@ -74,7 +75,7 @@ export default function NouveauArretePage() {
     useEffect(() => {
         // Cas 1 : Modification d'un arrêté existant
         if (arreteId && existingArrete && !loadingArrete && !hasSyncedWithDb) {
-            console.log('Synchronisation DB -> Editeur', existingArrete.id)
+            logger.log('Synchronisation DB -> Editeur', existingArrete.id)
 
             setTitle(existingArrete.titre || '')
             setNumero(existingArrete.numero || '')
@@ -82,7 +83,7 @@ export default function NouveauArretePage() {
             setTypeDocument(existingArrete.type || 'Arrêté')
 
             const contentToSet = existingArrete.contenu || ''
-            console.log('📥 Contenu HTML chargé depuis la DB:', contentToSet)
+            logger.log('📥 Contenu HTML chargé depuis la DB:', contentToSet)
 
             // Le contenu est déjà en HTML, on le charge tel quel
             // Si c'est du texte brut legacy (pas de balises HTML), on le wrapper dans un <p>
@@ -98,7 +99,7 @@ export default function NouveauArretePage() {
         // Cas 2 : Création d'un nouvel arrêté (pas d'ID)
         // Le contenu par défaut est déjà en HTML, pas besoin de conversion
         else if (!arreteId && !hasSyncedWithDb) {
-            console.log('Initialisation nouveau document')
+            logger.log('Initialisation nouveau document')
             setHasSyncedWithDb(true)
         }
     }, [arreteId, existingArrete, loadingArrete, hasSyncedWithDb])
@@ -123,7 +124,7 @@ export default function NouveauArretePage() {
                     url: window.location.href
                 })
             } catch (err) {
-                console.error(err)
+                logger.error('Erreur lors du partage', err)
             }
         } else {
             await navigator.clipboard.writeText(window.location.href)
@@ -155,8 +156,8 @@ export default function NouveauArretePage() {
 
         try {
             if (arreteId) {
-                console.log('Updating arrete:', arreteId)
-                console.log('📝 Contenu HTML à enregistrer:', content)
+                logger.log('Updating arrete:', arreteId)
+                logger.log('📝 Contenu HTML à enregistrer:', content)
                 const updateData = {
                     titre: title,
                     numero: numero,
@@ -165,7 +166,7 @@ export default function NouveauArretePage() {
                     type: typeDocument,
                     date_modification: new Date().toISOString()
                 }
-                console.log('Update payload:', updateData)
+                logger.log('Update payload:', updateData)
 
                 // Ensure ID is passed as number if possible for strict DB consistency
                 const idToUpdate = !isNaN(Number(arreteId)) ? Number(arreteId) : arreteId
@@ -174,7 +175,7 @@ export default function NouveauArretePage() {
                     id: idToUpdate,
                     updates: updateData
                 })
-                console.log('Update result:', result)
+                logger.log('Update result:', result)
 
                 // Forcer le refetch pour mettre à jour les données
                 await refetchArrete()
@@ -182,9 +183,9 @@ export default function NouveauArretePage() {
                 setSaveStatus('success')
                 setTimeout(() => setSaveStatus('idle'), 3000)
             } else {
-                console.log('📝 Contenu HTML à enregistrer (création):', content)
+                logger.log('📝 Contenu HTML à enregistrer (création):', content)
 
-                console.log('Sending arrete data...', {
+                logger.log('Sending arrete data...', {
                     titre: title,
                     contenu: content,
                     commune_id: habitant.commune_id,
@@ -207,7 +208,7 @@ export default function NouveauArretePage() {
                     archive: false
                 })
 
-                console.log('Arrêté créé avec succès:', result)
+                logger.log('Arrêté créé avec succès:', result)
 
                 // Mettre à jour l'URL avec l'ID du nouvel arrêté
                 if (result && result.id) {
@@ -221,7 +222,7 @@ export default function NouveauArretePage() {
                 setTimeout(() => setSaveStatus('idle'), 3000)
             }
         } catch (error) {
-            console.error('Erreur lors de la création de l\'arrêté:', error)
+            logger.error('Erreur lors de la création de l\'arrêté:', error)
             setSaveStatus('error')
             setTimeout(() => setSaveStatus('idle'), 3000)
             alert("Une erreur est survenue lors de l'enregistrement. Vérifiez la console pour plus de détails.")
