@@ -85,7 +85,7 @@ export default function DerniereLoisEnVigueurPage() {
   // Générer les numéros de pages à afficher
   const getPageNumbers = () => {
     const maxPagesToShow = 5;
-    
+
     // Cas simple: tout afficher
     if (totalPages <= maxPagesToShow) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
