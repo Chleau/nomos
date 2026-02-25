@@ -27,7 +27,7 @@ export default function DerniereLoisEnVigueurPage() {
   const thematiques = useMemo(() => {
     if (!allLois) return [];
     const uniqueThemes = [...new Set(allLois.map(loi => loi.thematique).filter(Boolean))];
-    return uniqueThemes.sort();
+    return uniqueThemes.sort((a, b) => a.localeCompare(b));
   }, [allLois]);
 
   // Filtrer les lois par thématique et les filtres appliqués

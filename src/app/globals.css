@@ -224,24 +224,19 @@ body {
   .btn--lg {
     padding: 8px 32px;
     min-height: 59px;
-    /* font-size: var(--font-size-md); */
     border-radius: 12px;
   }
-
 
   .btn--md {
     padding: 8px 24px;
     min-height: 48px;
-    /* font-size: var(--font-size-sm); */
     border-radius: 10px;
   }
-
 
   .btn--sm {
     padding: 8px 16px;
     min-height: 37px;
     max-width: 124px;
-    /* font-size: var(--font-size-sm); */
     border-radius: 8px;
   }
 
