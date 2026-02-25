@@ -42,6 +42,7 @@ flowchart TD
     class Start,Deploy success;
     class Parallel,Quality warning;
     class Build highlight;
+```
  
 ### Étapes détaillées :
 
