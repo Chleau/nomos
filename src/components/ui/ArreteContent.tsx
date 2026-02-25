@@ -1,29 +1,34 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import 'react-quill-new/dist/quill.snow.css'
+import { sanitizeRichText } from '@/lib/security'
 
 interface ArreteContentProps {
-  content: string
-  className?: string
+    content: string
+    className?: string
 }
 
 /**
  * Composant pour afficher le contenu HTML d'un arrêté avec le bon formatage.
  * Préserve les styles, sauts de ligne, et mise en forme du RichTextEditor.
+ * Le HTML est sanitized pour prévenir les attaques XSS.
  */
 export const ArreteContent: React.FC<ArreteContentProps> = ({
-  content,
-  className = ''
+    content,
+    className = ''
 }) => {
-  return (
-    <div className={`arrete-content-wrapper ${className}`}>
-      <div
-        className="ql-editor"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+    // Sanitize HTML content to prevent XSS attacks
+    const sanitizedContent = useMemo(() => sanitizeRichText(content), [content])
 
-      <style jsx global>{`
+    return (
+        <div className={`arrete-content-wrapper ${className}`}>
+            <div
+                className="ql-editor"
+                dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+            />
+
+            <style jsx global>{`
                 .arrete-content-wrapper .ql-editor {
                     padding: 20px;
                     color: #4a4a4a;
@@ -160,8 +165,8 @@ export const ArreteContent: React.FC<ArreteContentProps> = ({
                     margin: 1em 0;
                 }
             `}</style>
-    </div>
-  )
+        </div>
+    )
 }
 
 export default ArreteContent

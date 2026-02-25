@@ -30,7 +30,8 @@ import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import type { Signalement } from '@/types/signalements'
-import { getPublicUrlFromPath } from '@/lib/services/storage.service';
+import { getPublicUrlFromPath } from '@/lib/services/storage.service'
+import { logger } from '@/lib/logger'
 
 // Icônes SVG pour les catégories
 const RouteBarreeIcon = () => (
@@ -106,7 +107,9 @@ function ActionMenu({ signalement }: { signalement: Signalement }) {
     if (navigator.share) {
       try {
         await navigator.share({ title: signalement.titre, url })
-      } catch (err) { console.error(err) }
+      } catch (err) {
+        logger.error('Erreur partage signalement', err, { context: 'SignalementsPage' })
+      }
     } else {
       await navigator.clipboard.writeText(url)
       alert("Lien copié !")

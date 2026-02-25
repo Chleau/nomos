@@ -31,6 +31,7 @@ import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
 import { useRecentArretes, useDeleteArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
 import { CATEGORY_COLORS, ARRETE_CATEGORIES } from '@/lib/constants'
 import { UserRole } from '@/types/auth'
+import { logger } from '@/lib/logger'
 import type { Signalement } from '@/types/signalements'
 import { TableBadge, DataTable, type Column } from '@/components/ui/Table'
 
@@ -100,7 +101,9 @@ function ActionMenu({ row }: Readonly<{ row: RedactionRow }>) {
     if (navigator.share) {
       try {
         await navigator.share({ title: row.title, url })
-      } catch (err) { console.error(err) }
+      } catch (err) {
+        logger.error('Erreur partage arrêté', err, { context: 'MairiePage' })
+      }
     } else {
       await navigator.clipboard.writeText(url)
       alert("Lien copié !")

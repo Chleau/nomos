@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
+import { logger } from '@/lib/logger'
 import Button from '@/components/ui/Button'
 import Checkbox from '@/components/ui/Checkbox'
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown'
@@ -92,7 +93,9 @@ function ActionMenu({ row }: { row: ArchiveRow }) {
     if (navigator.share) {
       try {
         await navigator.share({ title: row.titre, url })
-      } catch (err) { console.error(err) }
+      } catch (err) {
+        logger.error('Erreur partage arrêté', err, { context: 'ArchivesPage' })
+      }
     } else {
       await navigator.clipboard.writeText(url)
       alert("Lien copié !")
@@ -381,7 +384,9 @@ export default function ArchivesPage() {
 
     if (links.length === 1 && navigator.share) {
       const arrete = (arretes || []).find(a => a.id === Array.from(selectedArchives)[0])
-      navigator.share({ title: arrete?.titre, url: links[0] }).catch(console.error)
+      navigator.share({ title: arrete?.titre, url: links[0] }).catch((err) => {
+        logger.error('Erreur partage arrêté', err, { context: 'ArchivesPage.handleGroupShare' })
+      })
     } else {
       await navigator.clipboard.writeText(links.join('\n'))
       alert(`${links.length} liens copiés dans le presse-papier !`)

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
+import { logger } from "@/lib/logger"
 
 // Fonctions utilitaires pour échapper le HTML
 function escapeHtml(s: string): string {
@@ -62,7 +63,7 @@ export default function IncidentMap({
       if (mapRef.current && !leafletMapRef.current) {
         try {
           const mapContainer = mapRef.current
-          
+
           // Créer la carte
           const mapInstance = L.map(mapContainer, {
             center,
@@ -84,7 +85,7 @@ export default function IncidentMap({
           leafletMapRef.current = mapInstance
           setMapReady(true)
         } catch (error) {
-          console.error('Erreur lors de l\'initialisation de la carte:', error)
+          logger.error('Erreur lors de l\'initialisation de la carte', error, { context: 'IncidentMap' })
         }
       }
     }, 100)
@@ -112,7 +113,7 @@ export default function IncidentMap({
       if (m.latitude == null || m.longitude == null) continue
 
       const newMarker = L.marker([m.latitude, m.longitude])
-      
+
       // Créer le contenu du popup
       let popupContent = ""
       if (m.titre) popupContent += `<strong>${escapeHtml(m.titre)}</strong><br/>`
@@ -135,14 +136,14 @@ export default function IncidentMap({
     const validCoords = markers
       .filter((m) => m.latitude != null && m.longitude != null)
       .map((m) => [m.latitude as number, m.longitude as number] as [number, number])
-    
+
     if (validCoords.length > 0) {
       try {
         const bounds = L.latLngBounds(validCoords)
         mapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 })
       } catch (error) {
         // Ignorer les erreurs de fitBounds
-        console.warn('Erreur fitBounds:', error)
+        logger.warn('Erreur fitBounds', error, { context: 'IncidentMap' })
       }
     }
   }, [markers, mapReady])

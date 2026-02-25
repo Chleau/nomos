@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { Habitant } from '@/types/habitants';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { habitantsService } from '@/lib/services/habitants.service';
+import { logger } from '@/lib/logger';
 
 interface HabitantFull extends Habitant {
   adresse?: string;
@@ -32,7 +33,7 @@ export function HabitantProvider({ children }: { children: ReactNode }) {
           setHabitantData(data as HabitantFull);
         }
       } catch (error) {
-        console.error('Error loading habitant data:', error);
+        logger.error('Error loading habitant data', error, { context: 'HabitantContext' });
       } finally {
         setLoading(false);
       }
