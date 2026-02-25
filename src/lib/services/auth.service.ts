@@ -1,5 +1,6 @@
 import { supabase } from '../supabase/client'
 import { UserRole } from '@/types/auth'
+import { logger } from '@/lib/logger'
 
 export const authService = {
   async signIn(email: string, password: string) {
@@ -10,13 +11,13 @@ export const authService = {
       })
 
       if (error) {
-        console.error('Sign in error:', error)
+        logger.error('Sign in error', error, { context: 'AuthService' })
         return { data: null, error }
       }
 
       return { data, error: null }
     } catch (error) {
-      console.error('Unexpected error during sign in:', error)
+      logger.error('Unexpected error during sign in', error, { context: 'AuthService' })
       return { data: null, error: error as Error }
     }
   },
@@ -57,12 +58,12 @@ export const authService = {
       })
 
       if (authError) {
-        console.error('Auth error:', authError)
+        logger.error('Auth error', authError, { context: 'AuthService.signUp' })
         return { data: null, error: authError }
       }
 
       if (!authData.user) {
-        console.error('No user data returned')
+        logger.error('No user data returned', undefined, { context: 'AuthService.signUp' })
         return { data: null, error: new Error('No user data returned') }
       }
 
@@ -76,20 +77,20 @@ export const authService = {
         role: UserRole.HABITANT
       }
 
-      console.log('Tentative d\'insertion dans habitants:', habitantData)
+      logger.debug('Tentative d\'insertion dans habitants', habitantData, { context: 'AuthService.signUp' })
 
       const { error: profileError } = await supabase
         .from('habitants')
         .insert(habitantData)
 
       if (profileError) {
-        console.error('Profile creation error:', profileError)
+        logger.error('Profile creation error', profileError, { context: 'AuthService.signUp' })
         return { data: null, error: profileError }
       }
 
       return { data: authData, error: null }
     } catch (error) {
-      console.error('Unexpected error:', error)
+      logger.error('Unexpected error', error, { context: 'AuthService.signUp' })
       return { data: null, error: error as Error }
     }
 
@@ -102,13 +103,13 @@ export const authService = {
       })
 
       if (error) {
-        console.error('Password update error:', error)
+        logger.error('Password update error', error, { context: 'AuthService' })
         return { data: null, error }
       }
 
       return { data, error: null }
     } catch (error) {
-      console.error('Unexpected error during password update:', error)
+      logger.error('Unexpected error during password update', error, { context: 'AuthService' })
       return { data: null, error: error as Error }
     }
   }

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth';
 import { supabase } from '@/lib/supabase/client';
 import { habitantsService } from '@/lib/services/habitants.service';
+import { logger } from '@/lib/logger';
 import { UserRole } from '@/types/auth';
 import type { Habitant } from '@/types/habitants';
 
@@ -75,10 +76,10 @@ export default function SidebarMenu() {
           if (!error && data) {
             setHabitantData(data as HabitantFull);
           } else if (error) {
-            console.error('Error fetching habitant data:', error);
+            logger.error('Error fetching habitant data', error, { context: 'SidebarMenu' });
           }
         } catch (err) {
-          console.error('Unexpected error loading habitant data:', err);
+          logger.error('Unexpected error loading habitant data', err, { context: 'SidebarMenu' });
         }
         setDataLoaded(true);
       } else if (!authLoading) {

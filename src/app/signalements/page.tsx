@@ -106,7 +106,9 @@ function ActionMenu({ signalement }: { signalement: Signalement }) {
     if (navigator.share) {
       try {
         await navigator.share({ title: signalement.titre, url })
-      } catch (err) { console.error(err) }
+      } catch (err) {
+        logger.error('Erreur partage signalement', err, { context: 'SignalementsPage' })
+      }
     } else {
       await navigator.clipboard.writeText(url)
       alert("Lien copié !")

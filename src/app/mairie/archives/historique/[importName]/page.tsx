@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query'
 import { arretesService } from '@/lib/services/arretes.service'
 import { useDeleteArrete, useUpdateArrete } from '@/lib/hooks/useArretes'
 import { ARRETE_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
+import { logger } from '@/lib/logger'
 import Button from '@/components/ui/Button'
 import Checkbox from '@/components/ui/Checkbox'
 import FilterDropdown, { FilterState } from '@/components/ui/FilterDropdown'
@@ -283,7 +284,9 @@ export default function ImportDetailsPage() {
 
         if (links.length === 1 && navigator.share) {
             const arrete = (arretes || []).find(a => a.id === Array.from(selectedArchives)[0])
-            navigator.share({ title: arrete?.titre, url: links[0] }).catch(console.error)
+            navigator.share({ title: arrete?.titre, url: links[0] }).catch((err) => {
+                logger.error('Erreur partage arrêté', err, { context: 'HistoriquePage.handleGroupShare' })
+            })
         } else {
             await navigator.clipboard.writeText(links.join('\n'))
             alert(`${links.length} liens copiés dans le presse-papier !`)

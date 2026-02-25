@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSignalements } from '@/lib/hooks/useSignalements'
+import { logger } from '@/lib/logger'
 import type { Signalement } from '@/types/signalements'
 
 interface EditSignalementModalProps {
@@ -45,7 +46,7 @@ export default function EditSignalementModal({ signalement, onClose }: EditSigna
 
       if (result.error) {
         setError(result.error.message || 'Erreur lors de la sauvegarde')
-        console.error('Erreur:', result.error)
+        logger.error('Erreur sauvegarde signalement', result.error, { context: 'EditSignalementModal' })
       } else {
         onClose()
       }
@@ -53,7 +54,7 @@ export default function EditSignalementModal({ signalement, onClose }: EditSigna
       const errorMessage =
         err instanceof Error ? err.message : 'Une erreur est survenue lors de la sauvegarde'
       setError(errorMessage)
-      console.error('Erreur:', errorMessage)
+      logger.error('Erreur sauvegarde signalement', err, { context: 'EditSignalementModal' })
     } finally {
       setIsSaving(false)
     }

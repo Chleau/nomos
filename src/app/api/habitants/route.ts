@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
     try {
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
         const { data, error } = await query;
 
         if (error) {
-            console.error('Error fetching habitants:', error);
+            logger.error('Error fetching habitants', error, { context: 'API.habitants' });
             return NextResponse.json(
                 { error: error.message },
                 { status: 500 }
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ data, error: null });
     } catch (error) {
-        console.error('Unexpected error:', error);
+        logger.error('Unexpected error', error, { context: 'API.habitants' });
         return NextResponse.json(
             { error: 'Erreur serveur' },
             { status: 500 }

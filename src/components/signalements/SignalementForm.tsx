@@ -10,6 +10,7 @@ import AlertBanner from '@/components/compte/AlertBanner';
 import { createPhotoSignalement } from '@/lib/services/photos.service'
 import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useCurrentHabitant } from '@/lib/hooks/useHabitants'
+import { logger } from '@/lib/logger'
 import { PencilIcon } from '@heroicons/react/24/outline'
 import dynamic from 'next/dynamic'
 
@@ -120,7 +121,7 @@ export default function SignalementForm() {
         setFullAddress(fullAddr)
       }
     } catch (error) {
-      console.error('Erreur de reverse géocodage:', error);
+      logger.error('Erreur de reverse géocodage', error, { context: 'SignalementForm' });
     } finally {
       setLoadingAddress(false)
     }
@@ -179,7 +180,7 @@ export default function SignalementForm() {
         alert("Impossible de trouver cette adresse. Vérifiez l'orthographe.");
       }
     } catch (error) {
-      console.error('Erreur de géocodage:', error);
+      logger.error('Erreur de géocodage', error, { context: 'SignalementForm' });
       alert("Erreur lors de la recherche de l'adresse.");
     } finally {
       setIsGeocoding(false);
@@ -258,9 +259,10 @@ export default function SignalementForm() {
       setTelephone('');
       setStep(1);
       setIsSubmitting(false);
-    } catch (err: any) {
-      console.error('Erreur creation signalement:', err);
-      setMessage(err.message || "Erreur lors de la création du signalement");
+    } catch (err: unknown) {
+      logger.error('Erreur creation signalement', err, { context: 'SignalementForm' });
+      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la création du signalement";
+      setMessage(errorMessage);
       setIsSubmitting(false);
     }
   };

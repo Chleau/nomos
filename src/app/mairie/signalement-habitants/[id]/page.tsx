@@ -25,6 +25,8 @@ import {
 } from '@heroicons/react/24/outline'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
+import { Habitant } from '@/types/habitants'
+import { logger } from '@/lib/logger'
 
 // Charger la carte dynamiquement côté client uniquement
 const IncidentMap = dynamic(() => import('@/components/map/IncidentMap'), {
@@ -212,11 +214,11 @@ export default function MairieSignalementDetailPage() {
         }
     }
 
-    const handleAgentChange = async (habitant: any) => {
+    const handleAgentChange = async (habitant: Habitant) => {
         try {
             await updateSignalement.mutateAsync({
                 id: signalementId,
-                updates: { agent_id: habitant.id } as any
+                updates: { agent_id: habitant.id }
             })
             setIsAgentDropdownOpen(false)
         } catch (err) {
@@ -234,7 +236,7 @@ export default function MairieSignalementDetailPage() {
                     valide_par: me.id,
                     date_validation: new Date().toISOString(),
                     statut: signalement?.statut === 'En attente' || !signalement?.statut ? 'En cours' : signalement?.statut
-                } as any
+                }
             })
             setIsActionsDropdownOpen(false)
         } catch (err) {
@@ -242,7 +244,7 @@ export default function MairieSignalementDetailPage() {
         }
     }
 
-    const handleDecisionnaireChange = async (habitant: any) => {
+    const handleDecisionnaireChange = async (habitant: Habitant) => {
         try {
             await updateSignalement.mutateAsync({
                 id: signalementId,
@@ -250,7 +252,7 @@ export default function MairieSignalementDetailPage() {
                     valide_par: habitant.id,
                     valide: true,
                     date_validation: signalement?.date_validation || new Date().toISOString()
-                } as any
+                }
             })
             setIsDecisionnaireDropdownOpen(false)
         } catch (err) {

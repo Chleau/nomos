@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
+import { logger } from '@/lib/logger'
 import {
   DataTable,
   Column,
@@ -90,7 +91,9 @@ function ActionMenu({ row }: { row: RedactionRow }) {
     if (navigator.share) {
       try {
         await navigator.share({ title: row.titre, url })
-      } catch (err) { console.error(err) }
+      } catch (err) {
+        logger.error('Erreur partage arrêté', err, { context: 'RedactionsPage' })
+      }
     } else {
       await navigator.clipboard.writeText(url)
       alert("Lien copié !")
@@ -356,7 +359,9 @@ export default function DerniereRedactionsPage() {
 
     if (links.length === 1 && navigator.share) {
       const arrete = (arretes || []).find(a => a.id === Array.from(selectedRedactions)[0])
-      navigator.share({ title: arrete?.titre, url: links[0] }).catch(console.error)
+      navigator.share({ title: arrete?.titre, url: links[0] }).catch((err) => {
+        logger.error('Erreur partage arrêté', err, { context: 'RedactionsPage.handleGroupShare' })
+      })
     } else {
       await navigator.clipboard.writeText(links.join('\n'))
       alert(`${links.length} liens copiés dans le presse-papier !`)
