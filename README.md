@@ -136,3 +136,5 @@ git push origin main
 En envoyant la modification, cela va déclencher automatiquement la pipeline Github Actions. Le job `deploy` va se connecter au VPS via SSH, exécuter la commande `git pull` pour récupérer le code stable et reconstruire l'image Docker via `docker compose -f docker-compose.prod.yml up -d --build`. Le service sera ainsi rétabli dans son état stable de manière automatisée.
  
 ---------------------------------------------------------------------------------------------------------
+
+Pour voir le projet en détails : https://nomos.chloe.michel.mds-nantes.fr
