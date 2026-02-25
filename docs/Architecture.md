@@ -7,44 +7,41 @@ Ce document détaille l'organisation technique du projet NOMOS, son infrastructu
 Le pipeline est déclenché à chaque push sur la branche `main` via GitHub Actions. Il assure la sécurité et la qualité du code avant toute mise en production.
  
 ```mermaid
-flowchart TB
-    Start([Push/PR sur main])
-    
-    subgraph Parallel["🔄 Exécution parallèle"]
-        direction TB
-        SCA["🔐 Security Scan<br/><i>Gitleaks + SCA Audit</i>"]
-        SAST["🔍 SAST Analysis<br/><i>CodeQL</i>"]
-        Tests["✅ Unit Tests<br/><i>Jest</i>"]
+flowchart TD
+    Start([Push/PR sur main]) --> Parallel
+
+    subgraph Parallel ["1. ANALYSE & TESTS (Parallèle)"]
+        direction LR
+        SCA["Security Scan<br/><i>Gitleaks + SCA Audit</i>"]
+        SAST["SAST Analysis<br/><i>CodeQL</i>"]
+        Tests["Unit Tests<br/><i>Jest</i>"]
     end
-    
-    Lint["📝 Lint & Type Check<br/><i>ESLint + TypeScript</i>"]
-    
-    Sonar{"📊 SonarQube<br/><i>Quality Gate</i>"}
-    
-    Build{"🐳 Build & Scan<br/><i>Docker + Trivy</i>"}
-    
-    Deploy["🚀 Deploy to VPS<br/><i>Infomaniak</i>"]
-    
-    Start --> Parallel
-    
-    SCA --> Lint
-    SAST --> Build
-    Tests --> Sonar
-    Lint --> Sonar
-    
-    SCA --> Build
-    Tests --> Build
-    Sonar --> Build
-    Lint --> Build
-    
+
+    subgraph Quality ["2. QUALITÉ & LINT"]
+        direction LR
+        Lint["Lint & Type Check<br/><i>ESLint + TypeScript</i>"]
+        Sonar{"SonarQube<br/>Quality Gate"}
+    end
+
+    subgraph Delivery ["3. BUILD & DEPLOY"]
+        Build{"Build & Scan<br/><i>Docker + Trivy</i>"}
+        Deploy["Deploy to VPS<br/><i>Infomaniak</i>"]
+    end
+
+    %% Connexions logiques simplifiées
+    Parallel --> Quality
+    Quality --> Build
     Build --> Deploy
-    
-    style Start fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style Parallel fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style Sonar fill:#fff9c4,stroke:#f9a825,stroke-width:3px
-    style Build fill:#e1f5fe,stroke:#01579b,stroke-width:3px
-    style Deploy fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-```
+
+    %% Stylisation
+    classDef default font-family:Arial, font-size:13px;
+    classDef highlight fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef success fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef warning fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+
+    class Start,Deploy success;
+    class Parallel,Quality warning;
+    class Build highlight;
  
 ### Étapes détaillées :
 
@@ -71,39 +68,38 @@ L'infrastructure repose sur un modèle hybride : une partie auto-hébergée sur 
  
 ```mermaid
 flowchart LR
-    User([Utilisateur])
-    
-    subgraph VPS["🖥️ VPS Infomaniak"]
+    User((Utilisateur)) -- HTTPS --> WebApp
+
+    subgraph VPS ["VPS INFOMANIAK"]
         direction TB
-        WebApp["Next.js App<br/>Docker Container"]
+        WebApp["Next.js App<br/>(Docker Container)"]
         
-        subgraph Monitor["📊 Observabilité"]
-            direction TB
-            Promtail["Promtail<br/><i>Collecte logs</i>"]
-            Loki[("Loki<br/><i>Stockage logs</i>")]
-            Prom[("Prometheus<br/><i>Métriques</i>")]
+        subgraph Monitor ["BSERVABILITÉ (Interne)"]
+            direction LR
+            Promtail["Promtail"] --> Loki[("Loki<br/>Logs")]
+            Prom[("Prometheus<br/>Metrics")]
         end
     end
 
-    subgraph Cloud["☁️ Services Cloud - Supabase"]
+    subgraph SaaS ["SUPABASE (Backend as a Service)"]
         direction TB
-        Auth["🔐 Authentification"]
-        DB[("💾 Base de données<br/>PostgreSQL")]
-        Storage["📸 Stockage Photos"]
+        Auth["Authentification"]
+        DB[("PostgreSQL")]
+        Storage["Storage"]
     end
 
-    User -->|HTTPS| WebApp
-    
-    WebApp -->|Auth| Auth
-    WebApp -->|Queries| DB
-    WebApp -->|Upload/Download| Storage
-    
-    WebApp -.->|Logs| Promtail
-    Promtail -->|Push| Loki
-    WebApp -.->|Metrics| Prom
-    
-    style VPS fill:#f5f5f5,stroke:#666,stroke-width:3px
-    style Cloud fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
-    style Monitor fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style WebApp fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+    %% Connexions sortantes
+    WebApp ==> Auth
+    WebApp ==> DB
+    WebApp ==> Storage
+
+    %% Connexions Monitoring
+    WebApp -.-> Promtail
+    WebApp -.-> Prom
+
+    %% Styles
+    style VPS fill:#fafafa,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
+    style SaaS fill:#f0f7ff,stroke:#007bff,stroke-width:2px
+    style Monitor fill:#fff9f0,stroke:#ffa000,stroke-width:1px
+    style WebApp fill:#f6ffed,stroke:#52c41a,stroke-width:2px
 ```
