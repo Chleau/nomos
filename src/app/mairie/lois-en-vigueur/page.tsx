@@ -84,37 +84,25 @@ export default function DerniereLoisEnVigueurPage() {
 
   // Générer les numéros de pages à afficher
   const getPageNumbers = () => {
-    const pages = [];
     const maxPagesToShow = 5;
 
+    // Cas simple: tout afficher
     if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 5; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 4; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(1);
-        pages.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      }
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-    return pages;
+
+    // Cas début: page <= 3
+    if (currentPage <= 3) {
+      return [1, 2, 3, 4, 5, '...', totalPages];
+    }
+
+    // Cas fin: page >= totalPages - 2
+    if (currentPage >= totalPages - 2) {
+      return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    // Cas milieu
+    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
   };
 
   const handlePageChange = (page: number) => {
