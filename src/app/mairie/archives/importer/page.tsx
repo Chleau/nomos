@@ -45,7 +45,7 @@ export default function ImportArchivesPage() {
     if (!fileList) return
 
     const newFiles: ArchiveFileData[] = Array.from(fileList).map((file) => ({
-      id: Math.random().toString(36).substring(2, 9),
+      id: crypto.randomUUID(),
       file,
       titre: file.name.split('.').slice(0, -1).join('.'), // Default title from filename
       numeroOfficiel: '',

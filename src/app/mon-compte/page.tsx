@@ -16,6 +16,7 @@ import Pagination from '@/components/compte/Pagination';
 import { getPublicUrlFromPath } from '@/lib/services/storage.service';
 import { habitantsService } from '@/lib/services/habitants.service';
 import { useSearchLois } from '@/lib/hooks/useLois';
+import { logger } from '@/lib/logger';
 
 type TabType = 'lois' | 'incidents' | 'profil';
 
@@ -116,7 +117,7 @@ export default function MonComptePage() {
           setIncidentsData(paginatedIncidents);
         }
       } catch (error) {
-        console.error('Error loading incidents:', error);
+        logger.error('Error loading incidents:', error);
       } finally {
         setLoadingIncidents(false);
       }
@@ -151,7 +152,7 @@ export default function MonComptePage() {
     try {
       if (!habitantData?.id) return;
 
-      console.log('Saving profile data:', profileData);
+      logger.log('Saving profile data:', profileData);
 
       const { data, error } = await habitantsService.update(habitantData.id, {
         email: profileData.email,
@@ -165,7 +166,7 @@ export default function MonComptePage() {
         setIsEditingProfile(false);
       }
     } catch (error) {
-      console.error('Error saving profile:', error);
+      logger.error('Error saving profile:', error);
     }
   };
 

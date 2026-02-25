@@ -95,7 +95,8 @@ export default function LoiDetailPage() {
   const signatureSection: SignatureSection | null = useMemo(() => {
     if (!loi?.contenu) return null
 
-    const signatureRegex = /Fait\s+à\s+[^,]+,\s+le\s+[^\n]+/i
+    // Utilisation d'une regex limitée pour éviter le backtracking excessif (ReDoS)
+    const signatureRegex = /Fait\s+à\s+[^,\r\n]+,\s+le\s+[^\r\n]+/i
     const match = loi.contenu.match(signatureRegex)
 
     if (!match) return null
