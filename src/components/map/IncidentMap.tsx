@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
+import { logger } from "@/lib/logger"
 
 // Fonctions utilitaires pour échapper le HTML
 function escapeHtml(s: string): string {
