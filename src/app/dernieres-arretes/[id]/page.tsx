@@ -42,21 +42,6 @@ export default function ArretePage() {
     );
   }
 
-  const formattedDate = arrete.date_creation
-    ? new Date(arrete.date_creation).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
-    : null;
-
-  const formattedModification = arrete.date_modification
-    ? new Date(arrete.date_modification).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
-    : null;
 
   return (
     <div className="bg-[#f5fcfe] min-h-screen pb-24 md:pb-6">
