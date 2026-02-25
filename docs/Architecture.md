@@ -7,37 +7,61 @@ Ce document détaille l'organisation technique du projet NOMOS, son infrastructu
 Le pipeline est déclenché à chaque push sur la branche `main` via GitHub Actions. Il assure la sécurité et la qualité du code avant toute mise en production.
  
 ```mermaid
-flowchart TD
-    subgraph CI ["Pipeline GitHub Actions"]
-        direction LR
-        SCA[Secrets Scan<br/>Gitleaks]
-        SAST[SAST Analysis<br/>CodeQL]
-        Tests[Unit Tests<br/>Jest]
-        Lint[Lint & Type Check<br/>ESLint]
-        
-        Sonar{Quality Gate<br/>SonarQube}
-        Build{Container Scan<br/>Trivy}
-        
-        Lint --> Sonar
-        Tests --> Sonar
-        
-        SCA --> Build
-        SAST --> Build
-        Sonar --> Build
+flowchart TB
+    Start([Push/PR sur main])
+    
+    subgraph Parallel["🔄 Exécution parallèle"]
+        direction TB
+        SCA["🔐 Security Scan<br/><i>Gitleaks + SCA Audit</i>"]
+        SAST["🔍 SAST Analysis<br/><i>CodeQL</i>"]
+        Tests["✅ Unit Tests<br/><i>Jest</i>"]
     end
-
-    Build --> Deploy[Déploiement VPS<br/>Infomaniak]
-
-    style Deploy fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    
+    Lint["📝 Lint & Type Check<br/><i>ESLint + TypeScript</i>"]
+    
+    Sonar{"📊 SonarQube<br/><i>Quality Gate</i>"}
+    
+    Build{"🐳 Build & Scan<br/><i>Docker + Trivy</i>"}
+    
+    Deploy["🚀 Deploy to VPS<br/><i>Infomaniak</i>"]
+    
+    Start --> Parallel
+    
+    SCA --> Lint
+    SAST --> Build
+    Tests --> Sonar
+    Lint --> Sonar
+    
+    SCA --> Build
+    Tests --> Build
+    Sonar --> Build
+    Lint --> Build
+    
+    Build --> Deploy
+    
+    style Start fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style Parallel fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style Sonar fill:#fff9c4,stroke:#f9a825,stroke-width:3px
+    style Build fill:#e1f5fe,stroke:#01579b,stroke-width:3px
+    style Deploy fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
 ```
  
 ### Étapes détaillées :
-1.  **Gitleaks** : Scan de tout l'historique pour détecter d'éventuels secrets (clés API, mots de passe) commités par erreur.
-2.  **CodeQL** : Analyse statique approfondie pour détecter les vulnérabilités logiques (injections, XSS, etc.).
-3.  **Tests Unitaires (Jest)** : Exécution de la suite de tests pour garantir le bon fonctionnement des services et composants. La couverture est ensuite envoyée à SonarQube.
-4.  **SonarQube** : Analyse de la qualité du code, détection de la dette technique et vérification que la Quality Gate est respectée.
-5.  **Trivy** : Scan de l'image Docker finale pour identifier des vulnérabilités (CVE) dans les packages système ou les dépendances.
-6.  **Déploiement** : Si toutes les étapes précédentes sont au vert, on se connecte au vps pour mettre à jour et deployer les modifications
+
+**Phase 1 - Exécution parallèle :**
+1. **Security Scan (Gitleaks + SCA)** : Détecte les secrets dans l'historique Git + Audit des dépendances de production
+2. **SAST Analysis (CodeQL)** : Analyse statique approfondie pour détecter les vulnérabilités logiques (injections, XSS, etc.)
+3. **Unit Tests (Jest)** : Exécution de la suite de tests avec génération de la couverture de code
+
+**Phase 2 - Quality checks :**
+4. **Lint & Type Check** : Vérifie la qualité du code avec ESLint et TypeScript (dépend de Security Scan)
+5. **SonarQube** : Analyse la qualité globale et la couverture de code (dépend de Lint et Tests)
+
+**Phase 3 - Build & Security :**
+6. **Build & Scan Docker** : Construction de l'image Docker et scan des vulnérabilités avec Trivy + génération du SBOM (dépend de toutes les étapes précédentes)
+
+**Phase 4 - Déploiement :**
+7. **Deploy to VPS** : Déploiement automatique sur le VPS Infomaniak si toutes les étapes précédentes réussissent et si on est sur la branche `main`
  
 ## 2. Infrastructure
  
@@ -46,29 +70,40 @@ L'infrastructure repose sur un modèle hybride : une partie auto-hébergée sur 
 ### Schéma de l'infrastructure
  
 ```mermaid
-flowchart TD
-    User([Utilisateur]) -- "HTTPS" --> WebApp[Next.js App / Docker]
-
-    subgraph VPS [VPS Infomaniak]
-        WebApp
-        subgraph Monitor [Observabilité]
-            Prom[(Prometheus)]
-            Loki[(Loki)]
-            Promtail[Promtail]
+flowchart LR
+    User([Utilisateur])
+    
+    subgraph VPS["🖥️ VPS Infomaniak"]
+        direction TB
+        WebApp["Next.js App<br/>Docker Container"]
+        
+        subgraph Monitor["📊 Observabilité"]
+            direction TB
+            Promtail["Promtail<br/><i>Collecte logs</i>"]
+            Loki[("Loki<br/><i>Stockage logs</i>")]
+            Prom[("Prometheus<br/><i>Métriques</i>")]
         end
     end
 
-    subgraph Cloud [Services Cloud - Supabase]
-        Auth[Authentification]
-        DB[(Base de données)]
-        Storage[Stockage Photos]
+    subgraph Cloud["☁️ Services Cloud - Supabase"]
+        direction TB
+        Auth["🔐 Authentification"]
+        DB[("💾 Base de données<br/>PostgreSQL")]
+        Storage["📸 Stockage Photos"]
     end
 
-    WebApp --> Auth
-    WebApp --> DB
-    WebApp --> Storage
+    User -->|HTTPS| WebApp
     
-    Promtail -- "Logs" --> WebApp
-    Promtail --> Loki
-    WebApp -- "Metrics" --> Prom
+    WebApp -->|Auth| Auth
+    WebApp -->|Queries| DB
+    WebApp -->|Upload/Download| Storage
+    
+    WebApp -.->|Logs| Promtail
+    Promtail -->|Push| Loki
+    WebApp -.->|Metrics| Prom
+    
+    style VPS fill:#f5f5f5,stroke:#666,stroke-width:3px
+    style Cloud fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    style Monitor fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style WebApp fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
 ```
