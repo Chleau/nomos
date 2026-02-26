@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
         if (habitantId) {
             // Si habitant_id est fourni, récupérer seulement ses signalements
-            const result = await signalementsService.getByHabitant(parseInt(habitantId));
+            const result = await signalementsService.getByHabitant(Number.parseInt(habitantId, 10));
             data = result.data;
             error = result.error;
         } else {

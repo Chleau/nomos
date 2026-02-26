@@ -112,13 +112,6 @@ export default function CartePage() {
     })
   }
 
-  const getStatut = (statut?: string | null): "En attente" | "En cours" | "Urgent" | "Résolu" => {
-    if (statut === "En cours") return "En cours"
-    if (statut === "Urgent") return "Urgent"
-    if (statut === "Résolu") return "Résolu"
-    return "En attente"
-  }
-
   // Fonctions pour le carrousel
   const nextSlide = () => {
     setCurrentCarouselIndex((prev) => (prev + 1) % typesIncidents.length)
@@ -198,6 +191,69 @@ export default function CartePage() {
     },
   ]
 
+
+  const renderMap = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-[400px] bg-gray-100 rounded-lg">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement de la carte...</p>
+          </div>
+        </div>
+      );
+    }
+    if (markers.length > 0) {
+      return (
+        <div className="h-[407px] md:h-[520px]">
+          <IncidentMap markers={markers} />
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center justify-center h-[400px] bg-gray-100 rounded-lg">
+        <p className="text-gray-600">Aucun incident localisé à afficher</p>
+      </div>
+    );
+  };
+
+  const renderSignalementsList = () => {
+    if (isLoading) {
+      return (
+        <div className="text-center py-8">
+          <p className="text-gray-600">Chargement des incidents...</p>
+        </div>
+      );
+    }
+    if (derniers4Signalements.length > 0) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+          {derniers4Signalements.map((signalement) => {
+            const firstPhotoPath = (signalement as Signalement).photos_signalement?.[0]?.url;
+            const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined;
+
+            return (
+              <CardIncident
+                key={signalement.id}
+                title={signalement.titre || "Sans titre"}
+                label={signalement.statut || "En attente"}
+                date={formatDate(signalement.date_signalement)}
+                username={`${signalement.prenom || ""} ${signalement.nom || "Anonyme"}`.trim()}
+                description={signalement.description || "Aucune description"}
+                image={imageUrl}
+                onClick={() => router.push(`/signalements/${signalement.id}`)}
+              />
+            );
+          })}
+        </div>
+      );
+    }
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-600">Aucun incident trouvé</p>
+      </div>
+    );
+  };
 
   return (
     <div className="bg-[#f5fcfe] min-h-screen">
@@ -280,54 +336,11 @@ export default function CartePage() {
         </div>
 
         {/* Carte */}
-        {isLoading ? (
-          <div className="flex items-center justify-center h-[400px] bg-gray-100 rounded-lg">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-              <p className="text-gray-600">Chargement de la carte...</p>
-            </div>
-          </div>
-        ) : markers.length > 0 ? (
-          <div className="h-[407px] md:h-[520px]">
-            <IncidentMap markers={markers} />
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-[400px] bg-gray-100 rounded-lg">
-            <p className="text-gray-600">Aucun incident localisé à afficher</p>
-          </div>
-        )}
+        {renderMap()}
 
         {/* Liste des signalements sous la carte */}
         <div className="mt-8 mx-auto">
-          {isLoading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Chargement des incidents...</p>
-            </div>
-          ) : derniers4Signalements.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-              {derniers4Signalements.map((signalement) => {
-                const firstPhotoPath = (signalement as Signalement).photos_signalement?.[0]?.url
-                const imageUrl = firstPhotoPath ? getPublicUrlFromPath(firstPhotoPath) : undefined
-
-                return (
-                  <CardIncident
-                    key={signalement.id}
-                    title={signalement.titre || "Sans titre"}
-                    label={signalement.statut || "En attente"}
-                    date={formatDate(signalement.date_signalement)}
-                    username={`${signalement.prenom || ""} ${signalement.nom || "Anonyme"}`.trim()}
-                    description={signalement.description || "Aucune description"}
-                    image={imageUrl}
-                    onClick={() => router.push(`/signalements/${signalement.id}`)}
-                  />
-                )
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Aucun incident trouvé</p>
-            </div>
-          )}
+          {renderSignalementsList()}
         </div>
 
         {/* Bouton "Voir tout" - Affiché seulement s'il y a plus de 4 signalements */}
@@ -407,9 +420,9 @@ export default function CartePage() {
 
               {/* Indicateurs de pagination */}
               <div className="flex justify-center gap-3 mt-6 pb-4">
-                {typesIncidents.map((_, index) => (
+                {typesIncidents.map((type, index) => (
                   <button
-                    key={index}
+                    key={`indicator-${type.id}`}
                     onClick={() => setCurrentCarouselIndex(index)}
                     className={`w-3 h-3 rounded-full transition ${index === currentCarouselIndex ? 'bg-[#F27F09]' : 'bg-gray-400'
                       }`}

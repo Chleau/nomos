@@ -15,15 +15,12 @@
 
 html,
 body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
 
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-  }
-
-  :root {
+:root {
     --background: #ffffff;
     --foreground: #171717;
     --font-montserrat: 'Montserrat', sans-serif;
@@ -53,10 +50,6 @@ body {
 
   /* Masquer la scrollbar pour les carousels */
   .scrollbar-hide {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
     -ms-overflow-style: none;
     /* IE and Edge */
     scrollbar-width: none;
