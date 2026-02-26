@@ -204,13 +204,13 @@ export default function DerniereArreteesPage() {
           </div>
         )}
 
-        {!isLoading && !error && arretes && arretes.length === 0 && (
+        {!isLoading && !error && arretes?.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500">Aucun arrêté trouvé</p>
           </div>
         )}
 
-        {!isLoading && !error && arretes && arretes.length > 0 && (
+        {!isLoading && !error && arretes?.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12">
               {currentArretes.map((arrete: any) => (
@@ -224,10 +224,19 @@ export default function DerniereArreteesPage() {
                     </div>
                   </div>
                   <div className='flex justify-between'>
-                    <div className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors cursor-pointer" onClick={() => window.open(`/dernieres-arretes/${arrete.id}`, '_blank')}>
+                    <button 
+                      className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors" 
+                      onClick={() => window.open(`/dernieres-arretes/${arrete.id}`, '_blank')}
+                      aria-label="Ouvrir dans un nouvel onglet"
+                    >
                       <ArrowTopRightOnSquareIcon className="w-[20px] h-[20px] text-[#475569]" />
-                    </div>
-                    <span className="font-[Montserrat] text-[14px] font-normal text-[#F27F09] cursor-pointer hover:text-[#d66d07] transition-colors" onClick={() => router.push(`/dernieres-arretes/${arrete.id}`)}> Lire plus</span>
+                    </button>
+                    <button 
+                      className="font-[Montserrat] text-[14px] font-normal text-[#F27F09] hover:text-[#d66d07] transition-colors" 
+                      onClick={() => router.push(`/dernieres-arretes/${arrete.id}`)}
+                    >
+                      Lire plus
+                    </button>
                   </div>
                 </div>
               ))}
@@ -250,7 +259,7 @@ export default function DerniereArreteesPage() {
                 {getPageNumbers().map((page, index) => (
                   typeof page === 'number' ? (
                     <button
-                      key={index}
+                      key={`page-${page}`}
                       onClick={() => handlePageChange(page)}
                       className={`w-8 h-8 flex items-center justify-center rounded font-['Montserrat'] font-normal text-[16px] transition-colors ${currentPage === page
                         ? 'bg-[#F27F09] text-white'
@@ -260,7 +269,7 @@ export default function DerniereArreteesPage() {
                       {page}
                     </button>
                   ) : (
-                    <span key={index} className="w-8 h-8 flex items-center justify-center text-gray-400">
+                    <span key={`dots-${index}`} className="w-8 h-8 flex items-center justify-center text-gray-400">
                       {page}
                     </span>
                   )

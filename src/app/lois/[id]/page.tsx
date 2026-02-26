@@ -26,7 +26,7 @@ export default function LoiDetailPage() {
   const router = useRouter()
   const id = params.id as string
 
-  const { data: loi, isLoading, error } = useLoiById(parseInt(id))
+  const { data: loi, isLoading, error } = useLoiById(Number.parseInt(id, 10))
 
   // Parser le contenu pour extraire les articles
   const articles: Article[] = useMemo(() => {
