@@ -54,23 +54,13 @@ export default function MonComptePage() {
 
   // Synchroniser les données du profil quand habitantData est chargé
   useEffect(() => {
-    if (habitantData) {
-      setProfileData({
-        email: habitantData.email || user?.email || '',
-        phone_number: habitantData.phone_number || '',
-        adresse: habitantData.adresse || '',
-        date_naissance: habitantData.date_naissance || '',
-        role: habitantData.role || 'habitant'
-      });
-    } else {
-      setProfileData({
-        email: user?.email || '',
-        phone_number: '',
-        adresse: '',
-        date_naissance: '',
-        role: 'habitant'
-      });
-    }
+    setProfileData({
+      email: habitantData?.email || user?.email || '',
+      phone_number: habitantData?.phone_number || '',
+      adresse: habitantData?.adresse || '',
+      date_naissance: habitantData?.date_naissance || '',
+      role: habitantData?.role || 'habitant'
+    });
   }, [habitantData, user]);
 
   // Gérer la pagination des lois
@@ -172,26 +162,12 @@ export default function MonComptePage() {
 
   // Fonction pour générer les pages à afficher avec ellipsis
   const getPaginationPages = (currentPage: number, totalPages: number) => {
-    const pages: (number | string)[] = [];
-    const maxPagesDisplay = 6; // Nombre max de pages à afficher avant ellipsis
-
     if (totalPages <= 8) {
-      // Si peu de pages, les afficher toutes
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Afficher les 6 premières pages
-      for (let i = 1; i <= maxPagesDisplay; i++) {
-        pages.push(i);
-      }
-      // Ajouter ellipsis et dernière page si nécessaire
-      if (totalPages > maxPagesDisplay) {
-        pages.push('...');
-        pages.push(totalPages);
-      }
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
+    const pages: (number | string)[] = Array.from({ length: 6 }, (_, i) => i + 1);
+    pages.push('...', totalPages);
     return pages;
   };
 

@@ -225,46 +225,51 @@ export default function SignalementForm() {
         setIsSubmitting(false);
         return;
       }
-      // Si des photos sont sélectionnées, upload puis création des entrées photo_signalement
+
+      // Gestion des photos si présentes
       if (photos.length > 0) {
-        try {
-          let firstPhotoPath: string | undefined;
-          for (let i = 0; i < photos.length; i++) {
-            const path = await uploadSignalementPhoto(photos[i], signalement.id);
-            await createPhotoSignalement(signalement.id, path);
-            // Mémoriser le chemin de la première photo
-            if (i === 0) {
-              firstPhotoPath = path;
-            }
-          }
-          // Met à jour l'URL avec la première photo dans le signalement
-          if (firstPhotoPath) {
-            await updateSignalementUrl.mutateAsync({ id: signalement.id, url: firstPhotoPath });
-          }
-        } catch (err) {
-          setMessage("Signalement créé, mais erreur lors de l'upload des photos");
-          setIsSubmitting(false);
-          return;
-        }
+        await handlePhotoUploads(signalement.id);
       }
+
       setMessage("Signalement créé avec succès !");
-      setTitre('');
-      setDescription('');
-      setTypeId('');
-      setLatitude('');
-      setLongitude('');
-      setAdresse('');
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      setPhotos([]);
-      setTelephone('');
-      setStep(1);
-      setIsSubmitting(false);
+      resetForm();
     } catch (err: unknown) {
       logger.error('Erreur creation signalement', err, { context: 'SignalementForm' });
       const errorMessage = err instanceof Error ? err.message : "Erreur lors de la création du signalement";
       setMessage(errorMessage);
       setIsSubmitting(false);
     }
+  };
+
+  const handlePhotoUploads = async (signalementId: number) => {
+    try {
+      let firstPhotoPath: string | undefined;
+      for (let i = 0; i < photos.length; i++) {
+        const path = await uploadSignalementPhoto(photos[i], signalementId);
+        await createPhotoSignalement(signalementId, path);
+        if (i === 0) firstPhotoPath = path;
+      }
+      if (firstPhotoPath) {
+        await updateSignalementUrl.mutateAsync({ id: signalementId, url: firstPhotoPath });
+      }
+    } catch (err) {
+      setMessage("Signalement créé, mais erreur lors de l'upload des photos");
+      throw err;
+    }
+  };
+
+  const resetForm = () => {
+    setTitre('');
+    setDescription('');
+    setTypeId('');
+    setLatitude('');
+    setLongitude('');
+    setAdresse('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setPhotos([]);
+    setTelephone('');
+    setStep(1);
+    setIsSubmitting(false);
   };
 
 

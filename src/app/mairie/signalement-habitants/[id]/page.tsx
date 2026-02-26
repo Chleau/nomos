@@ -38,6 +38,59 @@ const IncidentMap = dynamic(() => import('@/components/map/IncidentMap'), {
     )
 })
 
+const statutsConfig = {
+    'Résolu': {
+        bgColor: '#DBEAFE',
+        textColor: '#059669',
+        dotColor: '#10B981',
+        borderColor: '#BAE6FD'
+    },
+    'En cours': {
+        bgColor: '#FED7AA',
+        textColor: '#D97706',
+        dotColor: '#F59E0B',
+        borderColor: '#FDBA74'
+    },
+    'Urgent': {
+        bgColor: '#FECACA',
+        textColor: '#DC2626',
+        dotColor: '#EF4444',
+        borderColor: '#FCA5A5'
+    },
+    'En attente': {
+        bgColor: '#E2E8F0',
+        textColor: '#475569',
+        dotColor: '#64748B',
+        borderColor: '#CBD5E1'
+    }
+}
+
+const statuts = ['Résolu', 'En cours', 'Urgent', 'En attente']
+
+const getDisplayStatus = (status: string | null) => {
+    if (!status || status === 'En attente') return 'En attente'
+    return status
+}
+
+const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Date inconnue'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    })
+}
+
+const getMessageInitials = (name: string | null) => {
+    if (!name) return null;
+    const parts = name.split(' ');
+    if (parts.length > 1) {
+        return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name[0]?.toUpperCase() || '';
+};
+
 export default function MairieSignalementDetailPage() {
     const params = useParams()
     const router = useRouter()
@@ -71,40 +124,6 @@ export default function MairieSignalementDetailPage() {
     const [editedEmail, setEditedEmail] = useState('')
     const [editedNom, setEditedNom] = useState('')
     const [editedPrenom, setEditedPrenom] = useState('')
-
-    const statutsConfig = {
-        'Résolu': {
-            bgColor: '#DBEAFE',
-            textColor: '#059669',
-            dotColor: '#10B981',
-            borderColor: '#BAE6FD'
-        },
-        'En cours': {
-            bgColor: '#FED7AA',
-            textColor: '#D97706',
-            dotColor: '#F59E0B',
-            borderColor: '#FDBA74'
-        },
-        'Urgent': {
-            bgColor: '#FECACA',
-            textColor: '#DC2626',
-            dotColor: '#EF4444',
-            borderColor: '#FCA5A5'
-        },
-        'En attente': {
-            bgColor: '#E2E8F0',
-            textColor: '#475569',
-            dotColor: '#64748B',
-            borderColor: '#CBD5E1'
-        }
-    }
-
-    const statuts = ['Résolu', 'En cours', 'Urgent', 'En attente']
-
-    const getDisplayStatus = (status: string | null) => {
-        if (!status || status === 'En attente') return 'En attente'
-        return status
-    }
 
     const reverseGeocode = async (latitude: number, longitude: number) => {
         setLoadingAddress(true)
@@ -184,16 +203,6 @@ export default function MairieSignalementDetailPage() {
         } finally {
             setIsSavingRappel(false)
         }
-    }
-
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) return 'Date inconnue'
-        const date = new Date(dateString)
-        return date.toLocaleDateString('fr-FR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        })
     }
 
     const handleStatusChange = async (newStatut: string) => {
@@ -291,19 +300,12 @@ export default function MairieSignalementDetailPage() {
         }
     }
 
-    const getMessageInitials = (name: string | null) => {
-        if (!name) return null;
-        const parts = name.split(' ');
-        if (parts.length > 1) {
-            return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-        }
-        return name[0].toUpperCase();
-    };
-
     if (isLoading) return <div className="p-8 text-center text-gray-500">Chargement...</div>
     if (error || !signalement) return <div className="p-8 text-center text-red-500">Erreur lors du chargement</div>
 
     const photos = signalement.photos_signalement || []
+    const displayStatus = getDisplayStatus(signalement.statut)
+    const statusStyle = statutsConfig[displayStatus as keyof typeof statutsConfig] || statutsConfig['En attente']
 
     return (
         <RoleProtectedPage allowedRoles={[UserRole.MAIRIE, UserRole.ADMIN]}>
@@ -419,24 +421,18 @@ export default function MairieSignalementDetailPage() {
                         </div>
 
                         <div className="relative">
-                            {(() => {
-                                const displayStatus = getDisplayStatus(signalement.statut)
-                                const statusStyle = statutsConfig[displayStatus as keyof typeof statutsConfig] || statutsConfig['En attente']
-                                return (
-                                    <button
-                                        onClick={() => !isReadOnly && setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                                        className={`flex items-center gap-2 px-4 py-1.5 rounded-lg border font-['Montserrat'] font-medium text-sm min-w-[140px] justify-between transition-all ${isReadOnly ? 'cursor-default opacity-80' : ''}`}
-                                        style={{
-                                            backgroundColor: statusStyle.bgColor,
-                                            color: statusStyle.textColor,
-                                            borderColor: statusStyle.borderColor
-                                        }}
-                                    >
-                                        {displayStatus}
-                                        {!isReadOnly && <ChevronDownIcon className="w-4 h-4" />}
-                                    </button>
-                                )
-                            })()}
+                            <button
+                                onClick={() => !isReadOnly && setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg border font-['Montserrat'] font-medium text-sm min-w-[140px] justify-between transition-all ${isReadOnly ? 'cursor-default opacity-80' : ''}`}
+                                style={{
+                                    backgroundColor: statusStyle.bgColor,
+                                    color: statusStyle.textColor,
+                                    borderColor: statusStyle.borderColor
+                                }}
+                            >
+                                {displayStatus}
+                                {!isReadOnly && <ChevronDownIcon className="w-4 h-4" />}
+                            </button>
 
                             {isStatusDropdownOpen && (
                                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
@@ -568,16 +564,10 @@ export default function MairieSignalementDetailPage() {
                                         <h3 className="text-xl font-semibold text-[#475569] mb-4 font-['Poppins']">{signalement.titre}</h3>
 
                                         <div className="flex items-center gap-4 mb-6 text-sm font-['Poppins']">
-                                            {(() => {
-                                                const displayStatus = getDisplayStatus(signalement.statut)
-                                                const statusStyle = statutsConfig[displayStatus as keyof typeof statutsConfig] || statutsConfig['En attente']
-                                                return (
-                                                    <div className="flex items-center gap-1.5 font-medium" style={{ color: statusStyle.dotColor }}>
-                                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: statusStyle.dotColor }} />
-                                                        <span>{displayStatus}</span>
-                                                    </div>
-                                                )
-                                            })()}
+                                            <div className="flex items-center gap-1.5 font-medium" style={{ color: statusStyle.dotColor }}>
+                                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: statusStyle.dotColor }} />
+                                                <span>{displayStatus}</span>
+                                            </div>
                                             <span className="text-[#64748B]">Déclarer le {formatDate(signalement.date_signalement)}</span>
                                             <span className="font-semibold">{signalement.prenom} {signalement.nom}</span>
                                         </div>

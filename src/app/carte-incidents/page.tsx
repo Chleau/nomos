@@ -45,38 +45,34 @@ export default function CartePage() {
   const filteredSignalements = (signalements || []).filter((s) => {
     // Recherche textuelle
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      const matchTitle = s.titre?.toLowerCase().includes(query)
-      const matchDesc = s.description?.toLowerCase().includes(query)
-      if (!matchTitle && !matchDesc) return false
+      const query = searchQuery.toLowerCase();
+      const matchTitle = s.titre?.toLowerCase().includes(query);
+      const matchDesc = s.description?.toLowerCase().includes(query);
+      if (!matchTitle && !matchDesc) return false;
     }
 
     // Filtres
-    if (!filters) return true
+    if (!filters) return true;
 
     // Filtrer par dates
-    if (filters.startDate || filters.endDate) {
-      const sigDate = new Date(s.created_at)
-      if (filters.startDate) {
-        const startDate = new Date(filters.startDate)
-        if (sigDate < startDate) return false
-      }
-      if (filters.endDate) {
-        const endDate = new Date(filters.endDate)
-        endDate.setHours(23, 59, 59, 999)
-        if (sigDate > endDate) return false
-      }
+    const sigDate = new Date(s.created_at);
+    if (filters.startDate && sigDate < new Date(filters.startDate)) {
+      return false;
+    }
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      if (sigDate > endDate) return false;
     }
 
     // Filtrer par thématiques
     if (filters.themes.length > 0) {
-      const typeId = s.type_id
-      const typeLibelle = types.find((t) => t.id === typeId)?.libelle
-      if (!typeLibelle || !filters.themes.includes(typeLibelle)) return false
+      const typeLibelle = types.find((t) => t.id === s.type_id)?.libelle;
+      if (!typeLibelle || !filters.themes.includes(typeLibelle)) return false;
     }
 
-    return true
-  })
+    return true;
+  });
 
   // Trier par date selon le choix et prendre les 2 derniers sur mobile, 4 sur desktop
   const derniers4Signalements = [...filteredSignalements]
