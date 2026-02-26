@@ -46,6 +46,17 @@ type Props = {
   markers: SignalementMarker[]
 }
 
+function createPopupContent(m: SignalementMarker): string {
+  let content = ""
+  if (m.titre) content += `<strong>${escapeHtml(m.titre)}</strong><br/>`
+  if (m.statut) content += `<span style="font-size:0.875rem;color:#666">Statut: ${escapeHtml(m.statut)}</span><br/>`
+  if (m.description) content += `<div style="margin-top:8px">${escapeHtml(m.description)}</div>`
+  if (m.imageUrl) {
+    content += `<div style="margin-top:8px"><img src="${escapeAttr(m.imageUrl)}" alt="photo" style="max-width:200px;max-height:150px;object-fit:cover;border-radius:6px"/></div>`
+  }
+  return content
+}
+
 export default function IncidentMap({
   center = [46.603354, 1.888334], // Centre de la France
   zoom = 6,
@@ -113,15 +124,7 @@ export default function IncidentMap({
       if (m.latitude == null || m.longitude == null) continue
 
       const newMarker = L.marker([m.latitude, m.longitude])
-
-      // Créer le contenu du popup
-      let popupContent = ""
-      if (m.titre) popupContent += `<strong>${escapeHtml(m.titre)}</strong><br/>`
-      if (m.statut) popupContent += `<span style="font-size:0.875rem;color:#666">Statut: ${escapeHtml(m.statut)}</span><br/>`
-      if (m.description) popupContent += `<div style="margin-top:8px">${escapeHtml(m.description)}</div>`
-      if (m.imageUrl) {
-        popupContent += `<div style="margin-top:8px"><img src="${escapeAttr(m.imageUrl)}" alt="photo" style="max-width:200px;max-height:150px;object-fit:cover;border-radius:6px"/></div>`
-      }
+      const popupContent = createPopupContent(m)
 
       newMarker.bindPopup(popupContent, { maxWidth: 300 })
       markersGroup.addLayer(newMarker)

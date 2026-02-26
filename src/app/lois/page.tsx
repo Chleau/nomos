@@ -26,7 +26,7 @@ export default function LoisPage() {
   const thematiques = useMemo(() => {
     if (!allLois) return [];
     const uniqueThemes = [...new Set(allLois.map(loi => loi.thematique).filter(Boolean))];
-    return uniqueThemes.sort();
+    return (uniqueThemes as string[]).sort((a, b) => a.localeCompare(b));
   }, [allLois]);
 
   // Filtrer les lois par thématique et les filtres appliqués
@@ -83,36 +83,29 @@ export default function LoisPage() {
 
   // Générer les numéros de pages à afficher
   const getPageNumbers = () => {
-    const pages = [];
+    const pages: (number | string)[] = [];
     const maxPagesToShow = 5;
 
     if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 5; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 4; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(1);
-        pages.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
     }
+
+    if (currentPage <= 3) {
+      for (let i = 1; i <= 5; i++) pages.push(i);
+      pages.push('...', totalPages);
+      return pages;
+    }
+
+    if (currentPage >= totalPages - 2) {
+      pages.push(1, '...');
+      for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    pages.push(1, '...');
+    for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+    pages.push('...', totalPages);
     return pages;
   };
 
