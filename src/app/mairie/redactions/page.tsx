@@ -343,7 +343,7 @@ export default function DerniereRedactionsPage() {
         element.download = `${arrete.titre || 'document'}.txt`;
         document.body.appendChild(element);
         element.click();
-        document.body.removeChild(element);
+        element.remove();
       }
     })
     setIsGroupActionsOpen(false)

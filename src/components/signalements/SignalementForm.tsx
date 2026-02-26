@@ -365,8 +365,9 @@ export default function SignalementForm() {
             <div className="mb-4 w-full max-w-[934px] mx-auto px-2 md:px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-16 w-full pb-4 md:pb-8">
                 <div className="w-full">
-                  <label className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Type d&apos;incident *</label>
+                  <label htmlFor="type-incident" className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Type d&apos;incident *</label>
                   <select
+                    id="type-incident"
                     value={typeId}
                     onChange={e => setTypeId(e.target.value === '' ? '' : Number(e.target.value))}
                     required
@@ -382,8 +383,9 @@ export default function SignalementForm() {
                   {errors.typeId && <div className="text-red-500 text-sm mt-1">{errors.typeId}</div>}
                 </div>
                 <div className="w-full">
-                  <label className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Titre du problème *</label>
+                  <label htmlFor="titre-incident" className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Titre du problème *</label>
                   <input
+                    id="titre-incident"
                     type="text"
                     value={titre}
                     placeholder='Donnez un résumé en quelques mots'
@@ -396,8 +398,9 @@ export default function SignalementForm() {
               </div>
 
               <div className="mb-4">
-                <label className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Message *</label>
+                <label htmlFor="description-incident" className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Message *</label>
                 <textarea
+                  id="description-incident"
                   value={description}
                   placeholder='Expliquez ce qui se passe avec le plus de détails possibles'
                   onChange={e => setDescription(e.target.value)}
@@ -412,7 +415,7 @@ export default function SignalementForm() {
           <>
             <div className='w-full max-w-[982px] mx-auto px-2.5 md:px-4'>
               <div className="mb-4 pb-4">
-                <label className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Localisation de l&apos;incident</label>
+                <label htmlFor="adresse-input" className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Localisation de l&apos;incident</label>
                 <div className="w-full mb-4">
                   <div className="relative">
                     <input
@@ -491,7 +494,7 @@ export default function SignalementForm() {
                 </div>
               </div>
               <div className="mb-4">
-                <label className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Ajouter des photos</label>
+                <label htmlFor="photo-upload" className="block mb-3 font-['Montserrat'] md:font-['Poppins] font-semibold md:font-medium text-[16px] md:text-[20px] text-[#053F5C]">Ajouter des photos</label>
                 <div
                   className="relative"
                   onDragOver={handleDragOver}
@@ -523,7 +526,7 @@ export default function SignalementForm() {
                 {photos.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
                     {photos.map((photo, index) => (
-                      <div key={index} className="relative group">
+                      <div key={`${photo.name}-${photo.lastModified}-${index}`} className="relative group">
                         <img
                           src={URL.createObjectURL(photo)}
                           alt={`Preview ${index + 1}`}
@@ -554,8 +557,9 @@ export default function SignalementForm() {
               <h3 className="text-lg font-semibold mb-6 text-gray-900">Vos coordonnées</h3>
               <div className="grid grid-cols-2 gap-4 w-full pb-8">
                 <div className="mb-4">
-                  <label className="block mb-1 font-medium text-gray-700">Nom</label>
+                  <label htmlFor="nom-coord" className="block mb-1 font-medium text-gray-700">Nom</label>
                   <input
+                    id="nom-coord"
                     type="text"
                     value={nom}
                     readOnly
@@ -563,8 +567,9 @@ export default function SignalementForm() {
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block mb-1 font-medium text-gray-700">Prénom</label>
+                  <label htmlFor="prenom-coord" className="block mb-1 font-medium text-gray-700">Prénom</label>
                   <input
+                    id="prenom-coord"
                     type="text"
                     value={prenom}
                     readOnly
@@ -574,8 +579,9 @@ export default function SignalementForm() {
               </div>
               <div className="grid grid-cols-2 gap-4 w-full pb-8">
                 <div className="mb-4">
-                  <label className="block mb-1 font-medium text-gray-700">Téléphone</label>
+                  <label htmlFor="tel-coord" className="block mb-1 font-medium text-gray-700">Téléphone</label>
                   <input
+                    id="tel-coord"
                     type="tel"
                     value={telephone}
                     onChange={e => setTelephone(e.target.value)}
@@ -584,8 +590,9 @@ export default function SignalementForm() {
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block mb-1 font-medium text-gray-700">Adresse email</label>
+                  <label htmlFor="email-coord" className="block mb-1 font-medium text-gray-700">Adresse email</label>
                   <input
+                    id="email-coord"
                     type="email"
                     value={email}
                     readOnly

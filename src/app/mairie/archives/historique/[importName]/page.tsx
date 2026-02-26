@@ -192,7 +192,7 @@ export default function ImportDetailsPage() {
                 })
             }
             // Themes
-            if (filterState.themes && filterState.themes.length > 0) {
+            if (filterState.themes?.length > 0) {
                 filtered = filtered.filter(r => filterState.themes!.includes(r.categorie))
             }
         }
@@ -261,7 +261,7 @@ export default function ImportDetailsPage() {
                     link.download = arrete.titre || 'document';
                     document.body.appendChild(link);
                     link.click();
-                    document.body.removeChild(link);
+                    link.remove();
                 } else if (arrete.contenu) {
                     const element = document.createElement("a");
                     const file = new Blob([arrete.contenu], { type: 'text/plain' });
@@ -269,7 +269,7 @@ export default function ImportDetailsPage() {
                     element.download = `${arrete.titre || 'document'}.txt`;
                     document.body.appendChild(element);
                     element.click();
-                    document.body.removeChild(element);
+                    element.remove();
                 }
             }
         })

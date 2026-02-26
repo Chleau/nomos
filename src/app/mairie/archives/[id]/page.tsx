@@ -30,10 +30,10 @@ export default function ArchiveDetailPage() {
     // Form states
     const [titre, setTitre] = useState('')
     const [numero, setNumero] = useState('')
-    const [auteur, setAuteur] = useState('Maire')
+    const [auteur] = useState('Maire')
     const [categorie, setCategorie] = useState('Sans catégorie')
     const [contenu, setContenu] = useState('')
-    const [collectivite, setCollectivite] = useState('')
+    const collectivite = habitant?.commune?.nom || ''
     const [fichierUrl, setFichierUrl] = useState<string | null>(null)
 
     useEffect(() => {
@@ -42,11 +42,9 @@ export default function ArchiveDetailPage() {
             setNumero(arrete.numero || '')
             setCategorie(arrete.categorie || 'Sans catégorie')
             setContenu(arrete.contenu || '')
-            setAuteur('Maire')
-            // setCollectivite(habitant?.commune?.nom || '')
             setFichierUrl(arrete.fichier_url || null)
         }
-    }, [arrete, habitant])
+    }, [arrete])
 
     const handleSave = async () => {
         if (!id) return
@@ -95,8 +93,9 @@ export default function ArchiveDetailPage() {
 
                         {/* Colonne 1: Titre (Large) */}
                         <div className="col-span-12 xl:col-span-4 lg:col-span-3">
-                            <label className={labelStyle}>Titre</label>
+                            <label htmlFor="titre-input" className={labelStyle}>Titre</label>
                             <input
+                                id="titre-input"
                                 type="text"
                                 disabled={isReadOnly}
                                 value={titre}
@@ -108,8 +107,9 @@ export default function ArchiveDetailPage() {
 
                         {/* Colonne 2: Numéro officiel (Small) */}
                         <div className="col-span-6 xl:col-span-2 lg:col-span-2">
-                            <label className={labelStyle}>Numéro officiel</label>
+                            <label htmlFor="numero-input" className={labelStyle}>Numéro officiel</label>
                             <input
+                                id="numero-input"
                                 type="text"
                                 disabled={isReadOnly}
                                 value={numero}
@@ -120,8 +120,9 @@ export default function ArchiveDetailPage() {
 
                         {/* Colonne 3: Auteur (Small) */}
                         <div className="col-span-6 xl:col-span-2 lg:col-span-2">
-                            <label className={labelStyle}>Auteur</label>
+                            <label htmlFor="auteur-input" className={labelStyle}>Auteur</label>
                             <input
+                                id="auteur-input"
                                 type="text"
                                 disabled={true}
                                 value={auteur}
@@ -131,8 +132,9 @@ export default function ArchiveDetailPage() {
 
                         {/* Colonne 4: Collectivité (Medium) */}
                         <div className="col-span-6 xl:col-span-2 lg:col-span-2">
-                            <label className={labelStyle}>Collectivité concernée</label>
+                            <label htmlFor="collectivite-input" className={labelStyle}>Collectivité concernée</label>
                             <input
+                                id="collectivite-input"
                                 type="text"
                                 disabled={true}
                                 value={collectivite}
@@ -142,9 +144,10 @@ export default function ArchiveDetailPage() {
 
                         {/* Colonne 5: Catégorie (Medium) */}
                         <div className="col-span-6 xl:col-span-2 lg:col-span-3">
-                            <label className={labelStyle}>Catégorie</label>
+                            <label htmlFor="categorie-select" className={labelStyle}>Catégorie</label>
                             <div className="relative">
                                 <select
+                                    id="categorie-select"
                                     disabled={isReadOnly}
                                     value={categorie}
                                     onChange={(e) => setCategorie(e.target.value)}

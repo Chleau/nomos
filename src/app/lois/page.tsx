@@ -41,7 +41,7 @@ export default function LoisPage() {
     }
 
     // Filtrer par thématique depuis le dropdown
-    if (filters.themes && filters.themes.length > 0) {
+    if (filters.themes?.length > 0) {
       filtered = filtered.filter(loi => filters.themes.includes(loi.thematique));
     }
 
@@ -76,10 +76,10 @@ export default function LoisPage() {
   }, [searchQuery, selectedThematique, filters]);
 
   // Calcul de la pagination
-  const totalPages = lois ? Math.ceil(lois.length / ITEMS_PER_PAGE) : 0;
+  const totalPages = Math.ceil((lois?.length ?? 0) / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentLois = lois ? lois.slice(startIndex, endIndex) : [];
+  const currentLois = lois?.slice(startIndex, endIndex) ?? [];
 
   // Générer les numéros de pages à afficher
   const getPageNumbers = () => {
@@ -224,15 +224,15 @@ export default function LoisPage() {
                     </div>
                   </div>
                   <div className='flex justify-between items-center gap-2'>
-                    <button 
-                      className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors" 
+                    <button
+                      className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors"
                       onClick={() => window.open(`/lois/${loi.id}`, '_blank')}
                       aria-label="Ouvrir dans un nouvel onglet"
                     >
                       <ArrowTopRightOnSquareIcon className="w-[20px] h-[20px] text-[#475569]" />
                     </button>
-                    <button 
-                      className="font-[Montserrat] text-sm md:text-[14px] font-normal text-[#F27F09] hover:text-[#d66d07] transition-colors flex-1 text-right" 
+                    <button
+                      className="font-[Montserrat] text-sm md:text-[14px] font-normal text-[#F27F09] hover:text-[#d66d07] transition-colors flex-1 text-right"
                       onClick={() => router.push(`/lois/${loi.id}`)}
                     >
                       Lire plus
@@ -259,7 +259,7 @@ export default function LoisPage() {
                 {getPageNumbers().map((page, index) => (
                   typeof page === 'number' ? (
                     <button
-                      key={`page-${page}`}
+                      key={`page-num-${page}`}
                       onClick={() => handlePageChange(page)}
                       className={`w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded font-['Montserrat'] font-normal text-sm md:text-[16px] transition-colors ${currentPage === page
                         ? 'bg-[#F27F09] text-white'
@@ -269,7 +269,7 @@ export default function LoisPage() {
                       {page}
                     </button>
                   ) : (
-                    <span key={`dots-${index}`} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-gray-400 text-xs md:text-base">
+                    <span key={`page-dots-${index}-${page}`} className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-gray-400 text-xs md:text-base">
                       {page}
                     </span>
                   )
