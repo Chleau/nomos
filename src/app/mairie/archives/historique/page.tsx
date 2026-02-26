@@ -61,8 +61,8 @@ export default function HistoriqueImportsPage() {
             const lower = searchTerm.toLowerCase()
             filtered = filtered.filter(imp =>
                 imp.titre.toLowerCase().includes(lower) ||
-                (imp.agent?.nom && imp.agent.nom.toLowerCase().includes(lower)) ||
-                (imp.agent?.prenom && imp.agent.prenom.toLowerCase().includes(lower))
+                imp.agent?.nom?.toLowerCase().includes(lower) ||
+                imp.agent?.prenom?.toLowerCase().includes(lower)
             )
         }
 

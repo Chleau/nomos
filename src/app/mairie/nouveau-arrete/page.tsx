@@ -112,7 +112,7 @@ export default function NouveauArretePage() {
         element.download = `${title || 'nouveau-document'}.txt`;
         document.body.appendChild(element);
         element.click();
-        document.body.removeChild(element);
+        element.remove();
     }
 
     const handleShare = async () => {

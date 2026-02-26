@@ -224,15 +224,15 @@ export default function DerniereArreteesPage() {
                     </div>
                   </div>
                   <div className='flex justify-between'>
-                    <button 
-                      className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors" 
+                    <button
+                      className="flex items-center justify-center w-[32px] h-[32px] bg-[#F5FCFE] rounded hover:bg-[#E7EAED] transition-colors"
                       onClick={() => window.open(`/dernieres-arretes/${arrete.id}`, '_blank')}
                       aria-label="Ouvrir dans un nouvel onglet"
                     >
                       <ArrowTopRightOnSquareIcon className="w-[20px] h-[20px] text-[#475569]" />
                     </button>
-                    <button 
-                      className="font-[Montserrat] text-[14px] font-normal text-[#F27F09] hover:text-[#d66d07] transition-colors" 
+                    <button
+                      className="font-[Montserrat] text-[14px] font-normal text-[#F27F09] hover:text-[#d66d07] transition-colors"
                       onClick={() => router.push(`/dernieres-arretes/${arrete.id}`)}
                     >
                       Lire plus
@@ -259,7 +259,7 @@ export default function DerniereArreteesPage() {
                 {getPageNumbers().map((page, index) => (
                   typeof page === 'number' ? (
                     <button
-                      key={`page-${page}`}
+                      key={`page-num-${page}`}
                       onClick={() => handlePageChange(page)}
                       className={`w-8 h-8 flex items-center justify-center rounded font-['Montserrat'] font-normal text-[16px] transition-colors ${currentPage === page
                         ? 'bg-[#F27F09] text-white'
@@ -269,7 +269,7 @@ export default function DerniereArreteesPage() {
                       {page}
                     </button>
                   ) : (
-                    <span key={`dots-${index}`} className="w-8 h-8 flex items-center justify-center text-gray-400">
+                    <span key={`page-dots-${index}-${page}`} className="w-8 h-8 flex items-center justify-center text-gray-400">
                       {page}
                     </span>
                   )
