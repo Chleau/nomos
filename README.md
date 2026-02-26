@@ -134,6 +134,22 @@ git push origin main
 ```
  
 En envoyant la modification, cela va déclencher automatiquement la pipeline Github Actions. Le job `deploy` va se connecter au VPS via SSH, exécuter la commande `git pull` pour récupérer le code stable et reconstruire l'image Docker via `docker compose -f docker-compose.prod.yml up -d --build`. Le service sera ainsi rétabli dans son état stable de manière automatisée.
+
+## Problèmes rencontrés et solutions
+
+Au cours du projet, nous avons fait face à plusieurs défis techniques que nous avons dû résoudre pour stabiliser la solution :
+
+### 1- Mise en place de Trivy
+L'implémentation de **Trivy** pour le scan de vulnérabilités a été laborieuse. Nous avons rencontré pas mal de soucis liés aux **versions** et aux **droits d'accès** dans le pipeline CI/CD. Il a fallu ajuster les permissions et bien configurer le scan pour qu'il soit efficace tout en sécurisant l'ensemble de la chaîne de déploiement.
+
+### 2- Qualité de code avec SonarQube
+Sur **SonarQube**, nous avons eu pas mal d'alertes concernant les **Security Hotspots** et la **Reliability** (fiabilité). Comme le projet était déjà bien avancé, il y avait pas mal de "dette" à rattraper. Nous avons dû repasser sur plusieurs composants pour corriger les failles potentielles et améliorer la solidité du code pour passer la Quality Gate.
+
+### 3- Mystère avec Docker Loki
+Un problème assez étrange est survenu avec **Loki** : le conteneur refuse de se lancer sur l'un de nos VPS de production, alors qu'il tourne parfaitement sur un autre VPS avec une configuration identique. C'est un point que nous n'avons pas encore totalement élucidé, mais qui montre bien les subtilités des environnements d'hébergement.
+
+### 4- Tests et Duplication
+L'un des plus gros challenges a été la reprise des **tests unitaires** et la gestion de la **duplication** de code en cours de route. Introduire une stratégie de test rigoureuse sur un projet déjà entamé est difficile : il faut parfois refactoriser de gros blocs de code pour les rendre "testables". La duplication était aussi présente à cause du développement rapide du MVP, et nous avons commencé un travail de fond pour mutualiser les composants et services, même si c'est un processus de longue haleine.
  
 ---------------------------------------------------------------------------------------------------------
 
