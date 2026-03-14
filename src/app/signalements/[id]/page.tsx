@@ -10,6 +10,7 @@ import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import dynamic from 'next/dynamic'
 import { BellIcon, BellSlashIcon, PencilIcon } from '@heroicons/react/24/outline'
 import EditSignalementModal from '@/components/signalements/EditSignalementModal'
+import DotBadge from '@/components/ui/DotBadge'
 
 // Charger la carte dynamiquement côté client uniquement
 const IncidentMap = dynamic(() => import('@/components/map/IncidentMap'), {
@@ -41,28 +42,28 @@ export default function SignalementDetailPage() {
 
   const statutsConfig = {
     'Résolu': {
-      bgColor: '#DBEAFE',
-      textColor: '#059669',
-      dotColor: '#10B981',
-      borderColor: '#BAE6FD'
+      bgColor: '#F0FDF4',
+      textColor: '#15803D',
+      dotColor: '#16A34A',
+      borderColor: '#DCFCE7'
     },
     'En cours': {
-      bgColor: '#FED7AA',
-      textColor: '#D97706',
-      dotColor: '#F59E0B',
-      borderColor: '#FDBA74'
+      bgColor: '#FFF7ED',
+      textColor: '#C2410C',
+      dotColor: '#EA580C',
+      borderColor: '#FFEDD5'
     },
     'Urgent': {
-      bgColor: '#FECACA',
-      textColor: '#DC2626',
-      dotColor: '#EF4444',
-      borderColor: '#FCA5A5'
+      bgColor: '#FEF2F2',
+      textColor: '#B91C1C',
+      dotColor: '#DC2626',
+      borderColor: '#FEE2E2'
     },
     'En attente': {
-      bgColor: '#E2E8F0',
+      bgColor: '#F8FAFC',
       textColor: '#475569',
       dotColor: '#64748B',
-      borderColor: '#64748B'
+      borderColor: '#E2E8F0'
     }
   }
 
@@ -72,6 +73,17 @@ export default function SignalementDetailPage() {
   const getDisplayStatus = (status: string | null) => {
     if (!status || status === 'En attente') return 'En attente'
     return status
+  }
+
+  // Fonction pour obtenir la couleur du badge selon le statut
+  const getStatusColor = (status: string | undefined): 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray' => {
+    switch (status) {
+      case 'Résolu': return 'green'
+      case 'En cours': return 'orange'
+      case 'Urgent': return 'red'
+      case 'En attente': return 'gray'
+      default: return 'gray'
+    }
   }
 
   // Fonction pour faire du reverse geocoding (coordonnées → adresse)
@@ -192,15 +204,14 @@ export default function SignalementDetailPage() {
             <h1 className="font-['Montserrat'] md:font-['Poppins'] font-bold md:font-semibold text-xl md:text-[36px] text-left mb-4 md:mb-0">
               Incident #{signalement.id} {signalement.prenom} {signalement.nom}
             </h1>
-            {/* Dropdown Statut */}
+            {/* Statut non-cliquable */}
             <div className="relative flex justify-start md:justify-start">
               {(() => {
                 const displayStatus = getDisplayStatus(signalement.statut)
                 const statusStyle = statutsConfig[displayStatus as keyof typeof statutsConfig] || statutsConfig['En attente']
                 return (
-                  <button
-                    onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                    className="h-[24px] min-w-[135px] px-3 py-0.5 rounded-sm font-['Montserrat'] font-normal text-[14px] whitespace-nowrap flex items-center justify-between gap-2 border"
+                  <div
+                    className="h-[24px] min-w-[135px] px-3 py-0.5 rounded-sm font-['Montserrat'] font-normal text-[14px] whitespace-nowrap flex items-center justify-center gap-2 border"
                     style={{
                       backgroundColor: statusStyle.bgColor,
                       color: statusStyle.textColor,
@@ -208,37 +219,9 @@ export default function SignalementDetailPage() {
                     }}
                   >
                     {displayStatus}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M6 9l6 6 6-6"></path>
-                    </svg>
-                  </button>
+                  </div>
                 )
               })()}
-
-              {/* Dropdown Menu */}
-              {isStatusDropdownOpen && (
-                <div className="absolute right-0 mt-2 min-w-[135px] bg-white flex flex-col items-start p-0 z-50 rounded-[8px] shadow-lg border border-gray-200">
-                  <div className="w-full mt-1 px-2 py-1 font-['Montserrat'] font-semibold text-[16px] text-[#475569]">
-                    Statut
-                  </div>
-                  {statuts.map((statut) => {
-                    const statusStyle = statutsConfig[statut as keyof typeof statutsConfig] || statutsConfig['En attente']
-
-                    return (
-                      <div
-                        key={statut}
-                        className="w-full text-left px-4 py-2 font-['Montserrat'] text-[14px] flex items-center gap-2"
-                      >
-                        <div
-                          className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: statusStyle.dotColor }}
-                        ></div>
-                        {statut}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
             </div>
           </div>
           {/* Badge type */}
@@ -258,12 +241,9 @@ export default function SignalementDetailPage() {
               <h3 className="font-['Poppins'] font-medium text-[16px] md:text-[20px] text-[#475569] mb-4">{signalement.titre || 'Sans titre'}</h3>
 
               <div className="flex items-center gap-3 md:gap-4 mb-4 text-sm">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 bg-gray-700 rounded-full"></div>
-                  <span className="font-medium">{signalement.statut || 'En attente'}</span>
-                </div>
-                <span className="text-sm text-[#053F5C]">Déclaré le {formatDate(signalement.date_signalement)}</span>
-                <span className="text-sm font-medium">{signalement.prenom} {signalement.nom?.charAt(0) || 'M'}</span>
+                <DotBadge label={signalement.statut || 'En attente'} color={getStatusColor(signalement.statut)} />
+                <span className="text-[12px] font-['Montserrat'] font-normal text-[#64748b]">Déclaré le {formatDate(signalement.date_signalement)}</span>
+                <span className="text-[12px] md:text-[14px] font-['Montserrat'] font-semibold text-[#242a35] ml-auto">{signalement.prenom} {signalement.nom}</span>
               </div>
 
               <div className="mb-4">

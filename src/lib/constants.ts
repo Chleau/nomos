@@ -29,3 +29,16 @@ export const CATEGORY_COLORS: Record<string, 'neutral' | 'warning' | 'error' | '
   'Autre': 'neutral',
   'Sans catégorie': 'neutral'
 };
+
+export const SIGNALEMENT_TYPE_COLORS: Record<string, 'neutral' | 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'blue' | 'pink' | 'indigo' | 'teal' | 'rose' | 'cyan'> = {
+  'Route barrée': 'neutral',
+  'Inondations': 'blue',
+  'Chaussée abîmée': 'warning',
+  'Détritus': 'error',
+  'Panneau cassé': 'warning',
+  'Mobilier abîmé': 'purple',
+  'Éclairage public': 'success',
+  'Animaux': 'pink',
+  'Autre': 'neutral',
+  'Validation': 'success'
+};
