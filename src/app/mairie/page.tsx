@@ -556,7 +556,7 @@ function MairieContent() {
               </div>
 
               <div className="mt-[30px] text-right">
-                <Button onClick={() => router.push('/signalements')} variant="primary" size="sm">
+                <Button onClick={() => router.push('/signalements')} variant="primary" size="xs">
                   Voir tout
                 </Button>
               </div>
@@ -575,8 +575,9 @@ function MairieContent() {
             <div className="flex gap-[20px]">
               <div className="relative">
                 <Button
-                  size="sm"
                   variant="outline"
+                  size="xs"
+                  className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                   onClick={() => setShowFilterRedactions(!showFilterRedactions)}
                 >
                   Filtres
@@ -597,8 +598,9 @@ function MairieContent() {
               </div>
 
               <Button
-                size="sm"
                 variant="outline"
+                size="xs"
+                className="gap-2 bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                 onClick={() => setSortRedactions(sortRedactions === 'recent' ? 'ancien' : 'recent')}
               >
                 <BarsArrowDownIcon className="w-5 h-5" />
@@ -606,7 +608,7 @@ function MairieContent() {
                 {sortRedactions === 'recent' ? 'trier par : le plus récent' : 'trier par : le plus ancien'}
               </Button>
               <Button
-                size="sm"
+                size="xs"
                 variant="primary"
                 onClick={() => router.push('/mairie/nouveau-arrete')}
               >
@@ -633,8 +635,8 @@ function MairieContent() {
 
           {/* Action buttons */}
           <div className="flex items-center justify-between pt-[25px]">
-            <Button variant="outline" size="sm">Actions groupées</Button>
-            <Button variant="primary" size="sm">Voir tout</Button>
+            <Button variant="outline" size="xs">Actions groupées</Button>
+            <Button variant="primary" size="xs">Voir tout</Button>
           </div>
         </div>
 
@@ -645,7 +647,7 @@ function MairieContent() {
             <div className="flex gap-[20px]">
               <div className="relative">
                 <Button
-                  size="sm"
+                  size="xs"
                   variant="outline"
                   onClick={() => setShowFilterLois(!showFilterLois)}
                 >
@@ -667,7 +669,7 @@ function MairieContent() {
               </div>
 
               <Button
-                size="sm"
+                size="xs"
                 variant="outline"
                 onClick={() => setSortLois(sortLois === 'recent' ? 'ancien' : 'recent')}
               >
