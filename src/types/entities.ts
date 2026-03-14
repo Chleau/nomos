@@ -40,7 +40,7 @@ export interface Signalement extends BaseEntity {
     longitude: number;
     type_id: number;
     priorite: 'basse' | 'moyenne' | 'haute';
-    statut: 'ouvert' | 'en_cours' | 'resolu' | 'archive';
+    statut: 'En attente' | 'En cours' | 'Résolu' | 'Urgent';
     date_signalement: Timestamp;
     date_dernier_suivi: Timestamp | null;
     valide: boolean;

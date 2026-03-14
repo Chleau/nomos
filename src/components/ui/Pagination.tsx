@@ -4,11 +4,21 @@ interface PaginationProps {
     currentPage: number
     totalPages: number
     onPageChange: (page: number) => void
+    pageSize?: number
+    onPageSizeChange?: (size: number) => void
     itemCount?: number
     totalItems?: number
 }
 
-export default function Pagination({ currentPage, totalPages, onPageChange, itemCount, totalItems }: PaginationProps) {
+export default function Pagination({
+    currentPage,
+    totalPages,
+    onPageChange,
+    pageSize,
+    onPageSizeChange,
+    itemCount,
+    totalItems
+}: PaginationProps) {
     const getPageNumbers = () => {
         const pages: (number | string)[] = []
         if (totalPages <= 7) {
@@ -77,6 +87,22 @@ export default function Pagination({ currentPage, totalPages, onPageChange, item
             >
                 &gt;
             </button>
+
+            {onPageSizeChange && (
+                <div className="hidden sm:flex items-center gap-2 ml-4 text-sm text-slate-600 border-l border-slate-200 pl-4">
+                    <span>Afficher</span>
+                    <select
+                        value={pageSize}
+                        onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                        className="bg-white border border-slate-200 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-[#f27f09]"
+                    >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                    </select>
+                </div>
+            )}
 
             {itemCount !== undefined && totalItems !== undefined && (
                 <span className="hidden lg:inline-block ml-6 text-sm text-slate-500 font-medium whitespace-nowrap">

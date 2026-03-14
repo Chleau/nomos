@@ -184,7 +184,7 @@ export default function SignalementsPage() {
   const [selectedSignalements, setSelectedSignalements] = useState<Set<number>>(new Set())
   const [isGroupActionsOpen, setIsGroupActionsOpen] = useState(false)
   const groupActionsRef = useRef<HTMLDivElement>(null)
-  const itemsPerPage = 4
+  const [pageSize, setPageSize] = useState(10)
 
   const { data: signalements = [], isLoading } = useAllSignalements()
   const { types: dbTypes } = useTypesSignalement()
@@ -442,9 +442,9 @@ export default function SignalementsPage() {
 
   // Pagination
   const totalItems = filteredSignalements.length
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedData = filteredSignalements.slice(startIndex, startIndex + itemsPerPage)
+  const totalPages = Math.ceil(totalItems / pageSize)
+  const startIndex = (currentPage - 1) * pageSize
+  const paginatedData = filteredSignalements.slice(startIndex, startIndex + pageSize)
 
   return (
     <main className="bg-[#f5fcfe] min-h-screen w-full">
@@ -461,7 +461,7 @@ export default function SignalementsPage() {
           <Button
             variant="primary"
             size="md"
-            className="!hidden lg:!flex gap-2 bg-[#f27f09] text-[#053f5c] hover:bg-[#d87108] border-none font-semibold"
+            className="!hidden lg:!flex gap-2 bg-[#f27f09] text-[#053f5c] hover:bg-[#d87108] border-none font-medium"
             onClick={() => router.push('/carte-incidents')}
           >
             <MapIcon className="w-5 h-5" />
@@ -697,6 +697,11 @@ export default function SignalementsPage() {
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={setCurrentPage}
+                  pageSize={pageSize}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size)
+                    setCurrentPage(1)
+                  }}
                   itemCount={paginatedData.length}
                   totalItems={totalItems}
                 />

@@ -45,6 +45,9 @@ export const signalementsService = {
       query = query.limit(limit)
     }
 
+    // On ne récupère que les signalements validés
+    query = query.eq('valide', true)
+
     const { data, error } = await query
     return { data, error }
   },
@@ -68,6 +71,9 @@ export const signalementsService = {
     if (limit) {
       query = query.limit(limit)
     }
+
+    // On ne récupère que les signalements validés
+    query = query.eq('valide', true)
 
     const { data, error } = await query
     return { data, error }
@@ -93,6 +99,7 @@ export const signalementsService = {
       .from('signalements')
       .select('*', { count: 'exact', head: true })
       .eq('commune_id', communeId)
+      .eq('valide', true)
 
     return { data: count || 0, error }
   },

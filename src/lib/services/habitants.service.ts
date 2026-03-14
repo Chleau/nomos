@@ -66,6 +66,7 @@ export const habitantsService = {
       .from('signalements')
       .select('*', { count: 'exact', head: true })
       .eq('habitant_id', habitantId)
+      .eq('valide', true)
 
     return { data: count || 0, error }
   },

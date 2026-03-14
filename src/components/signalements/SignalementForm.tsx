@@ -206,7 +206,7 @@ export default function SignalementForm() {
       type_id: typeId === '' ? undefined : typeId,
       latitude: latitude === '' ? undefined : latitude,
       longitude: longitude === '' ? undefined : longitude,
-      statut: 'ouvert',
+      statut: 'En attente',
       priorite: 'moyenne',
       habitant_id: habitant.id,
       commune_id: habitant.commune_id,

@@ -160,7 +160,7 @@ export default function DerniereRedactionsPage() {
   const [sortOrder, setSortOrder] = useState<'recent' | 'ancien'>('recent')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const ITEMS_PER_PAGE = 15
+  const [pageSize, setPageSize] = useState(10)
 
   // State pour les favoris (persistance locale)
   const [favorites, setFavorites] = useState<Set<number>>(new Set())
@@ -298,9 +298,9 @@ export default function DerniereRedactionsPage() {
   }, [searchTerm, activeCategory, filterState, sortOrder])
 
   const paginatedRedactions = React.useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredRedactions.slice(start, start + ITEMS_PER_PAGE)
-  }, [filteredRedactions, currentPage])
+    const start = (currentPage - 1) * pageSize
+    return filteredRedactions.slice(start, start + pageSize)
+  }, [filteredRedactions, currentPage, pageSize])
 
   // Handlers pour actions groupées
   const handleGroupView = () => {
@@ -667,17 +667,35 @@ export default function DerniereRedactionsPage() {
           {isLoading ? (
             <div className="text-center py-10 text-gray-500">Chargement...</div>
           ) : (
-            <DataTable
-              columns={columns}
-              data={paginatedRedactions}
-              headerCheckbox={headerCheckbox}
-              pagination={{
-                currentPage,
-                totalPages: Math.ceil(filteredRedactions.length / ITEMS_PER_PAGE),
-                totalItems: filteredRedactions.length,
-                onPageChange: setCurrentPage
-              }}
-            />
+            <div className="space-y-4">
+              <div className="flex justify-end items-center gap-2 text-sm text-gray-600 px-2">
+                <span>Afficher</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value))
+                    setCurrentPage(1)
+                  }}
+                  className="border border-gray-200 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#f27f09]"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+                <span>résultats</span>
+              </div>
+              <DataTable
+                columns={columns}
+                data={paginatedRedactions}
+                headerCheckbox={headerCheckbox}
+                pagination={{
+                  currentPage,
+                  totalPages: Math.ceil(filteredRedactions.length / pageSize),
+                  totalItems: filteredRedactions.length,
+                  onPageChange: setCurrentPage
+                }}
+              />
+            </div>
           )}
         </div>
       </div>
