@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { RoleProtectedPage } from '@/components/auth/RoleProtectedPage'
 import { UserRole } from '@/types/auth'
@@ -28,7 +28,7 @@ import {
     TrashIcon
 } from '@heroicons/react/24/outline'
 
-export default function NouveauArretePage() {
+function NouveauArreteContent() {
     const router = useRouter()
     const { user } = useSupabaseAuth()
     const { data: habitant } = useCurrentHabitant(user?.id || null)
@@ -88,7 +88,7 @@ export default function NouveauArretePage() {
             // Le contenu est déjà en HTML, on le charge tel quel
             // Si c'est du texte brut legacy (pas de balises HTML), on le wrapper dans un <p>
             if (contentToSet && !contentToSet.includes('<')) {
-                setContent(`<p>${contentToSet.replace(/\n/g, '</p><p>')}</p>`)
+                setContent(`<p>${contentToSet.replaceAll('\n', '</p><p>')}</p>`)
             } else {
                 setContent(contentToSet)
             }
@@ -103,6 +103,17 @@ export default function NouveauArretePage() {
             setHasSyncedWithDb(true)
         }
     }, [arreteId, existingArrete, loadingArrete, hasSyncedWithDb])
+
+    if (loadingArrete) {
+        return (
+            <div className="flex h-[calc(100vh-64px)] items-center justify-center bg-[#f5fcfe]">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-[#f27f09] border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-[#053f5c] font-medium">Chargement du document...</p>
+                </div>
+            </div>
+        )
+    }
 
     // Actions Handlers
     const handleDownload = () => {
@@ -543,5 +554,20 @@ export default function NouveauArretePage() {
                 arrete={selectedArrete}
             />
         </RoleProtectedPage>
+    )
+}
+
+export default function NouveauArretePage() {
+    return (
+        <Suspense fallback={
+            <div className="flex h-[calc(100vh-64px)] items-center justify-center bg-[#f5fcfe]">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-[#f27f09] border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-[#053f5c] font-medium">Chargement...</p>
+                </div>
+            </div>
+        }>
+            <NouveauArreteContent />
+        </Suspense>
     )
 }
