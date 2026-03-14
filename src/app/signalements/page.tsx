@@ -32,6 +32,7 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import type { Signalement } from '@/types/signalements'
 import { getPublicUrlFromPath } from '@/lib/services/storage.service'
 import { logger } from '@/lib/logger'
+import { SIGNALEMENT_TYPE_COLORS } from '@/lib/constants'
 
 // Icônes SVG pour les catégories
 const RouteBarreeIcon = () => (
@@ -317,11 +318,14 @@ export default function SignalementsPage() {
   }
 
   // Fonction pour obtenir la couleur du badge selon le statut
-  const getStatusColor = (status: string | undefined): 'success' | 'warning' | 'neutral' | 'error' => {
-    if (status === 'Résolu') return 'success'
-    if (status === 'En cours') return 'warning'
-    if (status === 'Urgent') return 'error'
-    return 'neutral'
+  const getStatusColor = (status: string | undefined): 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray' => {
+    switch (status) {
+      case 'Résolu': return 'green'
+      case 'En cours': return 'orange'
+      case 'Urgent': return 'red'
+      case 'En attente': return 'gray'
+      default: return 'gray'
+    }
   }
 
   // Fonction pour obtenir les styles de statut (comme le select)
@@ -341,15 +345,9 @@ export default function SignalementsPage() {
   }
 
   // Fonction pour obtenir la couleur du badge selon la catégorie
-  const getCategoryColor = (libelle?: string): 'warning' | 'error' | 'success' | 'info' | 'purple' | 'orange' | 'neutral' => {
+  const getCategoryColor = (libelle?: string) => {
     if (!libelle) return 'neutral'
-    const lower = libelle.toLowerCase()
-    if (lower.includes('urgent') || lower.includes('danger')) return 'error'
-    if (lower.includes('voirie') || lower.includes('route')) return 'warning'
-    if (lower.includes('éclairage') || lower.includes('eclairage')) return 'info'
-    if (lower.includes('propreté') || lower.includes('proprete')) return 'orange'
-    if (lower.includes('espace')) return 'success'
-    return 'purple'
+    return SIGNALEMENT_TYPE_COLORS[libelle] || 'neutral'
   }
 
   // Définir les colonnes du tableau
@@ -684,7 +682,8 @@ export default function SignalementsPage() {
                     <CardIncident
                       key={item.id}
                       title={item.titre || 'Sans titre'}
-                      label={(item.statut === 'En cours' || item.statut === 'Résolu') ? item.statut : 'Signalé'}
+                      label={item.statut || 'En attente'}
+                      color={getStatusColor(item.statut)}
                       date={formatDate(item.date_signalement || item.created_at)}
                       username={`${item.prenom || item.habitants?.prenom || ''} ${item.nom || item.habitants?.nom || ''}`.trim() || 'Anonyme'}
                       description={item.description || ''}

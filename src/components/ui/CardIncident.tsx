@@ -11,6 +11,7 @@ interface CardIncidentProps {
   description: string
   onClick?: () => void
   backgroundColor?: string
+  color?: 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray'
 }
 
 export default function CardIncident({
@@ -21,8 +22,23 @@ export default function CardIncident({
   username,
   description,
   onClick,
-  backgroundColor = 'bg-white'
+  backgroundColor = 'bg-white',
+  color
 }: CardIncidentProps) {
+  // Déterminer la couleur dynamiquement si elle n'est pas fournie
+  const getBadgeColor = () => {
+    if (color) return color
+    switch (label) {
+      case 'Urgent': return 'red'
+      case 'Résolu': return 'green'
+      case 'En cours': return 'orange'
+      case 'En attente': return 'gray'
+      default: return 'gray'
+    }
+  }
+
+  const badgeColor = getBadgeColor()
+
   return (
     <div
       onClick={onClick}
@@ -48,7 +64,7 @@ export default function CardIncident({
 
         {/* Badge and date row */}
         <div className="flex items-center gap-[12px]">
-          <DotBadge label={label} color="red" />
+          <DotBadge label={label} color={badgeColor} />
           <span className="text-[12px] font-['Montserrat'] font-normal text-[#64748b]" suppressHydrationWarning>
             Déclaré le {date}
           </span>

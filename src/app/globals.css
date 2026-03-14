@@ -520,7 +520,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: calc(85px + env(safe-area-inset-bottom));
+  height: calc(65px + env(safe-area-inset-bottom));
   padding-bottom: calc(10px + env(safe-area-inset-bottom));
   background-color: #053F5C;
   color: white;
@@ -580,7 +580,7 @@ body {
 /* Floating Button */
 .floating-button {
   position: fixed;
-  bottom: calc(95px + env(safe-area-inset-bottom));
+  bottom: calc(75px + env(safe-area-inset-bottom));
   right: 20px;
   width: 60px;
   height: 60px;
