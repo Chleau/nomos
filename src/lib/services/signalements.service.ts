@@ -28,7 +28,7 @@ export const signalementsService = {
       .single();
     return { data, error };
   },
-  async getAll(limit?: number) {
+  async getAll(limit?: number, onlyValidated: boolean = true) {
     let query = supabase
       .from('signalements')
       .select(`
@@ -45,8 +45,10 @@ export const signalementsService = {
       query = query.limit(limit)
     }
 
-    // On ne récupère que les signalements validés
-    query = query.eq('valide', true)
+    if (onlyValidated) {
+      // On ne récupère que les signalements validés
+      query = query.eq('valide', true)
+    }
 
     const { data, error } = await query
     return { data, error }

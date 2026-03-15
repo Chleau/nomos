@@ -338,6 +338,16 @@ export default function MairieSignalementDetailPage() {
                                             <span className="font-semibold text-[#053F5C] font-['Poppins']">Actions</span>
                                         </div>
 
+                                        {!signalement?.valide && (
+                                            <button
+                                                onClick={handleValidate}
+                                                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-green-600 hover:bg-green-50 transition-colors font-['Montserrat']"
+                                            >
+                                                <CheckIcon className="w-5 h-5" />
+                                                <span>Valider le signalement</span>
+                                            </button>
+                                        )}
+
                                         <button
                                             onClick={() => {
                                                 setIsActionsDropdownOpen(false);

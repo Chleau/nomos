@@ -8,6 +8,7 @@ import { useSupabaseAuth } from '@/lib/supabase/useSupabaseAuth'
 import { useAllSignalements, useSignalements } from '@/lib/hooks/useSignalements'
 import { useTypesSignalement } from '@/lib/hooks/useTypesSignalement'
 import { DataTable, Column, TableUserInfo, TableBadge } from '@/components/ui/Table'
+import { AddressCell } from '@/components/signalements/AddressCell'
 
 
 import {
@@ -329,7 +330,7 @@ export default function SignalementHabitantsPage() {
     }
   }
 
-  const { data: allSignalements = [], isLoading } = useAllSignalements()
+  const { data: allSignalements = [], isLoading } = useAllSignalements(undefined, false)
   const { types: dbTypes } = useTypesSignalement()
   const { updateSignalement } = useSignalements()
   const { data: me } = useCurrentHabitant(user?.id || null)
@@ -534,11 +535,11 @@ export default function SignalementHabitantsPage() {
       header: 'Lieu',
       width: '180px',
       render: (item) => (
-        <div className="flex items-center gap-2">
-          <MapPinIcon className="w-4 h-4 text-gray-400" />
-          {/* TODO Afficher le lieu ou une valeur par défaut *\/ */}
-          <span className="text-[#242a35] text-sm truncate">{item.titre || 'Non spécifié'}</span>
-        </div>
+        <AddressCell
+          latitude={item.latitude}
+          longitude={item.longitude}
+          fallback={item.titre || 'Non spécifié'}
+        />
       )
     },
     {
