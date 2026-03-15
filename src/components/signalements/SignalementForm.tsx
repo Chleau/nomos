@@ -217,7 +217,7 @@ export default function SignalementForm() {
     };
 
     try {
-      // Création du signalement avec les données de l'habitant connecté
+      // Create the signalement
       const signalement = await createSignalement.mutateAsync(signalementData);
 
       if (!signalement) {
@@ -226,12 +226,13 @@ export default function SignalementForm() {
         return;
       }
 
-      // Gestion des photos si présentes
+      // Handle photos if present
       if (photos.length > 0) {
         await handlePhotoUploads(signalement.id);
       }
 
-      setMessage("Signalement créé avec succès !");
+      // Show success modal instead of just a message
+      setShowSuccessModal(true);
       resetForm();
     } catch (err: unknown) {
       logger.error('Erreur creation signalement', err, { context: 'SignalementForm' });
@@ -723,7 +724,7 @@ export default function SignalementForm() {
           )}
           {step === 3 && (
             <button type="submit" className="h-[48px] md:h-[59px]] w-[109px] md:w-[133px] bg-[#F27F09] hover:bg-[#F59839] text-[#242A35] text-[18px] font-['Poppins'] font-medium px-4 py-2 rounded-lg" disabled={isSubmitting}>
-              {isSubmitting ? 'Envoi en cours...' : 'Envoyer'}
+              {isSubmitting ? 'Envoi...' : 'Envoyer'}
             </button>
           )}
         </div>
