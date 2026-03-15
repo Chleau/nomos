@@ -161,7 +161,7 @@ function MairieContent() {
   const { data: habitant } = useCurrentHabitant(user?.id || null)
   const { types } = useTypesSignalement()
 
-  const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(2)
+  const { data: derniersSignalements = [], isLoading: loadingAll } = useAllSignalements(2, false)
   const { data: arretes = [] } = useRecentArretes(habitant?.commune_id || null, 10)
 
   // États de tri

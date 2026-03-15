@@ -59,11 +59,11 @@ export function useSignalements() {
   }
 }
 
-export function useAllSignalements(limit?: number) {
+export function useAllSignalements(limit?: number, onlyValidated: boolean = true) {
   return useQuery({
-    queryKey: ['signalements', 'all', limit],
+    queryKey: ['signalements', 'all', limit, onlyValidated],
     queryFn: async () => {
-      const { data, error } = await signalementsService.getAll(limit)
+      const { data, error } = await signalementsService.getAll(limit, onlyValidated)
       if (error) throw error
       return data
     }
