@@ -723,7 +723,7 @@ export default function SignalementForm() {
             </button>
           )}
           {step === 3 && (
-            <button type="submit" className="h-[48px] md:h-[59px]] w-[109px] md:w-[133px] bg-[#F27F09] hover:bg-[#F59839] text-[#242A35] text-[18px] font-['Poppins'] font-medium px-4 py-2 rounded-lg" disabled={isSubmitting}>
+            <button type="submit" className="h-[48px] md:h-[59px] w-[109px] md:w-[133px] bg-[#F27F09] hover:bg-[#F59839] text-[#242A35] text-[18px] font-['Poppins'] font-medium px-4 py-2 rounded-lg" disabled={isSubmitting}>
               {isSubmitting ? 'Envoi...' : 'Envoyer'}
             </button>
           )}
